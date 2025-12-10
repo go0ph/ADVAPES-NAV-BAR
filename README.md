@@ -158,12 +158,18 @@ The "Brands" section includes popular manufacturers. Keep this list updated as n
 
 ## Debug Styles
 
-Lines 260-268 in `css.txt` contain debug styles (red borders). These can be removed in production:
+Lines 259-268 in `css.txt` contain debug styles (red borders). These can be removed in production:
 
 ```css
 /* Optional: your debug styles – keep or remove */
 header#site-header {
   border-bottom: 1px solid red;
+}
+
+header#site-header.minimized {
+  background-color: red !important;
+  box-shadow: 0px 0px 0px 0px red !important;
+  border-bottom: 1px solid #ffffff00 !important;
 }
 ```
 
