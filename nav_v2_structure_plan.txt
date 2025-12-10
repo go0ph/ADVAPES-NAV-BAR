@@ -1,0 +1,102 @@
+
+NEW NAVIGATION STRUCTURE (v2.0)
+Based on 6,528 published products across 560+ categories
+
+MAIN NAVIGATION ITEMS (12 categories - expanded from 10):
+
+1. 🔥 DEALS (Highlighted - Yellow)
+   - Dezemba Dealz (seasonal)
+   - New Products
+   - On Sale
+   - Fire Sale
+   - Buy Bulk & Save
+   - Clearance
+
+2. 💨 DISPOSABLES (1,405 products)
+   - One-Use Disposables (1,036)
+   - DTL Disposables (93)
+   - High Puff Count (20k-40k)
+   - Popular Disposable Brands
+   - Zero Nicotine Options
+
+3. 🔋 POD DISPOSABLES (689 products)
+   - Bewolk Pods (176)
+   - Wotofo NEXpod (104)
+   - Upends Switch (80)
+   - Airscream AirsPops XL
+   - Tugboat Pods
+   - OKK Cross Pods
+   - All Pod Disposables
+
+4. 🎯 POD SYSTEMS & KITS (341 products)
+   - Refillable Pod Kits
+   - Replacement Pods
+   - Popular Pod Systems (XROS, Orca, etc.)
+   - MTL Pod Devices
+   - Pod Accessories
+
+5. 🔧 VAPE HARDWARE (420 products)
+   - Vape Mods
+   - Tanks & Atomizers
+   - Coils & Replacement Parts (137+)
+   - DL Hardware
+   - MTL Hardware
+   - Batteries & Accessories
+
+6. 💧 E-LIQUIDS (2,770 products - SPLIT INTO TWO MENUS)
+   
+   a) DL E-LIQUIDS (928 products)
+      - 120ml Longfill Shots (794)
+      - Pre-mixed DL Liquids
+      - Freebase Liquids
+      - Longfill Additives
+      
+   b) MTL & NIC SALTS (1,730 products)
+      - Nic Salts Pre-mixed
+      - 30ml Longfill Shots (848)
+      - 60ml Longfill Shots (306)
+      - MTL E-Liquids
+      - Zero Nic Options
+
+7. 🏷️ BRANDS (150+ brands)
+   Top tier brands:
+   - Nasty (478)
+   - Bewolk Industries (394)
+   - Cosmic Dropz (333)
+   - OXVA (256)
+   - The Hidden Cloud (253)
+   - Elf Bar (201)
+   - Airscream (187)
+   - Vuse (182)
+   - Vaporesso (173)
+   - Upends (155)
+   - Pod Salt (146)
+   - Steam Masters (128)
+   - TKO (120)
+   - Wotofo (119)
+   - OneCloud (119)
+   - View All Brands
+
+8. 🌿 NICOTINE ALTERNATIVES (78 products)
+   - Nicotine Pouches
+   - Nicotine Gum
+   - Non-Vape Options
+
+9. 💼 SUPPORT & INFO
+   - FAQ
+   - Contact Us
+   - Track Order
+   - Shipping Rates
+   - Returns & Refunds
+   - About Us
+   - Terms & Conditions
+   - Privacy Policy
+   - Refer a Friend
+
+KEY IMPROVEMENTS:
+- Split E-Liquids into DL and MTL/Nic Salts for better navigation
+- Added more specific subcategories based on actual product counts
+- Expanded brand section with top 15 brands (was top 9)
+- Better organization of Pod Disposables with specific systems
+- More granular Vape Hardware categories
+- All categories now map to actual product counts

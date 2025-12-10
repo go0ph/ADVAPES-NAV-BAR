@@ -152,11 +152,6 @@
   margin-left: 10px;
 }
 
-/* Wider dropdown for Brands menu with more items */
-.adv-dropdown--wide {
-  min-width: 260px;
-}
-
 /* Remove any theme-generated lines in our nav */
 .adv-nav-list > li::before,
 .adv-nav-list > li::after {
