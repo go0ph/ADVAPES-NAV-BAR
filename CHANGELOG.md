@@ -1,5 +1,144 @@
 # ADVAPES Navigation Bar - Changelog
 
+## [v3.1] - 2025-12-10
+
+### 🎯 Hybrid Approach: Best of V2 + V3
+
+This version addresses user feedback by implementing a **hybrid navigation system** that combines the familiar static parent menu structure from v2.0 with the dynamic subcategory updates from v3.0.
+
+---
+
+### 🔄 Key Changes
+
+#### Problem Identified
+**v3.0 Issue:** The fully dynamic system pulled ALL top-level WooCommerce categories, which meant:
+- "Dezemba Dealz" appeared as its own top-level menu item (should only be under Deals)
+- Parent menu order could change based on product counts
+- Users lost familiarity with the navigation structure
+- Top-level categories could vary as products were added/removed
+
+#### Solution: Hybrid Approach
+**v3.1 Implementation:** Fixed parent menus with dynamic subcategories
+- ✅ **Fixed parent menu order** matching v2.0 structure (Deals, Disposables, Pod Disposables, etc.)
+- ✅ **Dynamic subcategories** that auto-update from WooCommerce
+- ✅ **User familiarity** preserved with consistent top-level navigation
+- ✅ **Fresh content** as subcategories update based on actual products
+- ✅ **No more "Dezemba Dealz" as top-level menu** - stays under Deals where it belongs
+
+### ✨ What Changed
+
+#### Navigation Structure (v3.0 → v3.1)
+| Aspect | v3.0 (Fully Dynamic) | v3.1 (Hybrid) |
+|--------|---------------------|---------------|
+| **Parent Menus** | Dynamic from WooCommerce | Fixed from v2.0 |
+| **Parent Order** | By product count | Fixed order |
+| **Subcategories** | Dynamic | Dynamic ✓ |
+| **Deals Section** | Static | Static ✓ |
+| **Brands** | Dynamic top 15 | Dynamic top 15 ✓ |
+| **Support** | Static | Static ✓ |
+| **User Familiarity** | ❌ Could change | ✅ Consistent |
+| **Content Updates** | ✅ Automatic | ✅ Automatic |
+
+#### Fixed Parent Menu Order
+1. **Deals** (Static section)
+2. **Disposables** (Fixed parent, dynamic children)
+3. **Pod Disposables** (Fixed parent, dynamic children)
+4. **Pod Systems & Kits** (Fixed parent, dynamic children)
+5. **Vape Hardware** (Fixed parent, dynamic children)
+6. **DL E-Liquids** (Fixed parent, dynamic children)
+7. **MTL & Nic Salts** (Fixed parent, dynamic children)
+8. **Brands** (Fixed parent, dynamic top 15)
+9. **Nic Alternatives** (Fixed parent, dynamic children)
+10. **Support** (Static section)
+
+### 🔧 Technical Implementation
+
+#### New Helper Functions
+```php
+// Find category by slug or name
+$find_category = function( $slug_or_name ) { ... }
+
+// Get dynamic children for a category
+$get_category_children = function( $parent_id, $limit = 12 ) { ... }
+```
+
+#### Category Mapping Strategy
+- Maps v2.0 parent menu names to actual WooCommerce category slugs
+- Tries multiple slug variations (e.g., 'dl-hardware', 'vape-hardware')
+- Gracefully handles missing categories
+- Maintains v2.0 display names even if WooCommerce slug differs
+
+#### Preserved Dynamic Features
+- ✅ Subcategories auto-update from WooCommerce
+- ✅ Product counts always accurate
+- ✅ Brand detection and top 15 listing
+- ✅ 30-minute cache with proactive invalidation
+- ✅ REST API endpoint for debugging
+- ✅ WP-Cron scheduled refresh
+
+### 📊 Benefits
+
+#### For Users
+- **Consistent navigation** - Parent menus never change position
+- **Fresh content** - Subcategories update automatically
+- **Better UX** - Familiar structure reduces cognitive load
+- **Accurate counts** - Product numbers always current
+
+#### For Admins
+- **Less confusion** - "Dezemba Dealz" stays under Deals
+- **Automatic updates** - Subcategories refresh without manual work
+- **Flexible structure** - Easy to update seasonal items in Deals section
+- **Stable menu** - Top-level items don't shift around
+
+#### For Business
+- **Brand consistency** - Navigation remains recognizable
+- **Scalability** - New products automatically appear in correct sections
+- **SEO benefit** - Stable URL structure for top-level pages
+- **Analytics** - Consistent tracking of navigation performance
+
+### 📁 Files Modified
+- `advapes-nav.php` - Complete rewrite of `advapes_get_nav_structure()` function
+- `header.php` - Updated version comments to v3.1
+
+### 🔄 Migration Notes
+
+**From v3.0 to v3.1:**
+- No database changes required
+- Cache automatically rebuilds on first page load
+- No URL changes - all links remain the same
+- No CSS changes needed
+- Backward compatible with all v3.0 features
+
+**Rollback:**
+If needed, restore v3.0 from git history:
+```bash
+git checkout v3.0-commit-hash -- advapes-nav.php header.php
+```
+
+### 📝 Version Comparison Summary
+
+| Feature | v2.0 | v3.0 | v3.1 |
+|---------|------|------|------|
+| Parent Menu Structure | Static HTML | Dynamic WooCommerce | **Fixed from v2** |
+| Parent Menu Order | Fixed | By product count | **Fixed from v2** |
+| Subcategories | Static HTML | Dynamic | **Dynamic** ✓ |
+| Product Counts | Manual | Auto-updated | **Auto-updated** ✓ |
+| Category Mapping | Manual | Automatic | **Mapped from v2** |
+| Caching | None | 30min transient | **30min transient** ✓ |
+| User Familiarity | ✅ High | ⚠️ Low | **✅ High** |
+| Content Freshness | ❌ Manual | ✅ Automatic | **✅ Automatic** |
+| Best For | Stability | Full automation | **Both!** |
+
+### 🎉 Result
+
+**v3.1 achieves the best of both worlds:**
+- ✅ User familiarity of v2.0 (fixed parent menus)
+- ✅ Automation benefits of v3.0 (dynamic subcategories)
+- ✅ No more unexpected menu items at top level
+- ✅ Subcategories stay fresh and accurate
+
+---
+
 ## [v3.0] - 2025-12-10
 
 ### 🎯 Major Update: Dynamic WooCommerce Integration

@@ -5,7 +5,7 @@
  * Adds a custom ADVapes nav bar under the default Razzi header
  * without touching the logo or existing header layout.
  *
- * Version 3.0: Dynamic navigation from WooCommerce data
+ * Version 3.1: Hybrid navigation (fixed parent menus + dynamic subcategories)
  *
  * @package Razzi Child
  */
@@ -55,9 +55,9 @@ require_once get_stylesheet_directory() . '/advapes-nav.php';
                         <span class="adv-nav-toggle-label">Menu</span>
                     </label>
 
-                    <!-- Main nav list (desktop + mobile) - Dynamic v3.0 -->
+                    <!-- Main nav list (desktop + mobile) - Hybrid v3.1 -->
                     <?php
-                    // Use dynamic navigation if available, otherwise fallback to static
+                    // Use hybrid navigation if available, otherwise fallback to static
                     if ( function_exists( 'advapes_render_nav' ) ) {
                         advapes_render_nav();
                     } else {
