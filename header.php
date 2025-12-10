@@ -514,26 +514,31 @@
                                     <li>
                                         <a href="https://www.advapes.co.za/shipping-rates-2/">
                                             <span>Shipping Rates</span>
+                                            <span class="adv-tag">Delivery info</span>
                                         </a>
                                     </li>
                                     <li>
                                         <a href="https://www.advapes.co.za/refunds-returns/">
                                             <span>Refunds &amp; Returns</span>
+                                            <span class="adv-tag">Policy</span>
                                         </a>
                                     </li>
                                     <li>
                                         <a href="https://www.advapes.co.za/terms-conditions/">
                                             <span>Terms &amp; Conditions</span>
+                                            <span class="adv-tag">Legal</span>
                                         </a>
                                     </li>
                                     <li>
                                         <a href="https://www.advapes.co.za/privacy-policy/">
                                             <span>Privacy Policy</span>
+                                            <span class="adv-tag">Legal</span>
                                         </a>
                                     </li>
                                     <li>
                                         <a href="https://www.advapes.co.za/refer-a-friend/">
                                             <span>Refer a Friend</span>
+                                            <span class="adv-tag">Rewards</span>
                                         </a>
                                     </li>
                                 </ul>
