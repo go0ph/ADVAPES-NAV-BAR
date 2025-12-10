@@ -129,6 +129,7 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
     global $wpdb;
     
     // Use direct database query for better performance
+    // Note: $wpdb->terms, $wpdb->posts etc. automatically include table prefix
     // Get all brand terms associated with products in this category
     $query = "
         SELECT t.term_id, t.name, COUNT(DISTINCT p.ID) as product_count
@@ -156,8 +157,10 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         return array();
     }
 
-    // Format for output with tags
-    $brand_tags = array( 'Top brand', 'Popular', 'Best seller', 'Premium', 'Quality', 'Trending' );
+    // Format for output with tags (filterable for customization)
+    $brand_tags = apply_filters( 'advapes_brand_tags', array( 
+        'Top brand', 'Popular', 'Best seller', 'Premium', 'Quality', 'Trending' 
+    ) );
     $result = array();
     $tag_index = 0;
     
