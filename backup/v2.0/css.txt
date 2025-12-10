@@ -1,0 +1,299 @@
+/*==============================
+  ADVapes Custom Nav Bar
+==============================*/
+
+.adv-main-nav {
+  width: 100%;
+  background: #050507;
+  border-top: 1px solid #111827;
+  border-bottom: 2px solid #e11d2f;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Inner container (desktop + mobile) */
+.adv-main-nav .adv-nav-inner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* Burger toggle (hidden on desktop) */
+.adv-nav-toggle {
+  display: none;
+}
+
+.adv-nav-toggle-btn {
+  display: none;
+}
+
+/* Burger icon */
+.adv-burger {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.adv-burger span {
+  width: 20px;
+  height: 2px;
+  background: #f9fafb;
+  border-radius: 999px;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.adv-nav-toggle-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #f9fafb;
+}
+
+/* Nav list / items (desktop baseline) */
+
+.adv-nav-list {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+.adv-nav-item {
+  position: relative;
+}
+
+.adv-nav-link {
+  display: block;
+  padding: 14px 14px 14px;
+  color: #d1d5db;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: color 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
+}
+
+.adv-nav-link:hover,
+.adv-nav-item:hover > .adv-nav-link {
+  color: #ffffff;
+  background: #e11d2f;
+}
+
+.adv-nav-link--primary {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+/* Desktop dropdowns */
+
+.adv-dropdown {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: 10px;
+  background: #07080c;
+  border-radius: 10px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+  padding: 10px 12px;
+  min-width: 230px;
+  border: 1px solid #1f2937;
+  z-index: 50;
+}
+
+.adv-nav-item:hover > .adv-dropdown {
+  display: block;
+}
+
+.adv-dropdown-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+.adv-dropdown ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+}
+
+.adv-dropdown a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  padding: 4px 4px;
+  border-radius: 8px;
+  color: #f9fafb;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.adv-dropdown a:hover {
+  background: #111827;
+  color: #ffffff;
+}
+
+.adv-tag {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-left: 10px;
+}
+
+/* Wider dropdown for Brands menu with more items */
+.adv-dropdown--wide {
+  min-width: 260px;
+}
+
+/* Remove any theme-generated lines in our nav */
+.adv-nav-list > li::before,
+.adv-nav-list > li::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Make sure the hidden checkbox really stays hidden */
+input.adv-nav-toggle {
+  display: none !important;
+}
+
+/*------------------------------
+  MOBILE BEHAVIOUR
+------------------------------*/
+
+@media (max-width: 1024px) {
+  /* Make nav stack */
+  .adv-main-nav .adv-nav-inner {
+    max-width: 100%;
+    padding: 0 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Show burger row */
+  .adv-nav-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 0;
+    cursor: pointer;
+  }
+
+  /* Hide desktop-style nav by default */
+  .adv-nav-list {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    gap: 0;
+    border-top: 1px solid #111827;
+    padding: 8px 0 10px;
+
+    /* Scroll if the menu gets too tall */
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+
+  .adv-nav-item {
+    width: 100%;
+  }
+
+  .adv-nav-link {
+    width: 100%;
+    padding: 10px 0;
+    border-radius: 0;
+  }
+
+  /* Compact mobile dropdowns into inline sections */
+  .adv-dropdown {
+    position: static;
+    display: block;
+    margin-top: 2px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 2px 0 6px 16px;
+  }
+
+  .adv-dropdown a {
+    padding: 3px 0;
+  }
+
+  /* Hide subtitles + right-hand tags on mobile to shorten the menu */
+  .adv-dropdown-title,
+  .adv-tag {
+    display: none;
+  }
+
+  /* When burger checked, show menu */
+  .adv-nav-toggle:checked ~ .adv-nav-list {
+    display: flex;
+  }
+
+  /* Burger animation */
+  .adv-nav-toggle:checked + .adv-nav-toggle-btn .adv-burger span:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+
+  .adv-nav-toggle:checked + .adv-nav-toggle-btn .adv-burger span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .adv-nav-toggle:checked + .adv-nav-toggle-btn .adv-burger span:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  /* Hide Razzi's original mobile burger so only ADVapes menu shows */
+  button.mobile-menu-toggle.hamburger-menu {
+    display: none !important;
+  }
+}
+
+/* Optional: your debug styles – keep or remove */
+header#site-header {
+  border-bottom: 1px solid red;
+}
+
+header#site-header.minimized {
+  background-color: red !important;
+  box-shadow: 0px 0px 0px 0px red !important;
+  border-bottom: 1px solid #ffffff00 !important;
+}
+
+@media (max-width: 1024px) {
+  /* Hide the "MENU" text, keep only the burger icon */
+  .adv-nav-toggle-label {
+    display: none;
+  }
+
+  /* Align burger to the left nicely */
+  .adv-nav-toggle-btn {
+    justify-content: flex-start;
+    gap: 8px;
+  }
+}
+
+/* Desktop: make dropdowns easier to hover into */
+@media (min-width: 1025px) {
+  /* Extend the hover area below the link */
+  .adv-nav-item {
+    padding-bottom: 10px;
+  }
+
+  /* Remove the gap between the link and dropdown */
+  .adv-dropdown {
+    margin-top: 0;
+  }
+}
