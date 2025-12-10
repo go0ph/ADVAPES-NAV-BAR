@@ -271,9 +271,7 @@ input.adv-nav-toggle {
   button.mobile-menu-toggle.hamburger-menu {
     display: none !important;
   }
-}
 
-@media (max-width: 1024px) {
   /* Hide the "MENU" text, keep only the burger icon */
   .adv-nav-toggle-label {
     display: none;
