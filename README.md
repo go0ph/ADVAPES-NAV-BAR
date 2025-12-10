@@ -1,185 +1,269 @@
-# ADVAPES Custom Navigation Bar
+# ADVAPES Navigation Bar - Development Dashboard
 
-A custom navigation bar implementation for the ADVapes WooCommerce/WordPress site, built as an enhancement to the Razzi child theme. This navigation bar provides a comprehensive, dropdown-enabled menu system that sits below the existing Razzi header without modifying the logo or original header layout.
+> **Version 2.0** | Last Updated: 2025-12-10 | Status: 🚧 In Development
 
-## Overview
+---
 
-This repository contains the implementation files for a fully-responsive custom navigation bar designed specifically for ADVapes.co.za. The navigation bar features:
+## 🎯 Current Sprint
 
-- **10+ main categories** including Deals, Disposables, Pod Systems, DL/MTL devices, Brands, and Support
-- **Dropdown menus** for each category with organized subcategories
-- **Responsive design** with mobile hamburger menu
-- **Brand-consistent styling** using ADVapes color scheme (dark background with red accents)
-- **Hover effects** and smooth transitions for enhanced user experience
+### Active Development
+- ✅ Navigation restructure based on 6,528 product analysis
+- ✅ Split E-Liquids into DL and MTL/Nic Salts categories
+- ✅ Expanded Brands section from 9 to 15 top brands
+- ✅ Added product counts to navigation labels
+- 🚧 Testing and validation
 
-## Features
+### Next Up
+- Testing responsive behavior
+- Validating category URLs
+- Documentation updates
 
-### Desktop Experience
-- Horizontal navigation bar with hover-activated dropdowns
-- Visual tags and descriptions for subcategories
-- Smooth transitions and hover effects
-- Optimized spacing for easy navigation
-- Red bottom border accent (#e11d2f) matching ADVapes branding
+---
 
-### Mobile Experience
-- Hamburger menu toggle (hides the default Razzi mobile menu)
-- Collapsible menu with vertical layout
-- Inline dropdown expansion (no overlays)
-- Streamlined view (hides tags/descriptions for space)
-- Touch-friendly tap targets
+## 📊 Project Status
 
-## Files in This Repository
+### Version History
+| Version | Date | Status | Changes |
+|---------|------|--------|---------|
+| **v2.0** | 2025-12-10 | 🚧 In Progress | Comprehensive restructure based on product data |
+| v1.0 | Previous | ✅ Complete | Initial custom navigation bar |
 
-### `header.php`
-The main header template file for the Razzi child theme. This file:
-- Includes the standard WordPress/Razzi header hooks
-- Adds the custom ADVapes navigation bar structure
-- Contains all menu items with their links and dropdown content
-- Uses semantic HTML5 with accessibility considerations
+### Quick Stats
+- **Total Products:** 6,528 published
+- **Product Categories:** 560+ unique
+- **Navigation Items:** 9 main categories (was 10)
+- **Brands Listed:** 15 top brands (was 9)
+- **Lines of Code:** ~500 (header.php + css.txt)
 
-**Key sections:**
-- Lines 1-26: Standard WordPress/Razzi header setup
-- Lines 38-464: Custom ADVapes navigation bar implementation
-- Lines 54-461: Navigation menu items with dropdowns
+---
 
-### `css.txt`
-Complete CSS styling for the custom navigation bar. Includes:
-- Base navigation styles (lines 5-94)
-- Desktop dropdown styles (lines 96-154)
-- Mobile responsive styles (lines 167-295)
-- Hover effects and transitions
-- Hamburger menu animations
+## 🗂️ Navigation Structure (v2.0)
 
-**Responsive breakpoint:** 1024px (`@media (max-width: 1024px)`)
+### Main Categories
 
-## Installation
+1. **🔥 Deals** (Highlighted)
+   - Dezemba Dealz, New Products, On Sale, Fire Sale, Buy Bulk & Save, Clearance
 
-1. **Copy `header.php`** to your Razzi child theme directory:
-   ```
-   /wp-content/themes/razzi-child/header.php
-   ```
+2. **💨 Disposables** (1,405 products)
+   - One-Use, DTL, High Puff Count, Popular Brands
 
-2. **Add CSS** from `css.txt` to your child theme's stylesheet. You can either:
-   - Add to `style.css` in your Razzi child theme
-   - Add via WordPress Customizer (Appearance → Customize → Additional CSS)
-   - Enqueue as a separate stylesheet in `functions.php`
+3. **🔋 Pod Disposables** (689 products)
+   - Bewolk, Wotofo NEXpod, Upends Switch, Airscream, Tugboat
 
-3. **Clear cache** if using any caching plugins
+4. **🎯 Pod Systems & Kits** (341 products)
+   - Refillable Pods, XROS 5, Orca Dynasty, MTL Devices
 
-4. **Test** on both desktop and mobile devices
+5. **🔧 Vape Hardware** (420 products)
+   - Mods, Tanks, Coils (137+), DL/MTL Spares
 
-## Customization
+6. **💧 DL E-Liquids** (930 products)
+   - 120ml Longfills (790+), Pre-mixed, Additives
 
-### Modifying Menu Items
-Edit `header.php` to add, remove, or modify navigation items. Each menu item follows this structure:
+7. **🧪 MTL & Nic Salts** (1,730 products)
+   - Nic Salts, 30ml Shots (840+), 60ml Shots (300+)
 
-```php
-<li class="adv-nav-item">
-    <a href="YOUR-URL" class="adv-nav-link">
-        Menu Label
-    </a>
-    <div class="adv-dropdown">
-        <div class="adv-dropdown-title">Dropdown Title</div>
-        <ul>
-            <li>
-                <a href="SUBITEM-URL">
-                    <span>Subitem Name</span>
-                    <span class="adv-tag">Tag text</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-</li>
+8. **🏷️ Brands** (150+ brands)
+   - Top 15: Nasty, Bewolk, Cosmic Dropz, OXVA, Hidden Cloud, Elf Bar, Airscream, Vuse, Vaporesso, Upends, Pod Salt, BLVK, Wotofo, Vozol Tech + View All
+
+9. **🌿 Nic Alternatives** (78 products)
+   - Nicotine Pouches, Nicotine Gum
+
+10. **💼 Support**
+    - FAQ, Contact, Track Order, Shipping, Returns, About, T&Cs, Privacy, Refer
+
+---
+
+## 📋 Development Roadmap
+
+### ✅ Completed
+- [x] Excel product data analysis (6,528 products)
+- [x] Category hierarchy mapping
+- [x] Brand analysis and ranking
+- [x] Backup system creation (v1.0)
+- [x] Navigation structure redesign
+- [x] header.php updates with new structure
+- [x] CSS updates for wider dropdowns
+- [x] Split E-Liquids category for better UX
+
+### 🚧 In Progress
+- [ ] Testing and validation
+- [ ] README roadmap documentation
+- [ ] URL verification
+
+### 📅 Backlog
+- [ ] Add category icons/emojis
+- [ ] Implement mega-menu for Brands
+- [ ] Add "Popular Products" quick links
+- [ ] Mobile menu UX improvements
+- [ ] A/B testing framework
+- [ ] Analytics integration
+- [ ] SEO optimization
+- [ ] Accessibility audit (WCAG 2.1)
+
+---
+
+## 🔧 Technical Details
+
+### Files Structure
+```
+ADVAPES-NAV-BAR/
+├── header.php              # Main header template
+├── css.txt                 # Navigation styles
+├── README.md               # This file
+├── backup/                 # Version backups
+│   ├── v1.0/
+│   │   ├── header.php
+│   │   ├── css.txt
+│   │   └── README.md
+│   └── README.md
+├── nav_structure_analysis.json
+└── Products-Export-2025-December-10-0816.xlsx
 ```
 
-### Styling Changes
-Key CSS variables to customize in `css.txt`:
+### Technology Stack
+- **Frontend:** HTML5, CSS3 (No JavaScript required)
+- **CMS:** WordPress with Razzi Child Theme
+- **E-Commerce:** WooCommerce
+- **Responsive:** Mobile-first approach with 1024px breakpoint
 
-- **Background color:** `.adv-main-nav { background: #050507; }` (line 7)
-- **Red accent:** `.adv-main-nav { border-bottom: 2px solid #e11d2f; }` (line 9)
-- **Link hover color:** `.adv-nav-link:hover { background: #e11d2f; }` (line 87)
-- **Dropdown background:** `.adv-dropdown { background: #07080c; }` (line 103)
-- **Primary link color (Deals):** `.adv-nav-link--primary { color: #fbbf24; }` (line 91)
+### Browser Support
+- ✅ Chrome/Edge (latest)
+- ✅ Firefox (latest)
+- ✅ Safari (latest)
+- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
 
-### Mobile Breakpoint
-Adjust the responsive breakpoint by changing `@media (max-width: 1024px)` throughout `css.txt`.
+---
 
-## Menu Structure
+## 🚀 Deployment Guide
 
-The navigation bar includes these main categories:
+### Installation Steps
+1. **Backup current files** (automated via `/backup` directory)
+2. **Copy header.php** to `/wp-content/themes/razzi-child/header.php`
+3. **Add CSS** from `css.txt` to child theme stylesheet
+4. **Clear cache** (if using caching plugins)
+5. **Test** on desktop and mobile
 
-1. **Deals** (highlighted in gold) - Seasonal promos, new products, sales, clearance
-2. **Disposables** - One-use and DTL disposable vapes
-3. **Pod Disposables** - Pod-based systems and kits
-4. **Pod Systems & Kits** - Refillable pod kits (XROS, Orca, etc.)
-5. **DL Hardware** - Direct lung devices, tanks, mods, and spares
-6. **DL Liquids** - Freebase e-liquids and longfills
-7. **MTL Devices & Liquid** - Mouth-to-lung gear and nic salts
-8. **Brands** - Shop by manufacturer (Airscream, Nasty, Elf Bar, BLVK, etc.)
-9. **Nic Alternatives** - Nicotine pouches and gum
-10. **Support** - FAQ, contact, shipping, policies, tracking
-
-Each category contains relevant subcategories with descriptive tags.
-
-## Technical Details
-
-### Browser Compatibility
-- Modern browsers (Chrome, Firefox, Safari, Edge)
-- IE11+ (may require polyfills for some CSS features)
-
-### WordPress/WooCommerce Compatibility
-- Built for Razzi theme (child theme approach)
-- Compatible with WooCommerce product categories
-- Uses WordPress hooks and actions
-- Preserves existing theme functionality
-
-### Performance Considerations
-- Pure CSS dropdowns (no JavaScript required)
-- Minimal DOM manipulation
-- Efficient hover states with CSS transitions
-- Mobile menu uses CSS checkbox hack (no JS needed)
-
-### Accessibility
-- Semantic HTML5 elements (`<nav>`, `<ul>`, `<li>`)
-- Keyboard navigation support through native browser behavior
-- High contrast color scheme for readability
-- Touch-friendly mobile interface
-
-## Maintenance
-
-### Updating Links
-All product category URLs in `header.php` point to `advapes.co.za`. Update these as needed when category slugs change or new categories are added.
-
-### Seasonal Promotions
-The "Deals" dropdown includes seasonal items (e.g., "Dezemba Dealz"). Update these periodically to reflect current promotions.
-
-### Brand Updates
-The "Brands" section includes popular manufacturers. Keep this list updated as new brands are added to the store.
-
-## Debug Styles
-
-Lines 259-268 in `css.txt` contain debug styles (red borders). These can be removed in production:
-
-```css
-/* Optional: your debug styles – keep or remove */
-header#site-header {
-  border-bottom: 1px solid red;
-}
-
-header#site-header.minimized {
-  background-color: red !important;
-  box-shadow: 0px 0px 0px 0px red !important;
-  border-bottom: 1px solid #ffffff00 !important;
-}
+### Rollback Procedure
+```bash
+# Restore previous version
+cp backup/v1.0/header.php header.php
+cp backup/v1.0/css.txt css.txt
 ```
 
-## Support
+---
 
-For issues or customization requests related to this navigation bar, refer to:
-- The ADVapes website: https://www.advapes.co.za
-- WordPress Razzi theme documentation
-- WooCommerce documentation for product categories
+## 🧪 Testing Checklist
 
-## License
+### Pre-Deployment
+- [ ] Desktop view (1920px, 1440px, 1024px)
+- [ ] Tablet view (768px, 1024px)
+- [ ] Mobile view (375px, 414px)
+- [ ] Dropdown hover states
+- [ ] Mobile hamburger menu
+- [ ] All category links functional
+- [ ] Brand links working
+- [ ] Support links verified
 
-This code is developed for ADVapes.co.za. Modify and adapt as needed for your specific implementation.
+### Post-Deployment
+- [ ] Live site visual check
+- [ ] Google Analytics tracking
+- [ ] Search Console errors
+- [ ] Page load speed
+- [ ] User feedback collection
+
+---
+
+## 📈 Key Improvements (v1.0 → v2.0)
+
+### Navigation Changes
+- ✅ Split E-Liquids into DL and MTL/Nic Salts (better findability)
+- ✅ Renamed "DL Hardware" to "Vape Hardware" (clearer)
+- ✅ Expanded Pod Disposables with specific brands
+- ✅ Added product counts to dropdown titles
+- ✅ Increased brand visibility (9 → 15 brands)
+- ✅ Better subcategory organization
+
+### Data-Driven Decisions
+- Based on 6,528 published products
+- Analyzed 560+ unique categories
+- Mapped product distribution
+- Identified top-performing brands
+
+---
+
+## 🐛 Known Issues
+
+### Current
+- None reported
+
+### Resolved
+- (v1.0) Mobile menu overlapping with Razzi menu - Fixed by hiding Razzi mobile burger
+
+---
+
+## 📚 Documentation
+
+### For Developers
+- **Modifying Menu Items:** Edit `header.php` lines 54-461
+- **Styling Changes:** Update `css.txt`
+- **Adding Categories:** Follow existing `<li class="adv-nav-item">` structure
+- **Responsive Breakpoint:** 1024px (see css.txt line 171)
+
+### For Content Managers
+- **Update Seasonal Deals:** Edit "Dezemba Dealz" link in Deals dropdown
+- **Add New Brands:** Add to Brands dropdown maintaining alphabetical order
+- **Category URLs:** Format: `https://www.advapes.co.za/product-category/{slug}/`
+
+---
+
+## 🔗 Resources
+
+### Internal Links
+- [Backup System](/backup/README.md)
+- [Version 1.0 Files](/backup/v1.0/)
+- [Product Data Analysis](nav_structure_analysis.json)
+
+### External References
+- [ADVapes Website](https://www.advapes.co.za)
+- [Razzi Theme Docs](https://razzi.co)
+- [WooCommerce Documentation](https://woocommerce.com/documentation/)
+
+---
+
+## 👥 Contributors
+
+**Development Team**
+- Navigation Design & Implementation
+- Product Data Analysis
+- UX/UI Optimization
+
+---
+
+## 📝 Change Log
+
+### v2.0 (2025-12-10)
+- Complete navigation restructure based on product data analysis
+- Split E-Liquids into DL and MTL/Nic Salts categories
+- Expanded Brands section with 15 top brands
+- Added product counts to navigation labels
+- Improved subcategory organization
+- Created comprehensive backup system
+- Implemented Trello-style development dashboard
+
+### v1.0 (Previous)
+- Initial custom navigation bar implementation
+- 10 main categories with dropdowns
+- Responsive mobile menu
+- ADVapes brand styling
+
+---
+
+## 📞 Support
+
+For issues, questions, or feature requests:
+- Create an issue in the repository
+- Contact: [ADVapes Support](https://www.advapes.co.za/contact-us/)
+
+---
+
+*This is a living document. Updates are made as development progresses.*
