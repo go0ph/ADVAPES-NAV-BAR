@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADVapes Navigation Demo - Issue #2 Improvements</title>
+    <link rel="stylesheet" href="advapes-nav.css">
+    <style>
+        /* Minimal page styling for demo */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .demo-header {
+            text-align: center;
+            padding: 20px 0 40px;
+        }
+        
+        .demo-header h1 {
+            color: #e11d2f;
+            margin-bottom: 10px;
+        }
+        
+        .demo-header p {
+            color: #9ca3af;
+        }
+        
+        .demo-content {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 8px;
+        }
+        
+        .demo-content h2 {
+            color: #fbbf24;
+            margin-bottom: 10px;
+        }
+        
+        .demo-content ul {
+            margin: 10px 0 10px 20px;
+            color: #d1d5db;
+        }
+        
+        .demo-content li {
+            margin: 5px 0;
+        }
+        
+        .improvement-tag {
+            display: inline-block;
+            background: #10b981;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-header">
+        <h1>🚀 ADVapes Navigation Demo</h1>
+        <p>Testing Issue #2 Improvements - Desktop & Mobile</p>
+    </div>
+
+    <!-- ADVapes Navigation Bar -->
+    <nav class="adv-main-nav">
+        <div class="adv-nav-inner">
+            <!-- Mobile toggle -->
+            <input type="checkbox" id="adv-nav-toggle" class="adv-nav-toggle" />
+            <label for="adv-nav-toggle" class="adv-nav-toggle-btn">
+                <div class="adv-burger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <span class="adv-nav-toggle-label">Menu</span>
+            </label>
+
+            <!-- Main nav list -->
+            <ul class="adv-nav-list">
+                <li class="adv-nav-item">
+                    <a href="#" class="adv-nav-link adv-nav-link--primary">Deals</a>
+                    <div class="adv-dropdown">
+                        <div class="adv-dropdown-title">Shop deals &amp; promotions</div>
+                        <ul>
+                            <li><a href="#"><span>Dezemba Dealz</span><span class="adv-tag">Seasonal</span></a></li>
+                            <li><a href="#"><span>New Products</span><span class="adv-tag">Latest</span></a></li>
+                            <li><a href="#"><span>On Sale</span><span class="adv-tag">Discounted</span></a></li>
+                            <li><a href="#"><span>Fire Sale</span><span class="adv-tag">Hot deals</span></a></li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="adv-nav-item">
+                    <a href="#" class="adv-nav-link">Disposables</a>
+                    <div class="adv-dropdown">
+                        <div class="adv-dropdown-title">One-use disposable vapes (2500+ products)</div>
+                        <ul>
+                            <li><a href="#"><span>Vuse Disposables</span><span class="adv-tag">450+ products</span></a></li>
+                            <li><a href="#"><span>Elf Bar Disposables</span><span class="adv-tag">380+ products</span></a></li>
+                            <li><a href="#"><span>Lost Mary Disposables</span><span class="adv-tag">320+ products</span></a></li>
+                            <li><a href="#"><span>HQD Disposables</span><span class="adv-tag">250+ products</span></a></li>
+                            <li><a href="#"><span>All Disposables</span><span class="adv-tag">Browse all</span></a></li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="adv-nav-item">
+                    <a href="#" class="adv-nav-link">Pod Disposables</a>
+                    <div class="adv-dropdown">
+                        <div class="adv-dropdown-title">Pod-based systems (1200+ products)</div>
+                        <ul>
+                            <li><a href="#"><span>Vuse Pods</span><span class="adv-tag">180+ products</span></a></li>
+                            <li><a href="#"><span>JUUL Pods</span><span class="adv-tag">150+ products</span></a></li>
+                            <li><a href="#"><span>Aspire Pods</span><span class="adv-tag">120+ products</span></a></li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="adv-nav-item">
+                    <a href="#" class="adv-nav-link">Pod Systems & Kits</a>
+                    <div class="adv-dropdown">
+                        <div class="adv-dropdown-title">Refillable pod systems (800+ products)</div>
+                        <ul>
+                            <li><a href="#"><span>Vaporesso Pods</span><span class="adv-tag">95+ products</span></a></li>
+                            <li><a href="#"><span>SMOK Pods</span><span class="adv-tag">85+ products</span></a></li>
+                            <li><a href="#"><span>Voopoo Pods</span><span class="adv-tag">75+ products</span></a></li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="adv-nav-item">
+                    <a href="#" class="adv-nav-link">Vape Hardware</a>
+                    <div class="adv-dropdown">
+                        <div class="adv-dropdown-title">Mods, tanks &amp; spares (600+ products)</div>
+                        <ul>
+                            <li><a href="#"><span>Mods</span><span class="adv-tag">120+ products</span></a></li>
+                            <li><a href="#"><span>Tanks</span><span class="adv-tag">110+ products</span></a></li>
+                            <li><a href="#"><span>Coils</span><span class="adv-tag">200+ products</span></a></li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="adv-nav-item">
+                    <a href="#" class="adv-nav-link">DL E-Liquids</a>
+                    <div class="adv-dropdown">
+                        <div class="adv-dropdown-title">Direct lung liquids (1500+ products)</div>
+                        <ul>
+                            <li><a href="#"><span>100ml Shortfills</span><span class="adv-tag">450+ products</span></a></li>
+                            <li><a href="#"><span>50ml Shortfills</span><span class="adv-tag">380+ products</span></a></li>
+                            <li><a href="#"><span>Nic Shots</span><span class="adv-tag">120+ products</span></a></li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="adv-nav-item">
+                    <a href="#" class="adv-nav-link">MTL & Nic Salts</a>
+                    <div class="adv-dropdown">
+                        <div class="adv-dropdown-title">Nic salts &amp; MTL liquids (900+ products)</div>
+                        <ul>
+                            <li><a href="#"><span>10ml Nic Salts</span><span class="adv-tag">320+ products</span></a></li>
+                            <li><a href="#"><span>30ml Nic Salts</span><span class="adv-tag">180+ products</span></a></li>
+                            <li><a href="#"><span>MTL Liquids</span><span class="adv-tag">150+ products</span></a></li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="adv-nav-item">
+                    <a href="#" class="adv-nav-link">Brands</a>
+                    <div class="adv-dropdown adv-dropdown--wide">
+                        <div class="adv-dropdown-title">Shop by brand (150+ products)</div>
+                        <ul>
+                            <li><a href="#"><span>Vuse</span><span class="adv-tag">680+ products</span></a></li>
+                            <li><a href="#"><span>Elf Bar</span><span class="adv-tag">520+ products</span></a></li>
+                            <li><a href="#"><span>Lost Mary</span><span class="adv-tag">410+ products</span></a></li>
+                            <li><a href="#"><span>HQD</span><span class="adv-tag">350+ products</span></a></li>
+                            <li><a href="#"><span>View All Brands</span><span class="adv-tag">A–Z</span></a></li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="adv-nav-item">
+                    <a href="#" class="adv-nav-link">Nic Alternatives</a>
+                    <div class="adv-dropdown">
+                        <div class="adv-dropdown-title">Non-vape nicotine (200+ products)</div>
+                        <ul>
+                            <li><a href="#"><span>Nicotine Pouches</span><span class="adv-tag">120+ products</span></a></li>
+                            <li><a href="#"><span>Nicotine Gum</span><span class="adv-tag">45+ products</span></a></li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="adv-nav-item">
+                    <a href="#" class="adv-nav-link">Support</a>
+                    <div class="adv-dropdown">
+                        <div class="adv-dropdown-title">Help &amp; information</div>
+                        <ul>
+                            <li><a href="#"><span>FAQ</span><span class="adv-tag">Answers</span></a></li>
+                            <li><a href="#"><span>Contact Us</span><span class="adv-tag">Get in touch</span></a></li>
+                            <li><a href="#"><span>Track my Order</span><span class="adv-tag">Shipment tracking</span></a></li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Demo content explaining improvements -->
+    <div class="demo-content">
+        <h2>✅ Desktop Improvements</h2>
+        <ul>
+            <li>Text size increased from 11px to 13px <span class="improvement-tag">+18%</span></li>
+            <li>Font weight increased from 600 to 700 <span class="improvement-tag">Bolder</span></li>
+            <li>Navigation items perfectly centered <span class="improvement-tag">New</span></li>
+            <li>Product counts stay on one line <span class="improvement-tag">No wrap</span></li>
+        </ul>
+
+        <h2 style="margin-top: 30px;">📱 Mobile Improvements (resize window to < 1024px)</h2>
+        <ul>
+            <li>Product counts now visible on mobile <span class="improvement-tag">Was hidden</span></li>
+            <li>Dropdown titles now visible on mobile <span class="improvement-tag">Was hidden</span></li>
+            <li>Tighter spacing between menu items <span class="improvement-tag">Better UX</span></li>
+            <li>More menu items visible without scrolling <span class="improvement-tag">Compact</span></li>
+            <li>Parent links at 12px, dropdown links at 11px <span class="improvement-tag">Readable</span></li>
+        </ul>
+
+        <h2 style="margin-top: 30px;">🧪 Testing Instructions</h2>
+        <ul>
+            <li><strong>Desktop:</strong> Hover over menu items to see dropdowns</li>
+            <li><strong>Mobile:</strong> Resize browser window to < 1024px width</li>
+            <li><strong>Mobile:</strong> Click the burger menu icon to toggle menu</li>
+            <li><strong>Check:</strong> Product counts should be visible on both desktop and mobile</li>
+            <li><strong>Check:</strong> Text should be noticeably larger and bolder on desktop</li>
+        </ul>
+    </div>
+
+</body>
+</html>
