@@ -1,0 +1,31 @@
+# Excel files - Product data exports
+*.xlsx
+*.xls
+
+# Analysis files (can be regenerated)
+nav_structure_analysis.json
+nav_v2_structure_plan.txt
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# WordPress specific
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+wp-content/backup-db/
+
+# Node modules (if using build tools in future)
+node_modules/
+package-lock.json
+
+# Environment files
+.env
+.env.local
