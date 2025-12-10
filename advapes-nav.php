@@ -1,0 +1,438 @@
+<?php
+/**
+ * ADVapes Dynamic Navigation System
+ * Version 3.0
+ * 
+ * Provides dynamic, auto-updating navigation that pulls from WooCommerce
+ * product taxonomies (categories and brands) with intelligent caching.
+ * 
+ * @package Razzi Child / ADVapes
+ */
+
+// Prevent direct access
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// Define constants
+define( 'ADVAPES_NAV_TRANSIENT_KEY', 'advapes_nav_structure' );
+define( 'ADVAPES_NAV_TTL', 30 * MINUTE_IN_SECONDS ); // 30 minutes
+
+/**
+ * Detect brand taxonomy from common candidates
+ * 
+ * Checks for brand taxonomies in order of likelihood:
+ * - 'brand', 'brands', 'product_brand'
+ * - Product attribute taxonomies: 'pa_brand', 'pa_brands'
+ * - Any registered WooCommerce attribute taxonomy
+ * 
+ * @return string|false Brand taxonomy name or false if not found
+ */
+function advapes_detect_brand_taxonomy() {
+    // Check if WooCommerce is active
+    if ( ! class_exists( 'WooCommerce' ) ) {
+        return false;
+    }
+
+    // Common brand taxonomy names in order of likelihood
+    $candidates = array( 'brand', 'brands', 'product_brand', 'pa_brand', 'pa_brands' );
+
+    // Check direct taxonomy existence
+    foreach ( $candidates as $candidate ) {
+        if ( taxonomy_exists( $candidate ) ) {
+            return $candidate;
+        }
+    }
+
+    // Check WooCommerce attribute taxonomies
+    $attribute_taxonomies = wc_get_attribute_taxonomies();
+    if ( ! empty( $attribute_taxonomies ) ) {
+        foreach ( $attribute_taxonomies as $tax ) {
+            $taxonomy_name = wc_attribute_taxonomy_name( $tax->attribute_name );
+            if ( strpos( strtolower( $tax->attribute_name ), 'brand' ) !== false ) {
+                return $taxonomy_name;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Get navigation structure from WooCommerce data
+ * 
+ * Builds a nested array structure for the navigation menu, including:
+ * - Static Deals section
+ * - Top-level product categories with children
+ * - Top brands by product count
+ * - Static Support section
+ * 
+ * @param bool $force_refresh Force rebuild even if cache exists
+ * @return array Navigation structure
+ */
+function advapes_get_nav_structure( $force_refresh = false ) {
+    // Try to get from cache first
+    if ( ! $force_refresh ) {
+        $cached = get_transient( ADVAPES_NAV_TRANSIENT_KEY );
+        if ( false !== $cached ) {
+            return $cached;
+        }
+    }
+
+    // Check if WooCommerce is active
+    if ( ! class_exists( 'WooCommerce' ) ) {
+        return array();
+    }
+
+    $nav_structure = array();
+
+    // 1. Static Deals section
+    $nav_structure['deals'] = array(
+        'name' => 'Deals',
+        'url' => 'https://www.advapes.co.za/on-sale/',
+        'class' => 'adv-nav-link--primary',
+        'dropdown_title' => 'Shop deals &amp; promotions',
+        'children' => array(
+            array(
+                'name' => 'Dezemba Dealz',
+                'url' => 'https://www.advapes.co.za/dezemba-dealz/',
+                'tag' => 'Seasonal',
+            ),
+            array(
+                'name' => 'New Products',
+                'url' => 'https://www.advapes.co.za/new-products/',
+                'tag' => 'Latest',
+            ),
+            array(
+                'name' => 'On Sale',
+                'url' => 'https://www.advapes.co.za/on-sale/',
+                'tag' => 'Discounted',
+            ),
+            array(
+                'name' => 'Fire Sale',
+                'url' => 'https://www.advapes.co.za/product-category/fire-sale/',
+                'tag' => 'Hot deals',
+            ),
+            array(
+                'name' => 'Buy Bulk &amp; Save',
+                'url' => 'https://www.advapes.co.za/product-category/buy-bulk-save/',
+                'tag' => 'Multi-pack',
+            ),
+            array(
+                'name' => 'Clearance',
+                'url' => 'https://www.advapes.co.za/product-category/clearance/',
+                'tag' => 'End of line',
+            ),
+        ),
+    );
+
+    // 2. Get top-level product categories
+    $product_cats = get_terms( array(
+        'taxonomy'   => 'product_cat',
+        'hide_empty' => true,
+        'parent'     => 0,
+        'orderby'    => 'count',
+        'order'      => 'DESC',
+    ) );
+
+    if ( ! is_wp_error( $product_cats ) && ! empty( $product_cats ) ) {
+        foreach ( $product_cats as $cat ) {
+            // Get children for this category (limit to 12)
+            $children = get_terms( array(
+                'taxonomy'   => 'product_cat',
+                'hide_empty' => true,
+                'parent'     => $cat->term_id,
+                'orderby'    => 'count',
+                'order'      => 'DESC',
+                'number'     => 12,
+            ) );
+
+            $category_children = array();
+            if ( ! is_wp_error( $children ) && ! empty( $children ) ) {
+                foreach ( $children as $child ) {
+                    $category_children[] = array(
+                        'name' => $child->name,
+                        'url'  => get_term_link( $child ),
+                        'count' => $child->count,
+                    );
+                }
+            }
+
+            // Add "View All" link if category has products
+            if ( $cat->count > 0 ) {
+                $category_children[] = array(
+                    'name' => 'All ' . $cat->name,
+                    'url'  => get_term_link( $cat ),
+                    'tag'  => 'Browse all',
+                );
+            }
+
+            $nav_structure['cat_' . $cat->slug] = array(
+                'name' => $cat->name,
+                'url'  => get_term_link( $cat ),
+                'dropdown_title' => $cat->name . ' (' . $cat->count . '+)',
+                'count' => $cat->count,
+                'children' => $category_children,
+            );
+        }
+    }
+
+    // 3. Get top brands
+    $brand_taxonomy = advapes_detect_brand_taxonomy();
+    if ( $brand_taxonomy ) {
+        $brands = get_terms( array(
+            'taxonomy'   => $brand_taxonomy,
+            'hide_empty' => true,
+            'orderby'    => 'count',
+            'order'      => 'DESC',
+            'number'     => 15,
+        ) );
+
+        if ( ! is_wp_error( $brands ) && ! empty( $brands ) ) {
+            $brand_children = array();
+            foreach ( $brands as $brand ) {
+                $brand_children[] = array(
+                    'name' => $brand->name,
+                    'url'  => get_term_link( $brand ),
+                    'count' => $brand->count,
+                );
+            }
+
+            // Add "View All Brands" link
+            $brand_children[] = array(
+                'name' => 'View All Brands',
+                'url'  => 'https://www.advapes.co.za/brands/',
+                'tag'  => 'A–Z',
+            );
+
+            $nav_structure['brands'] = array(
+                'name' => 'Brands',
+                'url'  => 'https://www.advapes.co.za/brands/',
+                'dropdown_title' => 'Shop by brand (150+)',
+                'dropdown_class' => 'adv-dropdown--wide',
+                'children' => $brand_children,
+            );
+        }
+    }
+
+    // 4. Static Support section
+    $nav_structure['support'] = array(
+        'name' => 'Support',
+        'url' => 'https://www.advapes.co.za/faq/',
+        'dropdown_title' => 'Help &amp; information',
+        'children' => array(
+            array(
+                'name' => 'FAQ',
+                'url' => 'https://www.advapes.co.za/faq/',
+                'tag' => 'Answers',
+            ),
+            array(
+                'name' => 'Contact Us',
+                'url' => 'https://www.advapes.co.za/contact-us/',
+                'tag' => 'Get in touch',
+            ),
+            array(
+                'name' => 'Track my Order',
+                'url' => 'https://www.advapes.co.za/track/',
+                'tag' => 'Shipment tracking',
+            ),
+            array(
+                'name' => 'About Us',
+                'url' => 'https://www.advapes.co.za/about-us/',
+                'tag' => 'Our story',
+            ),
+            array(
+                'name' => 'Shipping Rates',
+                'url' => 'https://www.advapes.co.za/shipping-rates-2/',
+                'tag' => 'Delivery info',
+            ),
+            array(
+                'name' => 'Refunds &amp; Returns',
+                'url' => 'https://www.advapes.co.za/refunds-returns/',
+                'tag' => 'Policy',
+            ),
+            array(
+                'name' => 'Terms &amp; Conditions',
+                'url' => 'https://www.advapes.co.za/terms-conditions/',
+                'tag' => 'Legal',
+            ),
+            array(
+                'name' => 'Privacy Policy',
+                'url' => 'https://www.advapes.co.za/privacy-policy/',
+                'tag' => 'Legal',
+            ),
+            array(
+                'name' => 'Refer a Friend',
+                'url' => 'https://www.advapes.co.za/refer-a-friend/',
+                'tag' => 'Rewards',
+            ),
+        ),
+    );
+
+    // Cache the structure
+    set_transient( ADVAPES_NAV_TRANSIENT_KEY, $nav_structure, ADVAPES_NAV_TTL );
+
+    return $nav_structure;
+}
+
+/**
+ * Render navigation HTML
+ * 
+ * Outputs navigation using the same class names and markup structure
+ * as the existing static navigation for CSS compatibility.
+ */
+function advapes_render_nav() {
+    $nav_structure = advapes_get_nav_structure();
+
+    if ( empty( $nav_structure ) ) {
+        echo '<!-- ADVapes Nav: No structure available -->';
+        return;
+    }
+
+    echo '<ul class="adv-nav-list">' . "\n";
+
+    foreach ( $nav_structure as $key => $item ) {
+        echo '<li class="adv-nav-item">' . "\n";
+        
+        // Main link
+        $link_class = isset( $item['class'] ) ? 'adv-nav-link ' . esc_attr( $item['class'] ) : 'adv-nav-link';
+        echo '<a href="' . esc_url( $item['url'] ) . '" class="' . $link_class . '">' . "\n";
+        echo esc_html( $item['name'] ) . "\n";
+        echo '</a>' . "\n";
+
+        // Dropdown if children exist
+        if ( ! empty( $item['children'] ) ) {
+            $dropdown_class = isset( $item['dropdown_class'] ) ? 'adv-dropdown ' . esc_attr( $item['dropdown_class'] ) : 'adv-dropdown';
+            echo '<div class="' . $dropdown_class . '">' . "\n";
+            
+            if ( ! empty( $item['dropdown_title'] ) ) {
+                echo '<div class="adv-dropdown-title">' . wp_kses_post( $item['dropdown_title'] ) . '</div>' . "\n";
+            }
+            
+            echo '<ul>' . "\n";
+            
+            foreach ( $item['children'] as $child ) {
+                echo '<li>' . "\n";
+                echo '<a href="' . esc_url( $child['url'] ) . '">' . "\n";
+                echo '<span>' . esc_html( $child['name'] ) . '</span>' . "\n";
+                
+                // Add tag or count
+                if ( ! empty( $child['tag'] ) ) {
+                    echo '<span class="adv-tag">' . esc_html( $child['tag'] ) . '</span>' . "\n";
+                } elseif ( ! empty( $child['count'] ) ) {
+                    echo '<span class="adv-tag">' . absint( $child['count'] ) . '+ products</span>' . "\n";
+                }
+                
+                echo '</a>' . "\n";
+                echo '</li>' . "\n";
+            }
+            
+            echo '</ul>' . "\n";
+            echo '</div>' . "\n";
+        }
+
+        echo '</li>' . "\n";
+    }
+
+    echo '</ul>' . "\n";
+}
+
+/**
+ * Invalidate navigation cache when products or terms change
+ */
+function advapes_invalidate_nav_cache() {
+    delete_transient( ADVAPES_NAV_TRANSIENT_KEY );
+}
+
+/**
+ * Hook invalidation to product and term changes
+ */
+function advapes_setup_cache_invalidation() {
+    // Product save/trash
+    add_action( 'save_post_product', 'advapes_invalidate_nav_cache' );
+    add_action( 'wp_trash_post', 'advapes_invalidate_nav_cache' );
+    add_action( 'untrash_post', 'advapes_invalidate_nav_cache' );
+    
+    // Product category changes
+    add_action( 'created_product_cat', 'advapes_invalidate_nav_cache' );
+    add_action( 'edited_product_cat', 'advapes_invalidate_nav_cache' );
+    add_action( 'delete_product_cat', 'advapes_invalidate_nav_cache' );
+    
+    // Brand taxonomy changes (detect and hook)
+    $brand_taxonomy = advapes_detect_brand_taxonomy();
+    if ( $brand_taxonomy ) {
+        add_action( 'created_' . $brand_taxonomy, 'advapes_invalidate_nav_cache' );
+        add_action( 'edited_' . $brand_taxonomy, 'advapes_invalidate_nav_cache' );
+        add_action( 'delete_' . $brand_taxonomy, 'advapes_invalidate_nav_cache' );
+    }
+}
+add_action( 'init', 'advapes_setup_cache_invalidation' );
+
+/**
+ * Scheduled refresh of navigation cache via WP-Cron
+ */
+function advapes_refresh_nav_cron() {
+    advapes_get_nav_structure( true ); // Force refresh
+}
+
+/**
+ * Register custom cron schedule for 30-minute intervals
+ */
+function advapes_cron_schedules( $schedules ) {
+    if ( ! isset( $schedules['advapes_30min'] ) ) {
+        $schedules['advapes_30min'] = array(
+            'interval' => 30 * MINUTE_IN_SECONDS,
+            'display'  => __( 'Every 30 Minutes (ADVapes Nav)', 'razzi-child' ),
+        );
+    }
+    return $schedules;
+}
+add_filter( 'cron_schedules', 'advapes_cron_schedules' );
+
+/**
+ * Schedule the cron job if not already scheduled
+ */
+function advapes_schedule_cron() {
+    if ( ! wp_next_scheduled( 'advapes_refresh_nav_cron' ) ) {
+        wp_schedule_event( time(), 'advapes_30min', 'advapes_refresh_nav_cron' );
+    }
+}
+add_action( 'wp', 'advapes_schedule_cron' );
+
+/**
+ * Clear scheduled cron on theme deactivation
+ */
+function advapes_clear_scheduled_cron() {
+    $timestamp = wp_next_scheduled( 'advapes_refresh_nav_cron' );
+    if ( $timestamp ) {
+        wp_unschedule_event( $timestamp, 'advapes_refresh_nav_cron' );
+    }
+}
+register_deactivation_hook( __FILE__, 'advapes_clear_scheduled_cron' );
+
+/**
+ * Register REST API endpoint for debugging
+ */
+function advapes_register_rest_route() {
+    register_rest_route( 'advapes/v1', '/nav', array(
+        'methods'  => 'GET',
+        'callback' => 'advapes_rest_get_nav',
+        'permission_callback' => '__return_true', // Public read-only endpoint
+    ) );
+}
+add_action( 'rest_api_init', 'advapes_register_rest_route' );
+
+/**
+ * REST API callback for navigation structure
+ */
+function advapes_rest_get_nav( $request ) {
+    $force_refresh = $request->get_param( 'refresh' ) === 'true';
+    $nav_structure = advapes_get_nav_structure( $force_refresh );
+    
+    return rest_ensure_response( array(
+        'success' => true,
+        'data'    => $nav_structure,
+        'cached'  => ! $force_refresh && get_transient( ADVAPES_NAV_TRANSIENT_KEY ) !== false,
+        'version' => '3.0',
+    ) );
+}
