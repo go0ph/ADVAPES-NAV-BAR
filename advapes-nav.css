@@ -207,6 +207,29 @@ input.adv-nav-toggle {
     /* Scroll if the menu gets too tall */
     max-height: calc(100vh - 120px);
     overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Swipe indicator hint for mobile menu */
+  .adv-nav-list::before {
+    content: "← Scroll to see all categories →";
+    display: block;
+    text-align: center;
+    font-size: 9px;
+    color: #6b7280;
+    padding: 6px 0 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: linear-gradient(90deg, transparent, #1f2937 20%, #1f2937 80%, transparent);
+    margin: 0 0 6px 0;
+    border-bottom: 1px solid #111827;
+    animation: fadeOutHint 3s ease-in-out 2s forwards;
+  }
+
+  @keyframes fadeOutHint {
+    0% { opacity: 1; }
+    100% { opacity: 0; pointer-events: none; }
   }
 
   .adv-nav-item {

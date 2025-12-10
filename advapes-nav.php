@@ -114,6 +114,78 @@ function advapes_get_category_children( $parent_id, $limit = 12 ) {
 }
 
 /**
+ * Helper function to get top brands for a specific category
+ * 
+ * @param int $category_id Category term ID
+ * @param int $limit Maximum number of brands to return (default 4)
+ * @return array Array of brand data (name, url, tag)
+ */
+function advapes_get_category_brands( $category_id, $limit = 4 ) {
+    $brand_taxonomy = advapes_detect_brand_taxonomy();
+    if ( ! $brand_taxonomy ) {
+        return array();
+    }
+
+    // Get products in this category
+    $products = get_posts( array(
+        'post_type'      => 'product',
+        'posts_per_page' => -1,
+        'tax_query'      => array(
+            array(
+                'taxonomy' => 'product_cat',
+                'field'    => 'term_id',
+                'terms'    => $category_id,
+            ),
+        ),
+        'fields'         => 'ids',
+    ) );
+
+    if ( empty( $products ) ) {
+        return array();
+    }
+
+    // Count products per brand in this category
+    $brand_counts = array();
+    foreach ( $products as $product_id ) {
+        $terms = wp_get_post_terms( $product_id, $brand_taxonomy );
+        if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
+            foreach ( $terms as $term ) {
+                if ( ! isset( $brand_counts[ $term->term_id ] ) ) {
+                    $brand_counts[ $term->term_id ] = array(
+                        'name'  => $term->name,
+                        'url'   => get_term_link( $term ),
+                        'count' => 0,
+                    );
+                }
+                $brand_counts[ $term->term_id ]['count']++;
+            }
+        }
+    }
+
+    // Sort by count and limit
+    uasort( $brand_counts, function( $a, $b ) {
+        return $b['count'] - $a['count'];
+    } );
+
+    $top_brands = array_slice( $brand_counts, 0, $limit );
+
+    // Format for output with tags
+    $brand_tags = array( 'Top brand', 'Popular', 'Best seller', 'Premium', 'Quality', 'Trending' );
+    $result = array();
+    $tag_index = 0;
+    foreach ( $top_brands as $brand ) {
+        $result[] = array(
+            'name' => $brand['name'],
+            'url'  => $brand['url'],
+            'tag'  => $brand_tags[ $tag_index % count( $brand_tags ) ],
+        );
+        $tag_index++;
+    }
+
+    return $result;
+}
+
+/**
  * Get navigation structure from WooCommerce data
  * 
  * Hybrid approach (v3.1):
@@ -160,35 +232,21 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                 'tag' => 'Latest',
             ),
             array(
-                'name' => 'On Sale',
-                'url' => 'https://www.advapes.co.za/on-sale/',
-                'tag' => 'Discounted',
-            ),
-            array(
-                'name' => 'Fire Sale',
-                'url' => 'https://www.advapes.co.za/product-category/fire-sale/',
-                'tag' => 'Hot deals',
-            ),
-            array(
                 'name' => 'Buy Bulk &amp; Save',
                 'url' => 'https://www.advapes.co.za/product-category/buy-bulk-save/',
                 'tag' => 'Multi-pack',
             ),
-            array(
-                'name' => 'Clearance',
-                'url' => 'https://www.advapes.co.za/product-category/clearance/',
-                'tag' => 'End of line',
-            ),
         ),
     );
 
-    // 2. Disposables (static parent, dynamic children)
+    // 2. Disposables (static parent, dynamic children with brands)
     $disposables = advapes_find_category( 'disposables' );
     if ( $disposables ) {
-        $children = advapes_get_category_children( $disposables->term_id, 12 );
+        // Get top brands for this category
+        $brand_children = advapes_get_category_brands( $disposables->term_id, 5 );
         
         // Add "View All" link
-        $children[] = array(
+        $brand_children[] = array(
             'name' => 'All Disposables',
             'url'  => get_term_link( $disposables ),
             'tag'  => 'Browse all',
@@ -198,17 +256,18 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             'name' => 'Disposables',
             'url'  => get_term_link( $disposables ),
             'dropdown_title' => 'One-use disposable vapes (' . $disposables->count . '+)',
-            'children' => $children,
+            'children' => $brand_children,
         );
     }
 
-    // 3. Pod Disposables (static parent, dynamic children)
+    // 3. Pod Disposables (static parent, dynamic children with brands)
     $pod_disposables = advapes_find_category( 'pod-disposables' );
     if ( $pod_disposables ) {
-        $children = advapes_get_category_children( $pod_disposables->term_id, 12 );
+        // Get top brands for this category
+        $brand_children = advapes_get_category_brands( $pod_disposables->term_id, 4 );
         
         // Add "View All" link
-        $children[] = array(
+        $brand_children[] = array(
             'name' => 'All Pod Disposables',
             'url'  => get_term_link( $pod_disposables ),
             'tag'  => 'Browse all',
@@ -218,17 +277,18 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             'name' => 'Pod Disposables',
             'url'  => get_term_link( $pod_disposables ),
             'dropdown_title' => 'Pod-based systems (' . $pod_disposables->count . '+)',
-            'children' => $children,
+            'children' => $brand_children,
         );
     }
 
-    // 4. Pod Systems & Kits (static parent, dynamic children)
+    // 4. Pod Systems & Kits (static parent, dynamic children with brands)
     $pod_systems = advapes_find_category( 'pod-systems-kits' );
     if ( $pod_systems ) {
-        $children = advapes_get_category_children( $pod_systems->term_id, 12 );
+        // Get top brands for this category
+        $brand_children = advapes_get_category_brands( $pod_systems->term_id, 4 );
         
         // Add "View All" link
-        $children[] = array(
+        $brand_children[] = array(
             'name' => 'All Pod Systems &amp; Kits',
             'url'  => get_term_link( $pod_systems ),
             'tag'  => 'Browse all',
@@ -238,21 +298,22 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             'name' => 'Pod Systems &amp; Kits',
             'url'  => get_term_link( $pod_systems ),
             'dropdown_title' => 'Refillable pod systems (' . $pod_systems->count . '+)',
-            'children' => $children,
+            'children' => $brand_children,
         );
     }
 
-    // 5. Vape Hardware (static parent, dynamic children)
+    // 5. Vape Hardware (static parent, dynamic children with brands)
     // Try 'dl-hardware' first (v2 slug), then 'vape-hardware'
     $hardware = advapes_find_category( 'dl-hardware' );
     if ( ! $hardware ) {
         $hardware = advapes_find_category( 'vape-hardware' );
     }
     if ( $hardware ) {
-        $children = advapes_get_category_children( $hardware->term_id, 12 );
+        // Get top brands for this category
+        $brand_children = advapes_get_category_brands( $hardware->term_id, 4 );
         
         // Add "View All" link
-        $children[] = array(
+        $brand_children[] = array(
             'name' => 'All Vape Hardware',
             'url'  => get_term_link( $hardware ),
             'tag'  => 'Browse all',
@@ -262,20 +323,21 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             'name' => 'Vape Hardware',
             'url'  => get_term_link( $hardware ),
             'dropdown_title' => 'Mods, tanks &amp; spares (' . $hardware->count . '+)',
-            'children' => $children,
+            'children' => $brand_children,
         );
     }
 
-    // 6. DL E-Liquids (static parent, dynamic children)
+    // 6. DL E-Liquids (static parent, dynamic children with brands)
     $dl_liquids = advapes_find_category( 'dl-liquid' );
     if ( ! $dl_liquids ) {
         $dl_liquids = advapes_find_category( 'dl-liquids' );
     }
     if ( $dl_liquids ) {
-        $children = advapes_get_category_children( $dl_liquids->term_id, 12 );
+        // Get top brands for this category
+        $brand_children = advapes_get_category_brands( $dl_liquids->term_id, 4 );
         
         // Add "View All" link
-        $children[] = array(
+        $brand_children[] = array(
             'name' => 'All DL E-Liquids',
             'url'  => get_term_link( $dl_liquids ),
             'tag'  => 'Browse all',
@@ -285,20 +347,21 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             'name' => 'DL E-Liquids',
             'url'  => get_term_link( $dl_liquids ),
             'dropdown_title' => 'Direct lung liquids (' . $dl_liquids->count . '+)',
-            'children' => $children,
+            'children' => $brand_children,
         );
     }
 
-    // 7. MTL & Nic Salts (static parent, dynamic children)
+    // 7. MTL & Nic Salts (static parent, dynamic children with brands)
     $nic_salts = advapes_find_category( 'nic-salts' );
     if ( ! $nic_salts ) {
         $nic_salts = advapes_find_category( 'nic-salts-mtl-liquids' );
     }
     if ( $nic_salts ) {
-        $children = advapes_get_category_children( $nic_salts->term_id, 12 );
+        // Get top brands for this category
+        $brand_children = advapes_get_category_brands( $nic_salts->term_id, 4 );
         
         // Add "View All" link
-        $children[] = array(
+        $brand_children[] = array(
             'name' => 'All MTL &amp; Nic Salts',
             'url'  => get_term_link( $nic_salts ),
             'tag'  => 'Browse all',
@@ -308,7 +371,7 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             'name' => 'MTL &amp; Nic Salts',
             'url'  => get_term_link( $nic_salts ),
             'dropdown_title' => 'Nic salts &amp; MTL liquids (' . $nic_salts->count . '+)',
-            'children' => $children,
+            'children' => $brand_children,
         );
     }
 
