@@ -126,60 +126,51 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         return array();
     }
 
-    // Get products in this category
-    $products = get_posts( array(
-        'post_type'      => 'product',
-        'posts_per_page' => -1,
-        'tax_query'      => array(
-            array(
-                'taxonomy' => 'product_cat',
-                'field'    => 'term_id',
-                'terms'    => $category_id,
-            ),
-        ),
-        'fields'         => 'ids',
-    ) );
+    global $wpdb;
+    
+    // Use direct database query for better performance
+    // Get all brand terms associated with products in this category
+    $query = "
+        SELECT t.term_id, t.name, COUNT(DISTINCT p.ID) as product_count
+        FROM {$wpdb->terms} t
+        INNER JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
+        INNER JOIN {$wpdb->term_relationships} tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
+        INNER JOIN {$wpdb->posts} p ON tr.object_id = p.ID
+        INNER JOIN {$wpdb->term_relationships} tr2 ON p.ID = tr2.object_id
+        INNER JOIN {$wpdb->term_taxonomy} tt2 ON tr2.term_taxonomy_id = tt2.term_taxonomy_id
+        WHERE tt.taxonomy = %s
+        AND tt2.taxonomy = 'product_cat'
+        AND tt2.term_id = %d
+        AND p.post_type = 'product'
+        AND p.post_status = 'publish'
+        GROUP BY t.term_id, t.name
+        ORDER BY product_count DESC
+        LIMIT %d
+    ";
+    
+    $brands = $wpdb->get_results(
+        $wpdb->prepare( $query, $brand_taxonomy, $category_id, $limit )
+    );
 
-    if ( empty( $products ) ) {
+    if ( empty( $brands ) ) {
         return array();
     }
-
-    // Count products per brand in this category
-    $brand_counts = array();
-    foreach ( $products as $product_id ) {
-        $terms = wp_get_post_terms( $product_id, $brand_taxonomy );
-        if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
-            foreach ( $terms as $term ) {
-                if ( ! isset( $brand_counts[ $term->term_id ] ) ) {
-                    $brand_counts[ $term->term_id ] = array(
-                        'name'  => $term->name,
-                        'url'   => get_term_link( $term ),
-                        'count' => 0,
-                    );
-                }
-                $brand_counts[ $term->term_id ]['count']++;
-            }
-        }
-    }
-
-    // Sort by count and limit
-    uasort( $brand_counts, function( $a, $b ) {
-        return $b['count'] - $a['count'];
-    } );
-
-    $top_brands = array_slice( $brand_counts, 0, $limit );
 
     // Format for output with tags
     $brand_tags = array( 'Top brand', 'Popular', 'Best seller', 'Premium', 'Quality', 'Trending' );
     $result = array();
     $tag_index = 0;
-    foreach ( $top_brands as $brand ) {
-        $result[] = array(
-            'name' => $brand['name'],
-            'url'  => $brand['url'],
-            'tag'  => $brand_tags[ $tag_index % count( $brand_tags ) ],
-        );
-        $tag_index++;
+    
+    foreach ( $brands as $brand ) {
+        $term = get_term( $brand->term_id, $brand_taxonomy );
+        if ( $term && ! is_wp_error( $term ) ) {
+            $result[] = array(
+                'name' => $brand->name,
+                'url'  => get_term_link( $term ),
+                'tag'  => $brand_tags[ $tag_index % count( $brand_tags ) ],
+            );
+            $tag_index++;
+        }
     }
 
     return $result;

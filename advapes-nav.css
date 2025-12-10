@@ -213,6 +213,8 @@ input.adv-nav-toggle {
 
   /* Swipe indicator hint for mobile menu */
   .adv-nav-list::before {
+    --hint-fade-duration: 3s;
+    --hint-fade-delay: 2s;
     content: "← Scroll to see all categories →";
     display: block;
     text-align: center;
@@ -224,7 +226,7 @@ input.adv-nav-toggle {
     background: linear-gradient(90deg, transparent, #1f2937 20%, #1f2937 80%, transparent);
     margin: 0 0 6px 0;
     border-bottom: 1px solid #111827;
-    animation: fadeOutHint 3s ease-in-out 2s forwards;
+    animation: fadeOutHint var(--hint-fade-duration) ease-in-out var(--hint-fade-delay) forwards;
   }
 
   @keyframes fadeOutHint {
