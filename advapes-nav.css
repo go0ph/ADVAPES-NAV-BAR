@@ -158,8 +158,7 @@
   white-space: nowrap;
 }
 
-/* Make "Browse all" tags stand out more */
-.adv-dropdown a:has(.adv-tag:only-of-type) .adv-tag,
+/* Make "Browse all" links stand out more (last item in dropdowns) */
 .adv-dropdown li:last-child .adv-tag {
   color: #fbbf24;
   font-weight: 600;
@@ -307,22 +306,10 @@ input.adv-nav-toggle {
     gap: 8px;
   }
   
-  /* Make "Browse all" stand out on mobile too */
+  /* Mobile-specific adjustments for "Browse all" */
   .adv-dropdown li:last-child a {
-    background: #111827;
-    border: 1px solid #1f2937;
-    margin-top: 6px;
-    padding: 6px 8px;
     border-radius: 6px;
-  }
-  
-  .adv-dropdown li:last-child a:hover {
-    background: #1f2937;
-  }
-  
-  .adv-dropdown li:last-child .adv-tag {
-    color: #fbbf24;
-    font-weight: 600;
+    margin-top: 6px;
   }
   
   /* Mobile swipe indicator at bottom */
