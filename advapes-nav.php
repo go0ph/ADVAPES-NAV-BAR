@@ -143,6 +143,7 @@ function advapes_get_category_children( $parent_id, $limit = 12 ) {
 function advapes_get_category_brands( $category_id, $limit = 4 ) {
     $brand_taxonomy = advapes_detect_brand_taxonomy();
     if ( ! $brand_taxonomy ) {
+        error_log( 'ADVapes Nav: Cannot get category brands - brand taxonomy not detected for category ID ' . $category_id );
         return array();
     }
 
@@ -174,8 +175,11 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
     );
 
     if ( empty( $brands ) ) {
+        error_log( 'ADVapes Nav: No brands found for category ID ' . $category_id . ' using taxonomy ' . $brand_taxonomy );
         return array();
     }
+    
+    error_log( 'ADVapes Nav: Found ' . count( $brands ) . ' brands for category ID ' . $category_id );
 
     // Format for output with product counts
     $result = array();
@@ -479,6 +483,8 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         ) );
 
         if ( ! is_wp_error( $brands ) && ! empty( $brands ) ) {
+            error_log( 'ADVapes Nav: Found ' . count( $brands ) . ' brands for main Brands menu using taxonomy ' . $brand_taxonomy );
+            
             // Get total brand count for dropdown title
             $total_brands = wp_count_terms( array(
                 'taxonomy'   => $brand_taxonomy,
@@ -509,6 +515,7 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                 'children' => $brand_children,
             );
         } else {
+            error_log( 'ADVapes Nav: No brands found for main Brands menu - showing fallback with only "View All Brands" link' );
             // Show Brands menu even if no brands found yet
             $nav_structure['brands'] = array(
                 'name' => 'Brands',
