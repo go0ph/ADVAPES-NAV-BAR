@@ -507,12 +507,6 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         ) );
 
         if ( ! is_wp_error( $brands ) && ! empty( $brands ) ) {
-            // Get total brand count for dropdown title
-            $total_brands = wp_count_terms( array(
-                'taxonomy'   => $brand_taxonomy,
-                'hide_empty' => true,
-            ) );
-            
             foreach ( $brands as $brand ) {
                 $brand_children[] = array(
                     'name' => $brand->name,
