@@ -23,7 +23,7 @@ define( 'ADVAPES_NAV_TRANSIENT_KEY', 'advapes_nav_structure' );
 define( 'ADVAPES_NAV_TTL', 30 ); // 30 seconds
 
 /**
- * Enqueue ADVapes navigation CSS
+ * Enqueue ADVapes navigation CSS and JS
  * Only enqueues if the CSS file exists, otherwise expects inline CSS via theme customizer
  */
 function advapes_enqueue_nav_styles() {
@@ -35,12 +35,86 @@ function advapes_enqueue_nav_styles() {
             'advapes-nav', 
             get_stylesheet_directory_uri() . '/advapes-nav.css', 
             array(), 
-            '3.1.1', 
+            '3.1.2', 
             'all' 
         );
     }
 }
 add_action( 'wp_enqueue_scripts', 'advapes_enqueue_nav_styles' );
+
+/**
+ * Add inline JavaScript for mobile menu toggle functionality
+ */
+function advapes_enqueue_nav_scripts() {
+    // Add inline JavaScript for mobile dropdown toggles
+    $script = "
+    document.addEventListener('DOMContentLoaded', function() {
+        // Only apply on mobile (matching CSS breakpoint)
+        function isMobile() {
+            return window.innerWidth <= 1024;
+        }
+
+        function initMobileDropdowns() {
+            if (!isMobile()) return;
+
+            // Get all nav items with dropdowns
+            const navItems = document.querySelectorAll('.adv-nav-item');
+            
+            navItems.forEach(function(item) {
+                const dropdown = item.querySelector('.adv-dropdown');
+                
+                if (dropdown) {
+                    // Add class to identify items with dropdowns
+                    item.classList.add('has-dropdown');
+                    
+                    const link = item.querySelector('.adv-nav-link');
+                    
+                    if (link) {
+                        // Prevent default link behavior on mobile for items with dropdowns
+                        link.addEventListener('click', function(e) {
+                            if (isMobile()) {
+                                e.preventDefault();
+                                
+                                // Toggle expanded state
+                                const isExpanded = item.classList.contains('is-expanded');
+                                
+                                // Close all other items (accordion behavior)
+                                document.querySelectorAll('.adv-nav-item.is-expanded').forEach(function(otherItem) {
+                                    if (otherItem !== item) {
+                                        otherItem.classList.remove('is-expanded');
+                                    }
+                                });
+                                
+                                // Toggle current item
+                                if (isExpanded) {
+                                    item.classList.remove('is-expanded');
+                                } else {
+                                    item.classList.add('is-expanded');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        // Initialize on load
+        initMobileDropdowns();
+
+        // Re-initialize on window resize (if switching between mobile/desktop)
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                initMobileDropdowns();
+            }, 250);
+        });
+    });
+    ";
+    
+    wp_add_inline_script( 'jquery', $script );
+}
+add_action( 'wp_enqueue_scripts', 'advapes_enqueue_nav_scripts' );
 
 /**
  * Detect brand taxonomy from common candidates

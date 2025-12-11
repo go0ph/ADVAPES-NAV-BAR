@@ -242,22 +242,54 @@ input.adv-nav-toggle {
     margin-bottom: 4px;
   }
 
+  /* Mobile: make main nav link a button with dropdown icon */
   .adv-nav-link {
     width: 100%;
     padding: 10px 0;
     border-radius: 0;
     font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
   }
 
-  /* Compact mobile dropdowns into inline sections */
+  /* Dropdown icon for collapsible items */
+  .adv-nav-item.has-dropdown .adv-nav-link::after {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 8px;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #d1d5db;
+    transition: transform 0.2s ease;
+  }
+
+  /* Rotate arrow when expanded */
+  .adv-nav-item.has-dropdown.is-expanded .adv-nav-link::after {
+    transform: rotate(180deg);
+  }
+
+  /* Compact mobile dropdowns into inline sections - initially hidden */
   .adv-dropdown {
     position: static;
-    display: block;
+    display: none;
     margin-top: 2px;
     background: transparent;
     border: none;
     box-shadow: none;
     padding: 2px 0 6px 16px;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease-out;
+  }
+
+  /* Show dropdown when parent item is expanded */
+  .adv-nav-item.is-expanded .adv-dropdown {
+    display: block;
+    max-height: 1000px;
   }
 
   .adv-dropdown a {
