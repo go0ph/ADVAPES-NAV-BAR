@@ -736,9 +736,17 @@ register_deactivation_hook( __FILE__, 'advapes_clear_scheduled_cron' );
 
 
 /**
- * Register REST API endpoint for cache refresh
+ * Register REST API endpoints
  */
 function advapes_register_rest_route() {
+    // GET endpoint - view navigation structure
+    register_rest_route( 'advapes/v1', '/nav', array(
+        'methods'  => 'GET',
+        'callback' => 'advapes_rest_get_nav',
+        'permission_callback' => '__return_true',
+    ) );
+    
+    // POST endpoint - refresh cache (admin only)
     register_rest_route( 'advapes/v1', '/nav/refresh', array(
         'methods'  => 'POST',
         'callback' => 'advapes_rest_refresh_nav',
@@ -750,7 +758,20 @@ function advapes_register_rest_route() {
 add_action( 'rest_api_init', 'advapes_register_rest_route' );
 
 /**
- * REST API callback to force navigation cache refresh
+ * REST API callback - get navigation structure
+ */
+function advapes_rest_get_nav( $request ) {
+    $force_refresh = $request->get_param( 'refresh' ) === 'true';
+    $nav_structure = advapes_get_nav_structure( $force_refresh );
+    
+    return rest_ensure_response( array(
+        'success' => true,
+        'data'    => $nav_structure,
+    ) );
+}
+
+/**
+ * REST API callback - force cache refresh (admin only)
  */
 function advapes_rest_refresh_nav( $request ) {
     advapes_invalidate_nav_cache();
