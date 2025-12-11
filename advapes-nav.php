@@ -283,10 +283,11 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     // 2. Disposables (hybrid: specific subcategories + dynamic "View All")
     $disposables = advapes_find_category( 'disposables' );
     if ( $disposables ) {
-        // Get key subcategories dynamically - limit to 6 to leave room for brands
-        $children = advapes_get_category_children( $disposables->term_id, 6 );
+        // Get 7 subcategories so after removing first, we have 6 left for brands
+        $children = advapes_get_category_children( $disposables->term_id, 7 );
         
-        // Remove the first child category if it exists (requested to remove first option)
+        // Remove the first child category (requested to remove first option)
+        // After this, we have 6 subcategories + 3 brands + 1 Browse all = 10 items total
         if ( ! empty( $children ) ) {
             array_shift( $children );
         }

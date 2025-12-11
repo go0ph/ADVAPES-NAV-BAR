@@ -306,10 +306,22 @@ input.adv-nav-toggle {
     gap: 8px;
   }
   
-  /* Mobile-specific adjustments for "Browse all" */
+  /* Mobile-specific styling for "Browse all" - explicitly maintain highlight */
   .adv-dropdown li:last-child a {
+    background: #111827;
+    border: 1px solid #1f2937;
     border-radius: 6px;
     margin-top: 6px;
+    padding: 6px 8px;
+  }
+  
+  .adv-dropdown li:last-child a:hover {
+    background: #1f2937;
+  }
+  
+  .adv-dropdown li:last-child .adv-tag {
+    color: #fbbf24;
+    font-weight: 600;
   }
   
   /* Mobile swipe indicator at bottom */
