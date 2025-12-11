@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Define constants
 define( 'ADVAPES_NAV_TRANSIENT_KEY', 'advapes_nav_structure' );
-define( 'ADVAPES_NAV_TTL', 30 * MINUTE_IN_SECONDS ); // 30 minutes
+define( 'ADVAPES_NAV_TTL', 30 ); // 30 seconds
 
 /**
  * Enqueue ADVapes navigation CSS
@@ -731,13 +731,13 @@ function advapes_refresh_nav_cron() {
 }
 
 /**
- * Register custom cron schedule for 30-minute intervals
+ * Register custom cron schedule for 30-second intervals
  */
 function advapes_cron_schedules( $schedules ) {
-    if ( ! isset( $schedules['advapes_30min'] ) ) {
-        $schedules['advapes_30min'] = array(
-            'interval' => 30 * MINUTE_IN_SECONDS,
-            'display'  => __( 'Every 30 Minutes (ADVapes Nav)', 'razzi-child' ),
+    if ( ! isset( $schedules['advapes_30sec'] ) ) {
+        $schedules['advapes_30sec'] = array(
+            'interval' => 30,
+            'display'  => __( 'Every 30 Seconds (ADVapes Nav)', 'razzi-child' ),
         );
     }
     return $schedules;
@@ -749,7 +749,7 @@ add_filter( 'cron_schedules', 'advapes_cron_schedules' );
  */
 function advapes_schedule_cron() {
     if ( ! wp_next_scheduled( 'advapes_refresh_nav_cron' ) ) {
-        wp_schedule_event( time(), 'advapes_30min', 'advapes_refresh_nav_cron' );
+        wp_schedule_event( time(), 'advapes_30sec', 'advapes_refresh_nav_cron' );
     }
 }
 add_action( 'wp', 'advapes_schedule_cron' );
