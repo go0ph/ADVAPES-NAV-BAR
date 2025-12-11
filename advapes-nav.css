@@ -198,111 +198,49 @@ input.adv-nav-toggle {
   /* Hide desktop-style nav by default */
   .adv-nav-list {
     display: none;
-    flex-direction: row;
+    flex-direction: column;
     width: 100%;
     gap: 0;
     border-top: 1px solid #111827;
-    padding: 4px 0 6px;
+    padding: 8px 0 10px;
 
-    /* Enable horizontal scroll for menu items */
-    overflow-x: auto;
-    overflow-y: hidden;
-    position: relative;
-    
-    /* Smooth scrolling */
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    
-    /* Hide scrollbar but keep functionality */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-  }
-  
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .adv-nav-list::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Swipe indicator hint for mobile menu - stays visible longer */
-  .adv-nav-list::before {
-    --hint-fade-duration: 4s;
-    --hint-fade-delay: 8s;
-    content: "← Swipe to see all menu items →";
-    display: block;
-    text-align: center;
-    font-size: 10px;
-    color: #9ca3af;
-    font-weight: 600;
-    padding: 8px 0 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    background: linear-gradient(90deg, transparent, #1f2937 20%, #1f2937 80%, transparent);
-    margin: 0 0 6px 0;
-    border-bottom: 1px solid #111827;
-    animation: fadeOutHint var(--hint-fade-duration) ease-in-out var(--hint-fade-delay) forwards;
-  }
-
-  @keyframes fadeOutHint {
-    0% { opacity: 1; }
-    100% { opacity: 0; pointer-events: none; }
+    /* Scroll if the menu gets too tall */
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
   }
 
   .adv-nav-item {
-    width: auto;
-    min-width: 160px;
+    width: 100%;
     margin: 0;
-    flex-shrink: 0;
   }
 
   .adv-nav-link {
     width: 100%;
-    padding: 10px 12px;
+    padding: 10px 0;
     border-radius: 0;
     font-size: 12px;
-    white-space: nowrap;
   }
 
-  /* Compact mobile dropdowns into popup-style panels */
+  /* Compact mobile dropdowns into inline sections */
   .adv-dropdown {
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: auto;
-    bottom: 0;
-    display: none;
-    margin-top: 0;
-    background: #07080c;
-    border: 1px solid #1f2937;
-    border-bottom: none;
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8);
-    padding: 12px 16px;
-    max-height: 60vh;
-    overflow-y: auto;
-    border-radius: 16px 16px 0 0;
-    z-index: 100;
-  }
-  
-  /* Show dropdown when parent is tapped/active */
-  .adv-nav-item:focus-within .adv-dropdown,
-  .adv-nav-item.active .adv-dropdown {
+    position: static;
     display: block;
+    margin-top: 2px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 2px 0 6px 16px;
   }
 
   .adv-dropdown a {
-    padding: 6px 0;
+    padding: 3px 0;
     font-size: 11px;
   }
 
-  /* Show product counts on mobile for better UX */
-  .adv-dropdown-title {
-    display: block;
-    font-size: 9px;
-    margin-bottom: 3px;
-  }
-  
+  /* Hide subtitles + right-hand tags on mobile to shorten the menu */
+  .adv-dropdown-title,
   .adv-tag {
-    display: inline;
-    font-size: 9px;
+    display: none;
   }
 
   /* When burger checked, show menu */

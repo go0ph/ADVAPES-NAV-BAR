@@ -384,7 +384,27 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         );
     }
 
-    // 8. Brands (static parent, dynamic top brands)
+    // 8. Nic Alternatives (static parent, dynamic children)
+    $nic_alternatives = advapes_find_category( 'nicotine-alternatives' );
+    if ( $nic_alternatives ) {
+        $children = advapes_get_category_children( $nic_alternatives->term_id, 12 );
+        
+        // Add "View All" link
+        $children[] = array(
+            'name' => 'All Nicotine Alternatives',
+            'url'  => get_term_link( $nic_alternatives ),
+            'tag'  => 'Browse all',
+        );
+        
+        $nav_structure['nic-alternatives'] = array(
+            'name' => 'Nic Alternatives',
+            'url'  => get_term_link( $nic_alternatives ),
+            'dropdown_title' => 'Non-vape nicotine (' . $nic_alternatives->count . '+)',
+            'children' => $children,
+        );
+    }
+
+    // 9. Brands (static parent, dynamic top brands)
     $brand_taxonomy = advapes_detect_brand_taxonomy();
     if ( $brand_taxonomy ) {
         $brands = get_terms( array(
@@ -392,10 +412,16 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             'hide_empty' => true,
             'orderby'    => 'count',
             'order'      => 'DESC',
-            'number'     => 15,
+            'number'     => 10,
         ) );
 
         if ( ! is_wp_error( $brands ) && ! empty( $brands ) ) {
+            // Get total brand count for dropdown title
+            $total_brands = wp_count_terms( array(
+                'taxonomy'   => $brand_taxonomy,
+                'hide_empty' => true,
+            ) );
+            
             $brand_children = array();
             foreach ( $brands as $brand ) {
                 $brand_children[] = array(
@@ -415,31 +441,11 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             $nav_structure['brands'] = array(
                 'name' => 'Brands',
                 'url'  => 'https://www.advapes.co.za/brands/',
-                'dropdown_title' => 'Shop by brand (150+)',
+                'dropdown_title' => 'Shop by brand (' . $total_brands . '+)',
                 'dropdown_class' => 'adv-dropdown--wide',
                 'children' => $brand_children,
             );
         }
-    }
-
-    // 9. Nic Alternatives (static parent, dynamic children)
-    $nic_alternatives = advapes_find_category( 'nicotine-alternatives' );
-    if ( $nic_alternatives ) {
-        $children = advapes_get_category_children( $nic_alternatives->term_id, 12 );
-        
-        // Add "View All" link
-        $children[] = array(
-            'name' => 'All Nicotine Alternatives',
-            'url'  => get_term_link( $nic_alternatives ),
-            'tag'  => 'Browse all',
-        );
-        
-        $nav_structure['nic-alternatives'] = array(
-            'name' => 'Nic Alternatives',
-            'url'  => get_term_link( $nic_alternatives ),
-            'dropdown_title' => 'Non-vape nicotine (' . $nic_alternatives->count . '+)',
-            'children' => $children,
-        );
     }
 
     // 10. Static Support section (fully static)
