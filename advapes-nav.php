@@ -493,7 +493,7 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     }
 
     // 9. Brands (static parent, dynamic top brands)
-    // ALWAYS add Brands menu - this is a critical menu item
+    // Ensure Brands menu is included in navigation structure
     $brand_taxonomy = advapes_detect_brand_taxonomy();
     $brand_children = array();
     

@@ -64,13 +64,13 @@
   margin: 0;
   padding: 0;
   flex-wrap: nowrap;
-  flex-grow: 1;
+  flex-grow: 1; /* Expand to fill available container space */
 }
 
 .adv-nav-item {
   position: relative;
-  flex: 0 1 auto;
-  min-width: 0;
+  flex: 0 1 auto; /* Don't grow, can shrink, size to content */
+  min-width: 0; /* Allow shrinking below natural content width */
 }
 
 .adv-nav-link {
