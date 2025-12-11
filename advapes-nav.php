@@ -275,7 +275,6 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             array(
                 'name' => 'Buy Bulk &amp; Save',
                 'url' => 'https://www.advapes.co.za/product-category/buy-bulk-save/',
-                'tag' => 'Multi-pack',
             ),
         ),
     );
@@ -675,13 +674,6 @@ function advapes_render_nav() {
     }
 
     echo '</ul>' . "\n";
-    
-    // Mobile swipe indicator (shown only on mobile)
-    echo '<div class="adv-mobile-swipe-hint">' . "\n";
-    echo '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>' . "\n";
-    echo '<span>Swipe to browse</span>' . "\n";
-    echo '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>' . "\n";
-    echo '</div>' . "\n";
 }
 
 /**
