@@ -166,7 +166,9 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
     // Sanitize category IDs to ensure they're integers
     $category_ids = array_map( 'absint', $category_ids );
     
-    // Create placeholders for category IDs
+    // Create placeholders for category IDs in the IN clause
+    // This generates a string like '%d,%d,%d' for use with wpdb->prepare()
+    // Each %d will be replaced with a sanitized integer category ID
     $placeholders = implode( ',', array_fill( 0, count( $category_ids ), '%d' ) );
     
     // Use direct database query for better performance
@@ -191,8 +193,16 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
     ";
     
     // Prepare query with brand taxonomy, all category IDs, and limit
-    // Use unpacking operator to pass array elements as individual arguments
+    // Array structure: [ brand_taxonomy, cat_id_1, cat_id_2, ..., limit ]
+    // Use unpacking operator to pass array elements as individual arguments to wpdb->prepare()
     $prepare_args = array_merge( array( $brand_taxonomy ), $category_ids, array( $limit ) );
+    
+    // Verify we have the right number of arguments for placeholders
+    $expected_args = 1 + count( $category_ids ) + 1; // 1 for taxonomy, N for categories, 1 for limit
+    if ( count( $prepare_args ) !== $expected_args ) {
+        return array();
+    }
+    
     $brands = $wpdb->get_results(
         $wpdb->prepare( $query, ...$prepare_args )
     );
