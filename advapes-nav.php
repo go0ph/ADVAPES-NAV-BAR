@@ -167,15 +167,16 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
     $category_ids = array_map( 'absint', $category_ids );
     
     // Create placeholders for category IDs in the IN clause
-    // This generates a string like '%d,%d,%d' for use with wpdb->prepare()
-    // Each %d will be replaced with a sanitized integer category ID
-    $placeholders = implode( ',', array_fill( 0, count( $category_ids ), '%d' ) );
+    // We need to use implode with the actual IDs since wpdb->prepare() doesn't support
+    // dynamic placeholders in the query string for IN clauses
+    $category_ids_string = implode( ',', $category_ids );
     
     // Use direct database query for better performance
     // Note: $wpdb->terms, $wpdb->posts etc. automatically include table prefix
     // Get all brand terms associated with products in this category and its children
-    $query = "
-        SELECT t.term_id, t.name, COUNT(DISTINCT p.ID) as product_count
+    // We use %s for taxonomy and %d for limit, but category IDs are already sanitized with absint
+    $query = $wpdb->prepare(
+        "SELECT t.term_id, t.name, COUNT(DISTINCT p.ID) as product_count
         FROM {$wpdb->terms} t
         INNER JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
         INNER JOIN {$wpdb->term_relationships} tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
@@ -184,28 +185,17 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         INNER JOIN {$wpdb->term_taxonomy} tt2 ON tr2.term_taxonomy_id = tt2.term_taxonomy_id
         WHERE tt.taxonomy = %s
         AND tt2.taxonomy = 'product_cat'
-        AND tt2.term_id IN ({$placeholders})
+        AND tt2.term_id IN ({$category_ids_string})
         AND p.post_type = 'product'
         AND p.post_status = 'publish'
         GROUP BY t.term_id, t.name
         ORDER BY product_count DESC
-        LIMIT %d
-    ";
-    
-    // Prepare query with brand taxonomy, all category IDs, and limit
-    // Array structure: [ brand_taxonomy, cat_id_1, cat_id_2, ..., limit ]
-    // Use unpacking operator to pass array elements as individual arguments to wpdb->prepare()
-    $prepare_args = array_merge( array( $brand_taxonomy ), $category_ids, array( $limit ) );
-    
-    // Verify we have the right number of arguments for placeholders
-    $expected_args = 1 + count( $category_ids ) + 1; // 1 for taxonomy, N for categories, 1 for limit
-    if ( count( $prepare_args ) !== $expected_args ) {
-        return array();
-    }
-    
-    $brands = $wpdb->get_results(
-        $wpdb->prepare( $query, ...$prepare_args )
+        LIMIT %d",
+        $brand_taxonomy,
+        $limit
     );
+    
+    $brands = $wpdb->get_results( $query );
 
     if ( empty( $brands ) ) {
         return array();
