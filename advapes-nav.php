@@ -524,7 +524,7 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     $brand_children[] = array(
         'name' => 'View All Brands',
         'url'  => 'https://www.advapes.co.za/brands/',
-        'tag'  => $brand_count > 0 ? 'Browse all' : 'A–Z',
+        'tag'  => 'Browse all',
     );
     
     // Build dropdown title with count if brands exist
