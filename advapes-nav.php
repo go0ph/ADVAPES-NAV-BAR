@@ -773,8 +773,9 @@ function advapes_nav_admin_notice() {
     $nav_structure = advapes_get_nav_structure();
     $css_file_exists = file_exists( get_stylesheet_directory() . '/advapes-nav.css' );
     
-    // Only show notice if there are issues
-    if ( ! $wc_active || empty( $nav_structure ) || ! $css_file_exists ) {
+    // Only show notice if there are critical issues (WooCommerce or navigation structure)
+    // Note: Missing CSS file is not critical as user may be using theme customizer
+    if ( ! $wc_active || empty( $nav_structure ) ) {
         ?>
         <div class="notice notice-warning is-dismissible">
             <h3>ADVapes Navigation Status</h3>

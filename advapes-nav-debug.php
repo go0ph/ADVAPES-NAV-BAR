@@ -6,14 +6,30 @@
  * Then visit: https://www.advapes.co.za/wp-content/themes/razzi-child/advapes-nav-debug.php
  * 
  * This will show you exactly what's happening with your navigation.
+ * 
+ * Security Note: This file requires admin authentication and loads WordPress properly.
  */
 
-// Load WordPress
-require_once( '../../../wp-load.php' );
+// Load WordPress - try multiple methods for security
+if ( ! defined( 'ABSPATH' ) ) {
+    // Method 1: Standard relative path from theme directory
+    $wp_load = dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/wp-load.php';
+    
+    // Method 2: Check if file exists, otherwise show error
+    if ( file_exists( $wp_load ) ) {
+        require_once( $wp_load );
+    } else {
+        die( 'Error: Unable to locate WordPress. Please ensure this file is in your theme directory.' );
+    }
+}
 
-// Must be admin to view
-if ( ! current_user_can( 'manage_options' ) ) {
-    die( 'Access denied. You must be logged in as an administrator.' );
+// Must be admin to view (checked after WordPress is loaded)
+if ( ! function_exists( 'current_user_can' ) || ! current_user_can( 'manage_options' ) ) {
+    wp_die( 
+        'Access denied. You must be logged in as an administrator to view this page.',
+        'Authentication Required',
+        array( 'response' => 403 )
+    );
 }
 
 // Load the navigation system
