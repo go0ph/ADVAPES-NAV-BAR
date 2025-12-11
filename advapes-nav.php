@@ -132,7 +132,7 @@ function advapes_get_category_children( $parent_id, $limit = 12 ) {
  * 
  * @param int $category_id Category term ID
  * @param int $limit Maximum number of brands to return (default 4)
- * @return array Array of brand data (name, url, tag)
+ * @return array Array of brand data (name, url, count)
  */
 function advapes_get_category_brands( $category_id, $limit = 4 ) {
     $brand_taxonomy = advapes_detect_brand_taxonomy();
