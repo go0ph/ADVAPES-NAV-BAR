@@ -132,7 +132,7 @@ function advapes_get_category_children( $parent_id, $limit = 12 ) {
  * 
  * @param int $category_id Category term ID
  * @param int $limit Maximum number of brands to return (default 4)
- * @return array Array of brand data (name, url, tag)
+ * @return array Array of brand data (name, url, count)
  */
 function advapes_get_category_brands( $category_id, $limit = 4 ) {
     $brand_taxonomy = advapes_detect_brand_taxonomy();
@@ -171,12 +171,8 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         return array();
     }
 
-    // Format for output with tags (filterable for customization)
-    $brand_tags = apply_filters( 'advapes_brand_tags', array( 
-        'Top brand', 'Popular', 'Best seller', 'Premium', 'Quality', 'Trending' 
-    ) );
+    // Format for output with product counts
     $result = array();
-    $tag_index = 0;
     
     foreach ( $brands as $brand ) {
         $term = get_term( $brand->term_id, $brand_taxonomy );
@@ -184,9 +180,8 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
             $result[] = array(
                 'name' => $brand->name,
                 'url'  => get_term_link( $term ),
-                'tag'  => $brand_tags[ $tag_index % count( $brand_tags ) ],
+                'count' => $brand->product_count,
             );
-            $tag_index++;
         }
     }
 
