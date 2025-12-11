@@ -171,11 +171,10 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         return array();
     }
     
-    // Create placeholders and prepare args for IN clause
+    // Create placeholders for IN clause
     // WordPress $wpdb->prepare() requires all values to use placeholders, but for IN clauses
     // we need to build the placeholder string dynamically
-    $placeholders = array_fill( 0, count( $category_ids ), '%d' );
-    $placeholders_str = implode( ',', $placeholders );
+    $placeholders_str = implode( ',', array_fill( 0, count( $category_ids ), '%d' ) );
     
     // Build the query with placeholders
     // This query finds brands associated with products in the specified category and its children:
@@ -203,12 +202,7 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
     ";
     
     // Prepare the query with all arguments: taxonomy, category IDs (spread), and limit
-    $prepare_args = array_merge( 
-        array( $brand_taxonomy ), 
-        $category_ids, 
-        array( $limit ) 
-    );
-    
+    $prepare_args = array_merge( array( $brand_taxonomy ), $category_ids, array( $limit ) );
     $brands = $wpdb->get_results( $wpdb->prepare( $query, ...$prepare_args ) );
 
     if ( empty( $brands ) ) {
