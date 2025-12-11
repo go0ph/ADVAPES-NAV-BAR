@@ -13,12 +13,12 @@
 /* Inner container (desktop + mobile) */
 .adv-main-nav .adv-nav-inner {
   width: 100%;
-  max-width: 1400px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 8px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 44px;
 }
 
@@ -64,20 +64,23 @@
   margin: 0;
   padding: 0;
   flex-wrap: nowrap;
+  flex-grow: 1; /* Expand to fill available container space */
 }
 
 .adv-nav-item {
   position: relative;
+  flex: 0 1 auto; /* Don't grow, can shrink, size to content */
+  min-width: 0; /* Allow shrinking below natural content width */
 }
 
 .adv-nav-link {
   display: block;
-  padding: 14px 10px;
+  padding: 14px 6px;
   color: #d1d5db;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   transition: color 0.15s ease, background 0.15s ease;
   white-space: nowrap;
   text-align: center;
@@ -320,6 +323,26 @@ input.adv-nav-toggle {
   /* Hide mobile swipe indicator on desktop */
   .adv-mobile-swipe-hint {
     display: none;
+  }
+}
+
+/* Medium desktops - slightly larger spacing */
+@media (min-width: 1200px) {
+  .adv-nav-link {
+    padding: 14px 8px;
+    font-size: 11px;
+  }
+}
+
+/* Large desktops - more comfortable spacing */
+@media (min-width: 1400px) {
+  .adv-main-nav .adv-nav-inner {
+    max-width: 1400px;
+    padding: 0 16px;
+  }
+  
+  .adv-nav-link {
+    padding: 14px 10px;
   }
 }
 

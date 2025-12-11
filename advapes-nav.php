@@ -493,7 +493,10 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     }
 
     // 9. Brands (static parent, dynamic top brands)
+    // Ensure Brands menu is included in navigation structure
     $brand_taxonomy = advapes_detect_brand_taxonomy();
+    $brand_children = array();
+    
     if ( $brand_taxonomy ) {
         $brands = get_terms( array(
             'taxonomy'   => $brand_taxonomy,
@@ -504,13 +507,6 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         ) );
 
         if ( ! is_wp_error( $brands ) && ! empty( $brands ) ) {
-            // Get total brand count for dropdown title
-            $total_brands = wp_count_terms( array(
-                'taxonomy'   => $brand_taxonomy,
-                'hide_empty' => true,
-            ) );
-            
-            $brand_children = array();
             foreach ( $brands as $brand ) {
                 $brand_children[] = array(
                     'name' => $brand->name,
@@ -518,44 +514,33 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                     'count' => $brand->count,
                 );
             }
-
-            // Add "View All Brands" link
-            $brand_children[] = array(
-                'name' => 'View All Brands',
-                'url'  => 'https://www.advapes.co.za/brands/',
-                'tag'  => 'A–Z',
-            );
-
-            $nav_structure['brands'] = array(
-                'name' => 'Brands',
-                'url'  => 'https://www.advapes.co.za/brands/',
-                'dropdown_title' => 'Shop by brand (' . $total_brands . '+)',
-                'dropdown_class' => 'adv-dropdown--wide',
-                'children' => $brand_children,
-            );
-        } else {
-            // Show Brands menu even if no brands found yet
-            $nav_structure['brands'] = array(
-                'name' => 'Brands',
-                'url'  => 'https://www.advapes.co.za/brands/',
-                'dropdown_title' => 'Shop by brand',
-                'dropdown_class' => 'adv-dropdown--wide',
-                'children' => array(
-                    array(
-                        'name' => 'View All Brands',
-                        'url'  => 'https://www.advapes.co.za/brands/',
-                        'tag'  => 'Browse all',
-                    ),
-                ),
-            );
         }
-    } else {
-        // No brand taxonomy detected - still show the menu but with just a link
-        $nav_structure['brands'] = array(
-            'name' => 'Brands',
-            'url'  => 'https://www.advapes.co.za/brands/',
-        );
     }
+    
+    // Calculate brand count (excluding the "View All" link we're about to add)
+    $brand_count = count( $brand_children );
+    
+    // Add "View All Brands" link (always present)
+    $brand_children[] = array(
+        'name' => 'View All Brands',
+        'url'  => 'https://www.advapes.co.za/brands/',
+        'tag'  => 'Browse all',
+    );
+    
+    // Build dropdown title with count if brands exist
+    $dropdown_title = 'Shop by brand';
+    if ( $brand_count > 0 ) {
+        $dropdown_title .= ' (' . $brand_count . '+)';
+    }
+    
+    // Always add Brands to navigation structure
+    $nav_structure['brands'] = array(
+        'name' => 'Brands',
+        'url'  => 'https://www.advapes.co.za/brands/',
+        'dropdown_title' => $dropdown_title,
+        'dropdown_class' => 'adv-dropdown--wide',
+        'children' => $brand_children,
+    );
 
     // 10. Static Support section (fully static)
     $nav_structure['support'] = array(
