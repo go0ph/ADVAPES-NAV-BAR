@@ -523,18 +523,27 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         }
     }
     
+    // Calculate brand count (excluding the "View All" link we're about to add)
+    $brand_count = count( $brand_children );
+    
     // Add "View All Brands" link (always present)
     $brand_children[] = array(
         'name' => 'View All Brands',
         'url'  => 'https://www.advapes.co.za/brands/',
-        'tag'  => ! empty( $brand_children ) ? 'Browse all' : 'A–Z',
+        'tag'  => $brand_count > 0 ? 'Browse all' : 'A–Z',
     );
+    
+    // Build dropdown title with count if brands exist
+    $dropdown_title = 'Shop by brand';
+    if ( $brand_count > 0 ) {
+        $dropdown_title .= ' (' . $brand_count . '+)';
+    }
     
     // Always add Brands to navigation structure
     $nav_structure['brands'] = array(
         'name' => 'Brands',
         'url'  => 'https://www.advapes.co.za/brands/',
-        'dropdown_title' => 'Shop by brand' . ( ! empty( $brand_children ) && count( $brand_children ) > 1 ? ' (' . ( count( $brand_children ) - 1 ) . '+)' : '' ),
+        'dropdown_title' => $dropdown_title,
         'dropdown_class' => 'adv-dropdown--wide',
         'children' => $brand_children,
     );
