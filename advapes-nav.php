@@ -156,7 +156,15 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         $category_ids = array_merge( $category_ids, $children );
     }
 
+    // Validate that we have category IDs to query
+    if ( empty( $category_ids ) ) {
+        return array();
+    }
+
     global $wpdb;
+    
+    // Sanitize category IDs to ensure they're integers
+    $category_ids = array_map( 'absint', $category_ids );
     
     // Create placeholders for category IDs
     $placeholders = implode( ',', array_fill( 0, count( $category_ids ), '%d' ) );
@@ -183,9 +191,10 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
     ";
     
     // Prepare query with brand taxonomy, all category IDs, and limit
+    // Use unpacking operator to pass array elements as individual arguments
     $prepare_args = array_merge( array( $brand_taxonomy ), $category_ids, array( $limit ) );
     $brands = $wpdb->get_results(
-        $wpdb->prepare( $query, $prepare_args )
+        $wpdb->prepare( $query, ...$prepare_args )
     );
 
     if ( empty( $brands ) ) {
