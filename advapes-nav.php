@@ -46,7 +46,9 @@ add_action( 'wp_enqueue_scripts', 'advapes_enqueue_nav_styles' );
  * Detect brand taxonomy from common candidates
  * 
  * Checks for brand taxonomies in order of likelihood:
- * - 'brand', 'brands', 'product_brand'
+ * - 'pwb-brand' (WordPress Perfect Brands plugin - used by advapes.co.za)
+ * - 'product_brand' (WooCommerce Brands)
+ * - 'brand', 'brands'
  * - Product attribute taxonomies: 'pa_brand', 'pa_brands'
  * - Any registered WooCommerce attribute taxonomy
  * 
@@ -59,7 +61,8 @@ function advapes_detect_brand_taxonomy() {
     }
 
     // Common brand taxonomy names in order of likelihood
-    $candidates = array( 'brand', 'brands', 'product_brand', 'pa_brand', 'pa_brands' );
+    // pwb-brand is prioritized as it's used by advapes.co.za
+    $candidates = array( 'pwb-brand', 'product_brand', 'brand', 'brands', 'pa_brand', 'pa_brands' );
 
     // Check direct taxonomy existence
     foreach ( $candidates as $candidate ) {
