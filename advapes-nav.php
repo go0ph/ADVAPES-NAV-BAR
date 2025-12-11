@@ -779,19 +779,26 @@ function advapes_nav_admin_notice() {
         ?>
         <div class="notice notice-warning is-dismissible">
             <h3>ADVapes Navigation Status</h3>
-            <ul style="list-style: disc; margin-left: 20px;">
-                <li><strong>WooCommerce:</strong> <?php echo $wc_active ? '✅ Active' : '❌ Not Active (Required)'; ?></li>
-                <li><strong>Brand Taxonomy:</strong> <?php echo $brand_tax ? "✅ Found ($brand_tax)" : '⚠️ Not detected'; ?></li>
-                <li><strong>Navigation Items:</strong> <?php echo count( $nav_structure ) . ' menu items'; ?></li>
-                <li><strong>CSS File:</strong> <?php echo $css_file_exists ? '✅ Loaded from file' : '⚠️ Using theme customizer CSS'; ?></li>
-            </ul>
+            
             <?php if ( ! $wc_active ): ?>
-                <p><strong>Action Required:</strong> Install and activate WooCommerce plugin for dynamic navigation.</p>
+                <p><strong>⚠️ Action Required:</strong> WooCommerce is not active. The navigation system requires WooCommerce to function.</p>
+                <p><a href="<?php echo admin_url( 'plugins.php' ); ?>" class="button button-primary">Activate WooCommerce</a></p>
+            <?php elseif ( empty( $nav_structure ) ): ?>
+                <p><strong>⚠️ Notice:</strong> No WooCommerce categories found. Using fallback navigation menu.</p>
+                <p>Create product categories to enable full navigation: <a href="<?php echo admin_url( 'edit-tags.php?taxonomy=product_cat&post_type=product' ); ?>">Manage Categories</a></p>
             <?php endif; ?>
-            <?php if ( empty( $nav_structure ) ): ?>
-                <p><strong>Note:</strong> No categories found. Using fallback navigation menu. Check WordPress debug.log for details.</p>
-            <?php endif; ?>
-            <p><em>View debug info at: <code><?php echo home_url( '/wp-json/advapes/v1/nav' ); ?></code></em></p>
+            
+            <details style="margin-top: 10px;">
+                <summary style="cursor: pointer; font-weight: bold;">View System Details</summary>
+                <ul style="list-style: disc; margin-left: 20px; margin-top: 10px;">
+                    <li><strong>WooCommerce:</strong> <?php echo $wc_active ? '✅ Active' : '❌ Not Active (Required)'; ?></li>
+                    <li><strong>Brand Taxonomy:</strong> <?php echo $brand_tax ? "✅ Found ($brand_tax)" : 'ℹ️ Not detected (optional)'; ?></li>
+                    <li><strong>Navigation Items:</strong> <?php echo count( $nav_structure ) . ' menu items'; ?></li>
+                    <li><strong>CSS Loading:</strong> <?php echo $css_file_exists ? '✅ File (advapes-nav.css)' : 'ℹ️ Theme customizer (OK)'; ?></li>
+                </ul>
+                <p><em>View debug info: <a href="<?php echo home_url( '/wp-json/advapes/v1/nav' ); ?>" target="_blank">REST API</a> | 
+                <a href="<?php echo get_stylesheet_directory_uri(); ?>/advapes-nav-debug.php" target="_blank">Debug Page</a></em></p>
+            </details>
         </div>
         <?php
     }

@@ -19,7 +19,17 @@ if ( ! defined( 'ABSPATH' ) ) {
     if ( file_exists( $wp_load ) ) {
         require_once( $wp_load );
     } else {
-        die( 'Error: Unable to locate WordPress. Please ensure this file is in your theme directory.' );
+        // Proper error page instead of raw die()
+        header( 'HTTP/1.1 500 Internal Server Error' );
+        ?>
+        <!DOCTYPE html>
+        <html><head><title>Configuration Error</title></head><body>
+        <h1>Configuration Error</h1>
+        <p>Unable to locate WordPress. Please ensure this file is in your theme directory.</p>
+        <p>Expected location: <code>/wp-content/themes/razzi-child/advapes-nav-debug.php</code></p>
+        </body></html>
+        <?php
+        exit;
     }
 }
 
