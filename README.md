@@ -16,6 +16,14 @@ Version 3.1.1 improves brand visibility within category navigation dropdowns:
   - DL E-Liquids - Shows top 4 brands
   - MTL & Nic Salts - Shows top 4 brands
 
+### **Improved Debugging & Error Handling**
+
+- **Admin dashboard notice** - Shows navigation status and issues
+- **Debug tool** - `advapes-nav-debug.php` for instant diagnostics
+- **Better error logging** - Detailed messages in WordPress debug.log
+- **Graceful fallbacks** - Works even if WooCommerce not available
+- **REST API enhancements** - More debug info at `/wp-json/advapes/v1/nav`
+
 ### **Hybrid Navigation: Best of V2 + V3**
 
 Version 3.1 implements a **hybrid approach** that combines:
@@ -445,6 +453,16 @@ curl https://www.advapes.co.za/wp-json/advapes/v1/nav?refresh=true
 
 ## 🐛 Troubleshooting
 
+### ⚠️ Navigation Not Showing? START HERE:
+
+1. **Upload and run the debug tool:** `advapes-nav-debug.php`
+   - Visit: `https://www.advapes.co.za/wp-content/themes/razzi-child/advapes-nav-debug.php`
+   - This will show exactly what's wrong
+
+2. **Follow the Quick Start Guide:** See [QUICK_START.md](QUICK_START.md)
+
+3. **Read detailed troubleshooting:** See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+
 ### Common Issues
 
 #### Navigation Not Showing
@@ -452,8 +470,9 @@ curl https://www.advapes.co.za/wp-json/advapes/v1/nav?refresh=true
 **Solutions:**
 1. Check `advapes-nav.php` uploaded correctly
 2. Verify WordPress/WooCommerce active
-3. Check PHP error log: `/wp-content/debug.log`
-4. Ensure file permissions: 644
+3. Use debug page: `advapes-nav-debug.php`
+4. Check PHP error log: `/wp-content/debug.log`
+5. Ensure file permissions: 644
 
 #### Product Counts Not Updating
 **Symptoms:** Counts stay static after changes
