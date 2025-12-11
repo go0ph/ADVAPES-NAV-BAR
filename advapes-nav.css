@@ -263,7 +263,6 @@ input.adv-nav-toggle {
   .adv-dropdown a {
     padding: 3px 0;
     font-size: 11px;
-    gap: 4px; /* Reduce gap between name and count */
   }
 
   /* Hide subtitles on mobile but keep tags/counts visible */
@@ -275,7 +274,7 @@ input.adv-nav-toggle {
   .adv-tag {
     display: inline;
     font-size: 9px;
-    margin-left: 0; /* Remove extra left margin on mobile */
+    margin-left: 4px; /* Reduce gap between name and count on mobile */
   }
 
   /* When burger checked, show menu */
