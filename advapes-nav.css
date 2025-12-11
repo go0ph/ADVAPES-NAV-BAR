@@ -18,7 +18,7 @@
   padding: 0 8px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   min-height: 44px;
 }
 
@@ -158,6 +158,27 @@
   white-space: nowrap;
 }
 
+/* Make "Browse all" tags stand out more */
+.adv-dropdown a:has(.adv-tag:only-of-type) .adv-tag,
+.adv-dropdown li:last-child .adv-tag {
+  color: #fbbf24;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.adv-dropdown li:last-child a {
+  background: #111827;
+  border: 1px solid #1f2937;
+  margin-top: 4px;
+  padding: 6px 8px;
+}
+
+.adv-dropdown li:last-child a:hover {
+  background: #1f2937;
+  border-color: #e11d2f;
+}
+
 /* Wider dropdown for Brands menu with more items */
 .adv-dropdown--wide {
   min-width: 260px;
@@ -284,6 +305,24 @@ input.adv-nav-toggle {
   .adv-nav-toggle-btn {
     justify-content: flex-start;
     gap: 8px;
+  }
+  
+  /* Make "Browse all" stand out on mobile too */
+  .adv-dropdown li:last-child a {
+    background: #111827;
+    border: 1px solid #1f2937;
+    margin-top: 6px;
+    padding: 6px 8px;
+    border-radius: 6px;
+  }
+  
+  .adv-dropdown li:last-child a:hover {
+    background: #1f2937;
+  }
+  
+  .adv-dropdown li:last-child .adv-tag {
+    color: #fbbf24;
+    font-weight: 600;
   }
   
   /* Mobile swipe indicator at bottom */

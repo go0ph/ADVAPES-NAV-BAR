@@ -283,11 +283,16 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     // 2. Disposables (hybrid: specific subcategories + dynamic "View All")
     $disposables = advapes_find_category( 'disposables' );
     if ( $disposables ) {
-        // Get key subcategories dynamically
-        $children = advapes_get_category_children( $disposables->term_id, 10 );
+        // Get key subcategories dynamically - limit to 6 to leave room for brands
+        $children = advapes_get_category_children( $disposables->term_id, 6 );
         
-        // Add top brands for this category
-        $brands = advapes_get_category_brands( $disposables->term_id, 4 );
+        // Remove the first child category if it exists (requested to remove first option)
+        if ( ! empty( $children ) ) {
+            array_shift( $children );
+        }
+        
+        // Add top brands for this category - limit to 3 to stay within 10 items total
+        $brands = advapes_get_category_brands( $disposables->term_id, 3 );
         if ( ! empty( $brands ) ) {
             foreach ( $brands as $brand ) {
                 $children[] = $brand;
@@ -312,11 +317,11 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     // 3. Pod Disposables (hybrid: dynamic subcategories)
     $pod_disposables = advapes_find_category( 'pod-disposables' );
     if ( $pod_disposables ) {
-        // Get subcategories dynamically
-        $children = advapes_get_category_children( $pod_disposables->term_id, 10 );
+        // Get subcategories dynamically - limit to 6 to leave room for brands
+        $children = advapes_get_category_children( $pod_disposables->term_id, 6 );
         
-        // Add top brands for this category
-        $brands = advapes_get_category_brands( $pod_disposables->term_id, 4 );
+        // Add top brands for this category - limit to 3 to stay within 10 items total
+        $brands = advapes_get_category_brands( $pod_disposables->term_id, 3 );
         if ( ! empty( $brands ) ) {
             foreach ( $brands as $brand ) {
                 $children[] = $brand;
@@ -341,11 +346,11 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     // 4. Pod Systems & Kits (hybrid: dynamic subcategories)
     $pod_systems = advapes_find_category( 'pod-systems-kits' );
     if ( $pod_systems ) {
-        // Get subcategories dynamically
-        $children = advapes_get_category_children( $pod_systems->term_id, 10 );
+        // Get subcategories dynamically - limit to 6 to leave room for brands
+        $children = advapes_get_category_children( $pod_systems->term_id, 6 );
         
-        // Add top brands for this category
-        $brands = advapes_get_category_brands( $pod_systems->term_id, 4 );
+        // Add top brands for this category - limit to 3 to stay within 10 items total
+        $brands = advapes_get_category_brands( $pod_systems->term_id, 3 );
         if ( ! empty( $brands ) ) {
             foreach ( $brands as $brand ) {
                 $children[] = $brand;
@@ -374,11 +379,11 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         $hardware = advapes_find_category( 'vape-hardware' );
     }
     if ( $hardware ) {
-        // Get subcategories dynamically
-        $children = advapes_get_category_children( $hardware->term_id, 10 );
+        // Get subcategories dynamically - limit to 6 to leave room for brands
+        $children = advapes_get_category_children( $hardware->term_id, 6 );
         
-        // Add top brands for this category
-        $brands = advapes_get_category_brands( $hardware->term_id, 4 );
+        // Add top brands for this category - limit to 3 to stay within 10 items total
+        $brands = advapes_get_category_brands( $hardware->term_id, 3 );
         if ( ! empty( $brands ) ) {
             foreach ( $brands as $brand ) {
                 $children[] = $brand;
@@ -406,11 +411,11 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         $dl_liquids = advapes_find_category( 'dl-liquids' );
     }
     if ( $dl_liquids ) {
-        // Get subcategories dynamically
-        $children = advapes_get_category_children( $dl_liquids->term_id, 10 );
+        // Get subcategories dynamically - limit to 6 to leave room for brands
+        $children = advapes_get_category_children( $dl_liquids->term_id, 6 );
         
-        // Add top brands for this category
-        $brands = advapes_get_category_brands( $dl_liquids->term_id, 4 );
+        // Add top brands for this category - limit to 3 to stay within 10 items total
+        $brands = advapes_get_category_brands( $dl_liquids->term_id, 3 );
         if ( ! empty( $brands ) ) {
             foreach ( $brands as $brand ) {
                 $children[] = $brand;
@@ -438,11 +443,11 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         $nic_salts = advapes_find_category( 'nic-salts-mtl-liquids' );
     }
     if ( $nic_salts ) {
-        // Get subcategories dynamically
-        $children = advapes_get_category_children( $nic_salts->term_id, 10 );
+        // Get subcategories dynamically - limit to 6 to leave room for brands
+        $children = advapes_get_category_children( $nic_salts->term_id, 6 );
         
-        // Add top brands for this category
-        $brands = advapes_get_category_brands( $nic_salts->term_id, 4 );
+        // Add top brands for this category - limit to 3 to stay within 10 items total
+        $brands = advapes_get_category_brands( $nic_salts->term_id, 3 );
         if ( ! empty( $brands ) ) {
             foreach ( $brands as $brand ) {
                 $children[] = $brand;
@@ -467,10 +472,11 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     // 8. Nic Alternatives (static parent, dynamic children)
     $nic_alternatives = advapes_find_category( 'nicotine-alternatives' );
     if ( $nic_alternatives ) {
-        $children = advapes_get_category_children( $nic_alternatives->term_id, 10 );
+        // Get subcategories dynamically - limit to 6 to leave room for brands
+        $children = advapes_get_category_children( $nic_alternatives->term_id, 6 );
         
-        // Add top brands for this category
-        $brands = advapes_get_category_brands( $nic_alternatives->term_id, 4 );
+        // Add top brands for this category - limit to 3 to stay within 10 items total
+        $brands = advapes_get_category_brands( $nic_alternatives->term_id, 3 );
         if ( ! empty( $brands ) ) {
             foreach ( $brands as $brand ) {
                 $children[] = $brand;
