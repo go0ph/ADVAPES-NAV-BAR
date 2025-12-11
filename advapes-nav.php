@@ -163,20 +163,29 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
 
     global $wpdb;
     
-    // Sanitize category IDs to ensure they're integers
+    // Sanitize category IDs to ensure they're integers - absint() guarantees positive integers
     $category_ids = array_map( 'absint', $category_ids );
     
-    // Create placeholders for category IDs in the IN clause
-    // We need to use implode with the actual IDs since wpdb->prepare() doesn't support
-    // dynamic placeholders in the query string for IN clauses
-    $category_ids_string = implode( ',', $category_ids );
+    // Validate we have at least one category ID after sanitization
+    if ( empty( $category_ids ) ) {
+        return array();
+    }
     
-    // Use direct database query for better performance
-    // Note: $wpdb->terms, $wpdb->posts etc. automatically include table prefix
-    // Get all brand terms associated with products in this category and its children
-    // We use %s for taxonomy and %d for limit, but category IDs are already sanitized with absint
-    $query = $wpdb->prepare(
-        "SELECT t.term_id, t.name, COUNT(DISTINCT p.ID) as product_count
+    // Create placeholders and prepare args for IN clause
+    // WordPress $wpdb->prepare() requires all values to use placeholders, but for IN clauses
+    // we need to build the placeholder string dynamically
+    $placeholders = array_fill( 0, count( $category_ids ), '%d' );
+    $placeholders_str = implode( ',', $placeholders );
+    
+    // Build the query with placeholders
+    // This query finds brands associated with products in the specified category and its children:
+    // 1. Join brand terms (t) with their taxonomy relationships (tt, tr)
+    // 2. Join to products (p) that have those brand terms
+    // 3. Join products to their category relationships (tr2, tt2)
+    // 4. Filter by brand taxonomy, product categories, and published status
+    // 5. Count distinct products per brand and order by count
+    $query = "
+        SELECT t.term_id, t.name, COUNT(DISTINCT p.ID) as product_count
         FROM {$wpdb->terms} t
         INNER JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
         INNER JOIN {$wpdb->term_relationships} tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
@@ -185,17 +194,22 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         INNER JOIN {$wpdb->term_taxonomy} tt2 ON tr2.term_taxonomy_id = tt2.term_taxonomy_id
         WHERE tt.taxonomy = %s
         AND tt2.taxonomy = 'product_cat'
-        AND tt2.term_id IN ({$category_ids_string})
+        AND tt2.term_id IN ($placeholders_str)
         AND p.post_type = 'product'
         AND p.post_status = 'publish'
         GROUP BY t.term_id, t.name
         ORDER BY product_count DESC
-        LIMIT %d",
-        $brand_taxonomy,
-        $limit
+        LIMIT %d
+    ";
+    
+    // Prepare the query with all arguments: taxonomy, category IDs (spread), and limit
+    $prepare_args = array_merge( 
+        array( $brand_taxonomy ), 
+        $category_ids, 
+        array( $limit ) 
     );
     
-    $brands = $wpdb->get_results( $query );
+    $brands = $wpdb->get_results( $wpdb->prepare( $query, ...$prepare_args ) );
 
     if ( empty( $brands ) ) {
         return array();
