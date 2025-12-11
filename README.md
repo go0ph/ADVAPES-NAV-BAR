@@ -82,7 +82,7 @@ If you use a different brand taxonomy, the system won't find it. Either rename y
 
 ## Cache Management
 
-Navigation data is cached for 30 minutes to improve performance.
+Navigation data is cached for 30 seconds to improve performance.
 
 ### Automatic Cache Invalidation
 
@@ -176,7 +176,7 @@ Edit `advapes-nav.css`:
 
 In `advapes-nav.php` line 23:
 ```php
-define( 'ADVAPES_NAV_TTL', 30 * MINUTE_IN_SECONDS ); // Change 30 to any number of minutes
+define( 'ADVAPES_NAV_TTL', 30 ); // Change 30 to any number of seconds
 ```
 
 ### Add/Remove Menu Items
@@ -193,7 +193,7 @@ Edit the navigation structure in `advapes_get_nav_structure()` function (lines 2
 ## Performance
 
 - Database queries are optimized with proper JOINs
-- Results are cached for 30 minutes
+- Results are cached for 30 seconds
 - Cache invalidates automatically on data changes
 - Mobile-first responsive design
 - No external dependencies

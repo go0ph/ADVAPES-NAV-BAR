@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Define constants
 define( 'ADVAPES_NAV_TRANSIENT_KEY', 'advapes_nav_structure' );
-define( 'ADVAPES_NAV_TTL', 30 * MINUTE_IN_SECONDS ); // 30 minutes
+define( 'ADVAPES_NAV_TTL', 30 ); // 30 seconds
 
 /**
  * Enqueue ADVapes navigation CSS
@@ -163,17 +163,26 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
 
     global $wpdb;
     
-    // Sanitize category IDs to ensure they're integers
+    // Sanitize category IDs to ensure they're integers - absint() guarantees positive integers
     $category_ids = array_map( 'absint', $category_ids );
     
-    // Create placeholders for category IDs in the IN clause
-    // This generates a string like '%d,%d,%d' for use with wpdb->prepare()
-    // Each %d will be replaced with a sanitized integer category ID
-    $placeholders = implode( ',', array_fill( 0, count( $category_ids ), '%d' ) );
+    // Validate we have at least one category ID after sanitization
+    if ( empty( $category_ids ) ) {
+        return array();
+    }
     
-    // Use direct database query for better performance
-    // Note: $wpdb->terms, $wpdb->posts etc. automatically include table prefix
-    // Get all brand terms associated with products in this category and its children
+    // Create placeholders for IN clause
+    // WordPress $wpdb->prepare() requires all values to use placeholders, but for IN clauses
+    // we need to build the placeholder string dynamically
+    $placeholders_str = implode( ',', array_fill( 0, count( $category_ids ), '%d' ) );
+    
+    // Build the query with placeholders
+    // This query finds brands associated with products in the specified category and its children:
+    // 1. Join brand terms (t) with their taxonomy relationships (tt, tr)
+    // 2. Join to products (p) that have those brand terms
+    // 3. Join products to their category relationships (tr2, tt2)
+    // 4. Filter by brand taxonomy, product categories, and published status
+    // 5. Count distinct products per brand and order by count
     $query = "
         SELECT t.term_id, t.name, COUNT(DISTINCT p.ID) as product_count
         FROM {$wpdb->terms} t
@@ -184,7 +193,7 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         INNER JOIN {$wpdb->term_taxonomy} tt2 ON tr2.term_taxonomy_id = tt2.term_taxonomy_id
         WHERE tt.taxonomy = %s
         AND tt2.taxonomy = 'product_cat'
-        AND tt2.term_id IN ({$placeholders})
+        AND tt2.term_id IN ($placeholders_str)
         AND p.post_type = 'product'
         AND p.post_status = 'publish'
         GROUP BY t.term_id, t.name
@@ -192,20 +201,9 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         LIMIT %d
     ";
     
-    // Prepare query with brand taxonomy, all category IDs, and limit
-    // Array structure: [ brand_taxonomy, cat_id_1, cat_id_2, ..., limit ]
-    // Use unpacking operator to pass array elements as individual arguments to wpdb->prepare()
+    // Prepare the query with all arguments: taxonomy, category IDs (spread), and limit
     $prepare_args = array_merge( array( $brand_taxonomy ), $category_ids, array( $limit ) );
-    
-    // Verify we have the right number of arguments for placeholders
-    $expected_args = 1 + count( $category_ids ) + 1; // 1 for taxonomy, N for categories, 1 for limit
-    if ( count( $prepare_args ) !== $expected_args ) {
-        return array();
-    }
-    
-    $brands = $wpdb->get_results(
-        $wpdb->prepare( $query, ...$prepare_args )
-    );
+    $brands = $wpdb->get_results( $wpdb->prepare( $query, ...$prepare_args ) );
 
     if ( empty( $brands ) ) {
         return array();
@@ -733,13 +731,13 @@ function advapes_refresh_nav_cron() {
 }
 
 /**
- * Register custom cron schedule for 30-minute intervals
+ * Register custom cron schedule for 30-second intervals
  */
 function advapes_cron_schedules( $schedules ) {
-    if ( ! isset( $schedules['advapes_30min'] ) ) {
-        $schedules['advapes_30min'] = array(
-            'interval' => 30 * MINUTE_IN_SECONDS,
-            'display'  => __( 'Every 30 Minutes (ADVapes Nav)', 'razzi-child' ),
+    if ( ! isset( $schedules['advapes_30sec'] ) ) {
+        $schedules['advapes_30sec'] = array(
+            'interval' => 30,
+            'display'  => __( 'Every 30 Seconds (ADVapes Nav)', 'razzi-child' ),
         );
     }
     return $schedules;
@@ -751,7 +749,7 @@ add_filter( 'cron_schedules', 'advapes_cron_schedules' );
  */
 function advapes_schedule_cron() {
     if ( ! wp_next_scheduled( 'advapes_refresh_nav_cron' ) ) {
-        wp_schedule_event( time(), 'advapes_30min', 'advapes_refresh_nav_cron' );
+        wp_schedule_event( time(), 'advapes_30sec', 'advapes_refresh_nav_cron' );
     }
 }
 add_action( 'wp', 'advapes_schedule_cron' );
