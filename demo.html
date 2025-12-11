@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADVapes Navigation Demo - Issue #5 Content Restoration</title>
+    <title>ADVapes Navigation Demo - Brands & Mobile Fix</title>
     <link rel="stylesheet" href="advapes-nav.css">
     <style>
         /* Minimal page styling for demo */
@@ -71,7 +71,7 @@
 <body>
     <div class="demo-header">
         <h1>🚀 ADVapes Navigation Demo</h1>
-        <p>Issue #5: Content Restoration & Mobile Swipe Fix</p>
+        <p>Brands Menu Fix & Mobile Layout Restoration</p>
     </div>
 
     <!-- ADVapes Navigation Bar -->
@@ -189,26 +189,33 @@
                 </li>
 
                 <li class="adv-nav-item">
-                    <a href="#" class="adv-nav-link">Brands</a>
-                    <div class="adv-dropdown adv-dropdown--wide">
-                        <div class="adv-dropdown-title">Shop by brand (150+ products)</div>
-                        <ul>
-                            <li><a href="#"><span>Vuse</span><span class="adv-tag">680+ products</span></a></li>
-                            <li><a href="#"><span>Elf Bar</span><span class="adv-tag">520+ products</span></a></li>
-                            <li><a href="#"><span>Lost Mary</span><span class="adv-tag">410+ products</span></a></li>
-                            <li><a href="#"><span>HQD</span><span class="adv-tag">350+ products</span></a></li>
-                            <li><a href="#"><span>View All Brands</span><span class="adv-tag">A–Z</span></a></li>
-                        </ul>
-                    </div>
-                </li>
-
-                <li class="adv-nav-item">
                     <a href="#" class="adv-nav-link">Nic Alternatives</a>
                     <div class="adv-dropdown">
                         <div class="adv-dropdown-title">Non-vape nicotine (200+ products)</div>
                         <ul>
                             <li><a href="#"><span>Nicotine Pouches</span><span class="adv-tag">120+ products</span></a></li>
                             <li><a href="#"><span>Nicotine Gum</span><span class="adv-tag">45+ products</span></a></li>
+                            <li><a href="#"><span>All Nicotine Alternatives</span><span class="adv-tag">Browse all</span></a></li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="adv-nav-item">
+                    <a href="#" class="adv-nav-link">Brands</a>
+                    <div class="adv-dropdown adv-dropdown--wide">
+                        <div class="adv-dropdown-title">Shop by brand (150+)</div>
+                        <ul>
+                            <li><a href="#"><span>Vuse</span><span class="adv-tag">680+ products</span></a></li>
+                            <li><a href="#"><span>Elf Bar</span><span class="adv-tag">520+ products</span></a></li>
+                            <li><a href="#"><span>Lost Mary</span><span class="adv-tag">410+ products</span></a></li>
+                            <li><a href="#"><span>HQD</span><span class="adv-tag">350+ products</span></a></li>
+                            <li><a href="#"><span>Geek Bar</span><span class="adv-tag">290+ products</span></a></li>
+                            <li><a href="#"><span>Tugboat</span><span class="adv-tag">240+ products</span></a></li>
+                            <li><a href="#"><span>Vaporesso</span><span class="adv-tag">180+ products</span></a></li>
+                            <li><a href="#"><span>SKE</span><span class="adv-tag">160+ products</span></a></li>
+                            <li><a href="#"><span>Wotofo</span><span class="adv-tag">140+ products</span></a></li>
+                            <li><a href="#"><span>Nasty Juice</span><span class="adv-tag">120+ products</span></a></li>
+                            <li><a href="#"><span>View All Brands</span><span class="adv-tag">A–Z</span></a></li>
                         </ul>
                     </div>
                 </li>
@@ -221,6 +228,9 @@
                             <li><a href="#"><span>FAQ</span><span class="adv-tag">Answers</span></a></li>
                             <li><a href="#"><span>Contact Us</span><span class="adv-tag">Get in touch</span></a></li>
                             <li><a href="#"><span>Track my Order</span><span class="adv-tag">Shipment tracking</span></a></li>
+                            <li><a href="#"><span>About Us</span><span class="adv-tag">Our story</span></a></li>
+                            <li><a href="#"><span>Shipping Rates</span><span class="adv-tag">Delivery info</span></a></li>
+                            <li><a href="#"><span>Refunds &amp; Returns</span><span class="adv-tag">Policy</span></a></li>
                         </ul>
                     </div>
                 </li>
@@ -230,30 +240,31 @@
 
     <!-- Demo content explaining improvements -->
     <div class="demo-content">
-        <h2>✅ Content Restored (Issue #5)</h2>
+        <h2>✅ Menu Structure Updated</h2>
         <ul>
-            <li>Category-based dropdowns restored <span class="improvement-tag">Was brands</span></li>
-            <li>More menu items in Deals (6 instead of 3) <span class="improvement-tag">Restored</span></li>
-            <li>Subcategories show actual product categories <span class="improvement-tag">Better UX</span></li>
-            <li>Dynamic updates still work - categories auto-populate <span class="improvement-tag">Future-proof</span></li>
+            <li>Brands section now shows top 10 brands <span class="improvement-tag">Was 15</span></li>
+            <li>Brands positioned before Support in menu order <span class="improvement-tag">Better flow</span></li>
+            <li>Menu order: Deals → Products → Brands → Support <span class="improvement-tag">Logical hierarchy</span></li>
+            <li>Dynamic updates still work - brands auto-populate by product count <span class="improvement-tag">Future-proof</span></li>
         </ul>
 
-        <h2 style="margin-top: 30px;">📱 Mobile Improvements (Issue #5)</h2>
+        <h2 style="margin-top: 30px;">📱 Mobile Menu Improvements</h2>
         <ul>
-            <li>Horizontal swipe scrolling enabled <span class="improvement-tag">New</span></li>
-            <li>Scroll hint stays visible for 12 seconds (was 5s) <span class="improvement-tag">140% longer</span></li>
-            <li>Smooth touch scrolling with momentum <span class="improvement-tag">iOS-style</span></li>
-            <li>Menu items are cards you can swipe through <span class="improvement-tag">Modern UX</span></li>
+            <li>Reverted to clean vertical scrolling layout <span class="improvement-tag">v2.0 style</span></li>
+            <li>Simple, user-friendly mobile navigation <span class="improvement-tag">Familiar UX</span></li>
+            <li>All menu items visible in vertical list <span class="improvement-tag">Easy access</span></li>
+            <li>Dropdowns expand inline under parent items <span class="improvement-tag">Clear hierarchy</span></li>
         </ul>
 
         <h2 style="margin-top: 30px;">🧪 Testing Instructions</h2>
         <ul>
-            <li><strong>Desktop:</strong> Hover over menu items to see category-based dropdowns</li>
+            <li><strong>Desktop:</strong> Hover over menu items to see dropdowns</li>
+            <li><strong>Desktop:</strong> Check Brands shows 10 items + "View All Brands"</li>
+            <li><strong>Desktop:</strong> Verify menu order: ...MTL → Nic Alt → Brands → Support</li>
             <li><strong>Mobile:</strong> Resize browser window to < 1024px width</li>
             <li><strong>Mobile:</strong> Click the burger menu icon to open menu</li>
-            <li><strong>Mobile:</strong> Swipe left/right to scroll through menu items</li>
-            <li><strong>Check:</strong> Scroll hint should stay visible for 12 seconds</li>
-            <li><strong>Check:</strong> Dropdowns should show categories, not brands</li>
+            <li><strong>Mobile:</strong> Scroll vertically through all menu items</li>
+            <li><strong>Mobile:</strong> Verify clean, simple vertical layout</li>
         </ul>
     </div>
 
