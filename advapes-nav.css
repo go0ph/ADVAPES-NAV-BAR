@@ -326,6 +326,26 @@ input.adv-nav-toggle {
   }
 }
 
+/* Medium desktops - slightly larger spacing */
+@media (min-width: 1200px) {
+  .adv-nav-link {
+    padding: 14px 8px;
+    font-size: 11px;
+  }
+}
+
+/* Large desktops - more comfortable spacing */
+@media (min-width: 1400px) {
+  .adv-main-nav .adv-nav-inner {
+    max-width: 1400px;
+    padding: 0 16px;
+  }
+  
+  .adv-nav-link {
+    padding: 14px 10px;
+  }
+}
+
 header#site-header.minimized {
   background-color: red !important;
   box-shadow: 0px 0px 0px 0px red !important;
