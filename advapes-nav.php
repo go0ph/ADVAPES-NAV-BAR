@@ -416,6 +416,12 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         ) );
 
         if ( ! is_wp_error( $brands ) && ! empty( $brands ) ) {
+            // Get total brand count for dropdown title
+            $total_brands = wp_count_terms( array(
+                'taxonomy'   => $brand_taxonomy,
+                'hide_empty' => true,
+            ) );
+            
             $brand_children = array();
             foreach ( $brands as $brand ) {
                 $brand_children[] = array(
@@ -435,7 +441,7 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             $nav_structure['brands'] = array(
                 'name' => 'Brands',
                 'url'  => 'https://www.advapes.co.za/brands/',
-                'dropdown_title' => 'Shop by brand (150+)',
+                'dropdown_title' => 'Shop by brand (' . $total_brands . '+)',
                 'dropdown_class' => 'adv-dropdown--wide',
                 'children' => $brand_children,
             );
