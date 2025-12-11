@@ -46,7 +46,9 @@ add_action( 'wp_enqueue_scripts', 'advapes_enqueue_nav_styles' );
  * Detect brand taxonomy from common candidates
  * 
  * Checks for brand taxonomies in order of likelihood:
- * - 'brand', 'brands', 'product_brand'
+ * - 'pwb-brand' (WordPress Perfect Brands plugin - used by advapes.co.za)
+ * - 'product_brand' (WooCommerce Brands)
+ * - 'brand', 'brands'
  * - Product attribute taxonomies: 'pa_brand', 'pa_brands'
  * - Any registered WooCommerce attribute taxonomy
  * 
@@ -59,7 +61,8 @@ function advapes_detect_brand_taxonomy() {
     }
 
     // Common brand taxonomy names in order of likelihood
-    $candidates = array( 'brand', 'brands', 'product_brand', 'pa_brand', 'pa_brands' );
+    // pwb-brand is prioritized as it's used by advapes.co.za
+    $candidates = array( 'pwb-brand', 'product_brand', 'brand', 'brands', 'pa_brand', 'pa_brands' );
 
     // Check direct taxonomy existence
     foreach ( $candidates as $candidate ) {
@@ -146,11 +149,31 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         return array();
     }
 
+    // Get all child category IDs to include products from subcategories
+    $category_ids = array( $category_id );
+    $children = get_term_children( $category_id, 'product_cat' );
+    if ( ! is_wp_error( $children ) && ! empty( $children ) ) {
+        $category_ids = array_merge( $category_ids, $children );
+    }
+
+    // Validate that we have category IDs to query
+    if ( empty( $category_ids ) ) {
+        return array();
+    }
+
     global $wpdb;
+    
+    // Sanitize category IDs to ensure they're integers
+    $category_ids = array_map( 'absint', $category_ids );
+    
+    // Create placeholders for category IDs in the IN clause
+    // This generates a string like '%d,%d,%d' for use with wpdb->prepare()
+    // Each %d will be replaced with a sanitized integer category ID
+    $placeholders = implode( ',', array_fill( 0, count( $category_ids ), '%d' ) );
     
     // Use direct database query for better performance
     // Note: $wpdb->terms, $wpdb->posts etc. automatically include table prefix
-    // Get all brand terms associated with products in this category
+    // Get all brand terms associated with products in this category and its children
     $query = "
         SELECT t.term_id, t.name, COUNT(DISTINCT p.ID) as product_count
         FROM {$wpdb->terms} t
@@ -161,7 +184,7 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         INNER JOIN {$wpdb->term_taxonomy} tt2 ON tr2.term_taxonomy_id = tt2.term_taxonomy_id
         WHERE tt.taxonomy = %s
         AND tt2.taxonomy = 'product_cat'
-        AND tt2.term_id = %d
+        AND tt2.term_id IN ({$placeholders})
         AND p.post_type = 'product'
         AND p.post_status = 'publish'
         GROUP BY t.term_id, t.name
@@ -169,8 +192,19 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         LIMIT %d
     ";
     
+    // Prepare query with brand taxonomy, all category IDs, and limit
+    // Array structure: [ brand_taxonomy, cat_id_1, cat_id_2, ..., limit ]
+    // Use unpacking operator to pass array elements as individual arguments to wpdb->prepare()
+    $prepare_args = array_merge( array( $brand_taxonomy ), $category_ids, array( $limit ) );
+    
+    // Verify we have the right number of arguments for placeholders
+    $expected_args = 1 + count( $category_ids ) + 1; // 1 for taxonomy, N for categories, 1 for limit
+    if ( count( $prepare_args ) !== $expected_args ) {
+        return array();
+    }
+    
     $brands = $wpdb->get_results(
-        $wpdb->prepare( $query, $brand_taxonomy, $category_id, $limit )
+        $wpdb->prepare( $query, ...$prepare_args )
     );
 
     if ( empty( $brands ) ) {
