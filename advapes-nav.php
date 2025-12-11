@@ -218,15 +218,10 @@ function advapes_get_nav_structure( $force_refresh = false ) {
 
     // Check if WooCommerce is active
     if ( ! class_exists( 'WooCommerce' ) ) {
-        // Log that WooCommerce is not active
-        error_log( 'ADVapes Nav: WooCommerce is not active. Navigation will use fallback menu.' );
         return array();
     }
 
     $nav_structure = array();
-    
-    // Track what categories were found for debugging
-    $found_categories = array();
 
     // 1. Static Deals section (fully static - no WooCommerce dependency)
     $nav_structure['deals'] = array(
@@ -256,7 +251,6 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     // 2. Disposables (hybrid: specific subcategories + dynamic "View All")
     $disposables = advapes_find_category( 'disposables' );
     if ( $disposables ) {
-        $found_categories[] = 'disposables';
         // Get key subcategories dynamically
         $children = advapes_get_category_children( $disposables->term_id, 10 );
         
@@ -469,7 +463,6 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     // 9. Brands (static parent, dynamic top brands)
     $brand_taxonomy = advapes_detect_brand_taxonomy();
     if ( $brand_taxonomy ) {
-        $found_categories[] = 'brands (taxonomy: ' . $brand_taxonomy . ')';
         $brands = get_terms( array(
             'taxonomy'   => $brand_taxonomy,
             'hide_empty' => true,
@@ -526,7 +519,6 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         }
     } else {
         // No brand taxonomy detected - still show the menu but with just a link
-        error_log( 'ADVapes Nav: No brand taxonomy detected. Checked: brand, brands, product_brand, pa_brand, pa_brands' );
         $nav_structure['brands'] = array(
             'name' => 'Brands',
             'url'  => 'https://www.advapes.co.za/brands/',
@@ -587,15 +579,6 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         ),
     );
 
-    // Log what categories were found for debugging
-    if ( ! empty( $found_categories ) ) {
-        error_log( 'ADVapes Nav: Successfully found categories: ' . implode( ', ', $found_categories ) );
-    } else {
-        error_log( 'ADVapes Nav: WARNING - No WooCommerce categories found. Check category slugs.' );
-    }
-    
-    error_log( 'ADVapes Nav: Built navigation with ' . count( $nav_structure ) . ' menu items' );
-    
     // Cache the structure
     set_transient( ADVAPES_NAV_TRANSIENT_KEY, $nav_structure, ADVAPES_NAV_TTL );
 
@@ -612,15 +595,6 @@ function advapes_render_nav() {
     $nav_structure = advapes_get_nav_structure();
 
     if ( empty( $nav_structure ) ) {
-        // Debug output for troubleshooting
-        $wc_active = class_exists( 'WooCommerce' ) ? 'YES' : 'NO';
-        $brand_tax = advapes_detect_brand_taxonomy();
-        $brand_status = $brand_tax ? "YES ($brand_tax)" : 'NO';
-        
-        echo '<!-- ADVapes Nav Debug: No structure available -->' . "\n";
-        echo '<!-- WooCommerce Active: ' . $wc_active . ' -->' . "\n";
-        echo '<!-- Brand Taxonomy Detected: ' . $brand_status . ' -->' . "\n";
-        
         // Show minimal fallback menu
         echo '<ul class="adv-nav-list">' . "\n";
         echo '<li class="adv-nav-item"><a href="https://www.advapes.co.za/" class="adv-nav-link">Home</a></li>' . "\n";
@@ -759,87 +733,50 @@ function advapes_clear_scheduled_cron() {
 }
 register_deactivation_hook( __FILE__, 'advapes_clear_scheduled_cron' );
 
-/**
- * Admin notice for debugging navigation issues
- */
-function advapes_nav_admin_notice() {
-    // Only show to admins
-    if ( ! current_user_can( 'manage_options' ) ) {
-        return;
-    }
-    
-    $wc_active = class_exists( 'WooCommerce' );
-    $brand_tax = advapes_detect_brand_taxonomy();
-    $nav_structure = advapes_get_nav_structure();
-    $css_file_exists = file_exists( get_stylesheet_directory() . '/advapes-nav.css' );
-    
-    // Only show notice if there are critical issues (WooCommerce or navigation structure)
-    // Note: Missing CSS file is not critical as user may be using theme customizer
-    if ( ! $wc_active || empty( $nav_structure ) ) {
-        ?>
-        <div class="notice notice-warning is-dismissible">
-            <h3>ADVapes Navigation Status</h3>
-            
-            <?php if ( ! $wc_active ): ?>
-                <p><strong>⚠️ Action Required:</strong> WooCommerce is not active. The navigation system requires WooCommerce to function.</p>
-                <p><a href="<?php echo admin_url( 'plugins.php' ); ?>" class="button button-primary">Activate WooCommerce</a></p>
-            <?php elseif ( empty( $nav_structure ) ): ?>
-                <p><strong>⚠️ Notice:</strong> No WooCommerce categories found. Using fallback navigation menu.</p>
-                <p>Create product categories to enable full navigation: <a href="<?php echo admin_url( 'edit-tags.php?taxonomy=product_cat&post_type=product' ); ?>">Manage Categories</a></p>
-            <?php endif; ?>
-            
-            <details style="margin-top: 10px;">
-                <summary style="cursor: pointer; font-weight: bold;">View System Details</summary>
-                <ul style="list-style: disc; margin-left: 20px; margin-top: 10px;">
-                    <li><strong>WooCommerce:</strong> <?php echo $wc_active ? '✅ Active' : '❌ Not Active (Required)'; ?></li>
-                    <li><strong>Brand Taxonomy:</strong> <?php echo $brand_tax ? "✅ Found ($brand_tax)" : 'ℹ️ Not detected (optional)'; ?></li>
-                    <li><strong>Navigation Items:</strong> <?php echo count( $nav_structure ) . ' menu items'; ?></li>
-                    <li><strong>CSS Loading:</strong> <?php echo $css_file_exists ? '✅ File (advapes-nav.css)' : 'ℹ️ Theme customizer (OK)'; ?></li>
-                </ul>
-                <p><em>View debug info: <a href="<?php echo home_url( '/wp-json/advapes/v1/nav' ); ?>" target="_blank">REST API</a> | 
-                <a href="<?php echo get_stylesheet_directory_uri(); ?>/advapes-nav-debug.php" target="_blank">Debug Page</a></em></p>
-            </details>
-        </div>
-        <?php
-    }
-}
-add_action( 'admin_notices', 'advapes_nav_admin_notice' );
+
 
 /**
- * Register REST API endpoint for debugging
+ * Register REST API endpoints
  */
 function advapes_register_rest_route() {
+    // GET endpoint - view navigation structure
     register_rest_route( 'advapes/v1', '/nav', array(
         'methods'  => 'GET',
         'callback' => 'advapes_rest_get_nav',
-        'permission_callback' => '__return_true', // Public read-only endpoint
+        'permission_callback' => '__return_true',
+    ) );
+    
+    // POST endpoint - refresh cache (admin only)
+    register_rest_route( 'advapes/v1', '/nav/refresh', array(
+        'methods'  => 'POST',
+        'callback' => 'advapes_rest_refresh_nav',
+        'permission_callback' => function() {
+            return current_user_can( 'manage_options' );
+        },
     ) );
 }
 add_action( 'rest_api_init', 'advapes_register_rest_route' );
 
 /**
- * REST API callback for navigation structure
+ * REST API callback - get navigation structure
  */
 function advapes_rest_get_nav( $request ) {
     $force_refresh = $request->get_param( 'refresh' ) === 'true';
     $nav_structure = advapes_get_nav_structure( $force_refresh );
     
-    // Additional debug info
-    $wc_active = class_exists( 'WooCommerce' );
-    $brand_tax = advapes_detect_brand_taxonomy();
-    $css_file_exists = file_exists( get_stylesheet_directory() . '/advapes-nav.css' );
-    
     return rest_ensure_response( array(
         'success' => true,
         'data'    => $nav_structure,
-        'cached'  => ! $force_refresh && get_transient( ADVAPES_NAV_TRANSIENT_KEY ) !== false,
-        'version' => '3.1.1',
-        'debug'   => array(
-            'woocommerce_active' => $wc_active,
-            'brand_taxonomy' => $brand_tax ? $brand_tax : 'Not detected',
-            'menu_items_count' => count( $nav_structure ),
-            'css_file_exists' => $css_file_exists,
-            'theme_directory' => get_stylesheet_directory(),
-        ),
+    ) );
+}
+
+/**
+ * REST API callback - force cache refresh (admin only)
+ */
+function advapes_rest_refresh_nav( $request ) {
+    advapes_invalidate_nav_cache();
+    return rest_ensure_response( array(
+        'success' => true,
+        'message' => 'Navigation cache cleared successfully',
     ) );
 }

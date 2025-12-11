@@ -59,11 +59,11 @@
   list-style: none;
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
   position: relative;
   margin: 0;
   padding: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .adv-nav-item {
@@ -72,7 +72,7 @@
 
 .adv-nav-link {
   display: block;
-  padding: 14px 12px;
+  padding: 14px 10px;
   color: #d1d5db;
   font-size: 12px;
   font-weight: 700;
