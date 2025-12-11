@@ -67,15 +67,18 @@ The system looks for WooCommerce categories with these slugs:
 
 ### Brand Detection
 
-The system automatically detects your brand taxonomy from these common names:
+The system automatically detects your brand taxonomy from these common names (in priority order):
+- `pwb-brand` (WordPress Perfect Brands plugin - **used by advapes.co.za**)
+- `product_brand` (WooCommerce Brands)
 - `brand`
 - `brands`
-- `product_brand`
 - `pa_brand`
 - `pa_brands`
 - Any WooCommerce attribute containing "brand" in the name
 
-If you use a different brand taxonomy, the system won't find it. Either rename your taxonomy or update the detection code in `advapes_detect_brand_taxonomy()` (lines 55-83).
+The system prioritizes `pwb-brand` as this is the taxonomy used by advapes.co.za. Brands are now fetched from both the parent category and all its subcategories to ensure complete brand coverage.
+
+If you use a different brand taxonomy, the system won't find it. Either rename your taxonomy or update the detection code in `advapes_detect_brand_taxonomy()` (lines 55-85).
 
 ## Cache Management
 

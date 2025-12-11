@@ -149,11 +149,21 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         return array();
     }
 
+    // Get all child category IDs to include products from subcategories
+    $category_ids = array( $category_id );
+    $children = get_term_children( $category_id, 'product_cat' );
+    if ( ! is_wp_error( $children ) && ! empty( $children ) ) {
+        $category_ids = array_merge( $category_ids, $children );
+    }
+
     global $wpdb;
+    
+    // Create placeholders for category IDs
+    $placeholders = implode( ',', array_fill( 0, count( $category_ids ), '%d' ) );
     
     // Use direct database query for better performance
     // Note: $wpdb->terms, $wpdb->posts etc. automatically include table prefix
-    // Get all brand terms associated with products in this category
+    // Get all brand terms associated with products in this category and its children
     $query = "
         SELECT t.term_id, t.name, COUNT(DISTINCT p.ID) as product_count
         FROM {$wpdb->terms} t
@@ -164,7 +174,7 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         INNER JOIN {$wpdb->term_taxonomy} tt2 ON tr2.term_taxonomy_id = tt2.term_taxonomy_id
         WHERE tt.taxonomy = %s
         AND tt2.taxonomy = 'product_cat'
-        AND tt2.term_id = %d
+        AND tt2.term_id IN ({$placeholders})
         AND p.post_type = 'product'
         AND p.post_status = 'publish'
         GROUP BY t.term_id, t.name
@@ -172,8 +182,10 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
         LIMIT %d
     ";
     
+    // Prepare query with brand taxonomy, all category IDs, and limit
+    $prepare_args = array_merge( array( $brand_taxonomy ), $category_ids, array( $limit ) );
     $brands = $wpdb->get_results(
-        $wpdb->prepare( $query, $brand_taxonomy, $category_id, $limit )
+        $wpdb->prepare( $query, $prepare_args )
     );
 
     if ( empty( $brands ) ) {
