@@ -1,10 +1,20 @@
 # ADVAPES Navigation Bar - Development Dashboard
 
-> **Version 3.1** | Last Updated: 2025-12-10 | Status: ✅ Hybrid Navigation
+> **Version 3.1.1** | Last Updated: 2025-12-11 | Status: ✅ Hybrid Navigation with Brand Enhancements
 
 ---
 
-## 🎯 What's New in v3.1
+## 🎯 What's New in v3.1.1
+
+### **Enhanced Brand Display in Category Dropdowns**
+
+Version 3.1.1 improves brand visibility within category navigation dropdowns:
+- **Brand product counts** - Brands now display with accurate product counts (e.g., "Airscream 20+ products")
+- **Strategic brand placement** - Top brands appear within relevant category dropdowns
+- **Categories with brand display:**
+  - Pod Systems & Kits - Shows top 4 brands
+  - DL E-Liquids - Shows top 4 brands
+  - MTL & Nic Salts - Shows top 4 brands
 
 ### **Hybrid Navigation: Best of V2 + V3**
 
@@ -17,8 +27,9 @@ This ensures users always see the same top-level navigation items in the same or
 **Key Features:**
 - ✅ **Fixed parent menus** - Same top-level items as v2.0, always in the same order
 - ✅ **Dynamic subcategories** - Auto-update from WooCommerce categories
+- ✅ **Brand product counts in dropdowns** - Shows accurate counts per brand
 - ✅ **No more unexpected menus** - "Dezemba Dealz" stays under Deals (not as top-level)
-- ✅ Dynamic brand detection and listing (top 15 by product count)
+- ✅ Dynamic brand detection and listing (top 10 by product count in main Brands menu)
 - ✅ Real-time product counts in dropdowns
 - ✅ Intelligent caching (30-minute transient + proactive invalidation)
 - ✅ REST API endpoint for debugging (`/wp-json/advapes/v1/nav`)
@@ -29,20 +40,21 @@ This ensures users always see the same top-level navigation items in the same or
 
 ## 📊 Version Comparison
 
-| Feature | v1.0 | v2.0 | v3.0 | v3.1 |
-|---------|------|------|------|------|
-| Navigation Type | Static HTML | Static HTML | Dynamic WooCommerce | **Hybrid** |
-| Parent Menus | Static | Static | Dynamic | **Fixed from v2** |
-| Subcategories | Static | Static | Dynamic | **Dynamic** |
-| Product Counts | Manual | Manual | Auto-updated | **Auto-updated** |
-| Category Changes | Manual edit | Manual edit | Automatic | **Automatic** |
-| User Familiarity | ✅ High | ✅ High | ⚠️ Low | **✅ High** |
-| Content Freshness | ❌ Manual | ❌ Manual | ✅ Auto | **✅ Auto** |
-| Brand Detection | N/A | Manual list | Auto-detected | **Auto-detected** |
-| Caching | None | None | 30min transient | **30min transient** |
-| Cache Invalidation | N/A | N/A | Proactive hooks | **Proactive hooks** |
-| REST API | No | No | Yes | **Yes** |
-| Fallback Safety | No | No | Yes | **Yes** |
+| Feature | v1.0 | v2.0 | v3.0 | v3.1 | v3.1.1 |
+|---------|------|------|------|------|--------|
+| Navigation Type | Static HTML | Static HTML | Dynamic WooCommerce | **Hybrid** | **Hybrid** |
+| Parent Menus | Static | Static | Dynamic | **Fixed from v2** | **Fixed from v2** |
+| Subcategories | Static | Static | Dynamic | **Dynamic** | **Dynamic** |
+| Product Counts | Manual | Manual | Auto-updated | **Auto-updated** | **Auto-updated** |
+| Category Changes | Manual edit | Manual edit | Automatic | **Automatic** | **Automatic** |
+| User Familiarity | ✅ High | ✅ High | ⚠️ Low | **✅ High** | **✅ High** |
+| Content Freshness | ❌ Manual | ❌ Manual | ✅ Auto | **✅ Auto** | **✅ Auto** |
+| Brand Detection | N/A | Manual list | Auto-detected | **Auto-detected** | **Auto-detected** |
+| Brands in Dropdowns | No | No | No | **Generic tags** | **✅ Product counts** |
+| Caching | None | None | 30min transient | **30min transient** | **30min transient** |
+| Cache Invalidation | N/A | N/A | Proactive hooks | **Proactive hooks** | **Proactive hooks** |
+| REST API | No | No | Yes | **Yes** | **Yes** |
+| Fallback Safety | No | No | Yes | **Yes** | **Yes** |
 
 ---
 
@@ -51,7 +63,8 @@ This ensures users always see the same top-level navigation items in the same or
 ### Version History
 | Version | Date | Status | Changes |
 |---------|------|--------|---------|
-| **v3.1** | 2025-12-10 | ✅ Complete | Hybrid navigation (fixed parents + dynamic children) |
+| **v3.1.1** | 2025-12-11 | ✅ Complete | Enhanced brand display with product counts in category dropdowns |
+| v3.1 | 2025-12-10 | ✅ Complete | Hybrid navigation (fixed parents + dynamic children) |
 | v3.0 | 2025-12-10 | ✅ Complete | Dynamic navigation with WooCommerce integration |
 | v2.0 | 2025-12-10 | ✅ Complete | Comprehensive restructure based on product data |
 | v1.0 | Previous | ✅ Complete | Initial custom navigation bar |
@@ -61,7 +74,9 @@ This ensures users always see the same top-level navigation items in the same or
 - **Total Products:** 6,528+ published (auto-counted)
 - **Parent Menus:** Fixed structure from v2.0
 - **Subcategories:** Auto-detected from WooCommerce
-- **Brands Detection:** Automatic (top 15 by product count)
+- **Brands Detection:** Automatic (top 10 in main Brands menu, top 4 per category dropdown)
+- **Brand Display:** Product counts shown (e.g., "Airscream 20+ products")
+- **Categories with Brands:** Pod Systems & Kits, DL E-Liquids, MTL & Nic Salts
 - **Cache Strategy:** 30-minute transient with proactive invalidation
 - **REST Endpoint:** `/wp-json/advapes/v1/nav`
 
@@ -157,20 +172,24 @@ v3.1 uses a **fixed parent menu order** from v2.0 for user familiarity, with **d
    - Subcategories from WooCommerce `pod-disposables` category
    - Brand-specific pod systems appear automatically
 
-4. **💨 Pod Systems & Kits** (Fixed Parent + Dynamic Children)
+4. **💨 Pod Systems & Kits** (Fixed Parent + Dynamic Children + Top Brands)
    - Subcategories from WooCommerce `pod-systems-kits` category
+   - **✨ Top 4 brands displayed** with product counts (e.g., "Caliburn 27+ products")
    - Refillable systems and replacement pods
+   - Example: Refillable pod systems → Refillable Pods → Airscream → Bewolk → Caliburn → All Pod Systems & Kits
 
 5. **🔧 Vape Hardware** (Fixed Parent + Dynamic Children)
    - Maps to `dl-hardware` or `vape-hardware` WooCommerce category
    - Mods, tanks, coils, and spares subcategories
 
-6. **💧 DL E-Liquids** (Fixed Parent + Dynamic Children)
+6. **💧 DL E-Liquids** (Fixed Parent + Dynamic Children + Top Brands)
    - Maps to `dl-liquid` or `dl-liquids` WooCommerce category
+   - **✨ Top 4 brands displayed** with product counts
    - Longfills, pre-mixed, and additives
 
-7. **🍃 MTL & Nic Salts** (Fixed Parent + Dynamic Children)
+7. **🍃 MTL & Nic Salts** (Fixed Parent + Dynamic Children + Top Brands)
    - Maps to `nic-salts` or `nic-salts-mtl-liquids` category
+   - **✨ Top 4 brands displayed** with product counts
    - Nic salts, MTL liquids, and longfills
 
 8. **🏷️ Brands** (Fixed Parent + Dynamic Top 15)
@@ -580,29 +599,38 @@ If `advapes-nav.php` is missing or broken, the header.php automatically shows a 
 - ✅ **Graceful fallback** - site never breaks
 - ✅ **Zero plugins required** - pure WP/WC APIs
 
-### v3.0 → v3.1 (Current)
+### v3.0 → v3.1
 - ✅ **Fixed parent menu structure** - consistent top-level navigation from v2.0
 - ✅ **User familiarity preserved** - same parent menus in same order
 - ✅ **Dynamic subcategories maintained** - content stays fresh
 - ✅ **No unexpected menu items** - "Dezemba Dealz" stays under Deals
 - ✅ **Best of both worlds** - stability + automation
 
-### v3.1 Benefits
+### v3.1 → v3.1.1 (Current)
+- ✅ **Brand product counts in dropdowns** - shows accurate counts (e.g., "Airscream 20+ products")
+- ✅ **Improved brand visibility** - brands display prominently in relevant categories
+- ✅ **Better discoverability** - users can see brand popularity at a glance
+- ✅ **Consistent brand display** - same format across all category dropdowns
+
+### v3.1.1 Benefits
 
 **For Site Admins:**
 - No manual nav updates when products change
-- Real-time count accuracy  
+- Real-time count accuracy for both categories and brands
 - Reduced maintenance overhead
 - Better scalability as catalog grows
 - **Fixed parent menus** - no surprises in navigation structure
 - **Predictable behavior** - seasonal items stay in Deals section
+- **Automatic brand discovery** - top brands auto-populate in relevant categories
 
 **For Users:**
 - **Consistent navigation** - parent menus never move
 - Always up-to-date subcategories
-- Accurate product counts
+- **Brand visibility** - see popular brands with product counts directly in dropdowns
+- Accurate product counts for both categories and brands
 - **Familiar structure** - easy to remember where things are
-- Discover new products automatically in expected locations
+- Discover new products and brands automatically in expected locations
+- **Better shopping experience** - can quickly jump to favorite brands from category dropdowns
 
 **For Performance:**
 - Cached navigation (30-minute TTL)
@@ -666,6 +694,28 @@ If `advapes-nav.php` is missing or broken, the header.php automatically shows a 
 ---
 
 ## 📝 Change Log
+
+### v3.1.1 (2025-12-11)
+- **Enhanced brand display in category dropdowns**
+  - Brands now show product counts instead of generic tags
+  - Example: "Airscream 20+ products" instead of "Top brand"
+  - Applied to Pod Systems & Kits, DL E-Liquids, and MTL & Nic Salts
+- Improved brand visibility and discoverability
+- Updated documentation with brand display details
+
+### v3.1 (2025-12-10)
+- Hybrid navigation approach (fixed parents + dynamic children)
+- Fixed parent menu structure from v2.0
+- Dynamic subcategories from WooCommerce
+- Brand integration into category dropdowns
+- Maintained consistent navigation order
+
+### v3.0 (2025-12-10)
+- Dynamic WooCommerce integration
+- Automatic brand detection
+- Intelligent caching system
+- REST API endpoint
+- Proactive cache invalidation
 
 ### v2.0 (2025-12-10)
 - Complete navigation restructure based on product data analysis
