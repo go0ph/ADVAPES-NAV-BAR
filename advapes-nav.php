@@ -23,6 +23,20 @@ define( 'ADVAPES_NAV_TRANSIENT_KEY', 'advapes_nav_structure' );
 define( 'ADVAPES_NAV_TTL', 30 * MINUTE_IN_SECONDS ); // 30 minutes
 
 /**
+ * Enqueue ADVapes navigation CSS
+ */
+function advapes_enqueue_nav_styles() {
+    wp_enqueue_style( 
+        'advapes-nav', 
+        get_stylesheet_directory_uri() . '/advapes-nav.css', 
+        array(), 
+        '3.1.1', 
+        'all' 
+    );
+}
+add_action( 'wp_enqueue_scripts', 'advapes_enqueue_nav_styles' );
+
+/**
  * Detect brand taxonomy from common candidates
  * 
  * Checks for brand taxonomies in order of likelihood:
@@ -226,24 +240,9 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                 'tag' => 'Latest',
             ),
             array(
-                'name' => 'On Sale',
-                'url' => 'https://www.advapes.co.za/on-sale/',
-                'tag' => 'Discounted',
-            ),
-            array(
-                'name' => 'Fire Sale',
-                'url' => 'https://www.advapes.co.za/product-category/fire-sale/',
-                'tag' => 'Hot deals',
-            ),
-            array(
                 'name' => 'Buy Bulk &amp; Save',
                 'url' => 'https://www.advapes.co.za/product-category/buy-bulk-save/',
                 'tag' => 'Multi-pack',
-            ),
-            array(
-                'name' => 'Clearance',
-                'url' => 'https://www.advapes.co.za/product-category/clearance/',
-                'tag' => 'End of line',
             ),
         ),
     );
@@ -253,6 +252,14 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     if ( $disposables ) {
         // Get key subcategories dynamically
         $children = advapes_get_category_children( $disposables->term_id, 10 );
+        
+        // Add top brands for this category
+        $brands = advapes_get_category_brands( $disposables->term_id, 4 );
+        if ( ! empty( $brands ) ) {
+            foreach ( $brands as $brand ) {
+                $children[] = $brand;
+            }
+        }
         
         // Add "View All" link at the end
         $children[] = array(
@@ -275,6 +282,14 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         // Get subcategories dynamically
         $children = advapes_get_category_children( $pod_disposables->term_id, 10 );
         
+        // Add top brands for this category
+        $brands = advapes_get_category_brands( $pod_disposables->term_id, 4 );
+        if ( ! empty( $brands ) ) {
+            foreach ( $brands as $brand ) {
+                $children[] = $brand;
+            }
+        }
+        
         // Add "View All" link at the end
         $children[] = array(
             'name' => 'All Pod Disposables',
@@ -295,6 +310,14 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     if ( $pod_systems ) {
         // Get subcategories dynamically
         $children = advapes_get_category_children( $pod_systems->term_id, 10 );
+        
+        // Add top brands for this category
+        $brands = advapes_get_category_brands( $pod_systems->term_id, 4 );
+        if ( ! empty( $brands ) ) {
+            foreach ( $brands as $brand ) {
+                $children[] = $brand;
+            }
+        }
         
         // Add "View All" link at the end
         $children[] = array(
@@ -321,6 +344,14 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         // Get subcategories dynamically
         $children = advapes_get_category_children( $hardware->term_id, 10 );
         
+        // Add top brands for this category
+        $brands = advapes_get_category_brands( $hardware->term_id, 4 );
+        if ( ! empty( $brands ) ) {
+            foreach ( $brands as $brand ) {
+                $children[] = $brand;
+            }
+        }
+        
         // Add "View All" link at the end
         $children[] = array(
             'name' => 'All Vape Hardware',
@@ -344,6 +375,14 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     if ( $dl_liquids ) {
         // Get subcategories dynamically
         $children = advapes_get_category_children( $dl_liquids->term_id, 10 );
+        
+        // Add top brands for this category
+        $brands = advapes_get_category_brands( $dl_liquids->term_id, 4 );
+        if ( ! empty( $brands ) ) {
+            foreach ( $brands as $brand ) {
+                $children[] = $brand;
+            }
+        }
         
         // Add "View All" link at the end
         $children[] = array(
@@ -369,6 +408,14 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         // Get subcategories dynamically
         $children = advapes_get_category_children( $nic_salts->term_id, 10 );
         
+        // Add top brands for this category
+        $brands = advapes_get_category_brands( $nic_salts->term_id, 4 );
+        if ( ! empty( $brands ) ) {
+            foreach ( $brands as $brand ) {
+                $children[] = $brand;
+            }
+        }
+        
         // Add "View All" link at the end
         $children[] = array(
             'name' => 'All MTL &amp; Nic Salts',
@@ -387,7 +434,15 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     // 8. Nic Alternatives (static parent, dynamic children)
     $nic_alternatives = advapes_find_category( 'nicotine-alternatives' );
     if ( $nic_alternatives ) {
-        $children = advapes_get_category_children( $nic_alternatives->term_id, 12 );
+        $children = advapes_get_category_children( $nic_alternatives->term_id, 10 );
+        
+        // Add top brands for this category
+        $brands = advapes_get_category_brands( $nic_alternatives->term_id, 4 );
+        if ( ! empty( $brands ) ) {
+            foreach ( $brands as $brand ) {
+                $children[] = $brand;
+            }
+        }
         
         // Add "View All" link
         $children[] = array(
@@ -568,6 +623,13 @@ function advapes_render_nav() {
     }
 
     echo '</ul>' . "\n";
+    
+    // Mobile swipe indicator (shown only on mobile)
+    echo '<div class="adv-mobile-swipe-hint">' . "\n";
+    echo '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>' . "\n";
+    echo '<span>Swipe to browse</span>' . "\n";
+    echo '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>' . "\n";
+    echo '</div>' . "\n";
 }
 
 /**

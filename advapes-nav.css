@@ -212,6 +212,7 @@ input.adv-nav-toggle {
   .adv-nav-item {
     width: 100%;
     margin: 0;
+    margin-bottom: 4px;
   }
 
   .adv-nav-link {
@@ -237,10 +238,15 @@ input.adv-nav-toggle {
     font-size: 11px;
   }
 
-  /* Hide subtitles + right-hand tags on mobile to shorten the menu */
-  .adv-dropdown-title,
-  .adv-tag {
+  /* Hide subtitles on mobile but keep tags/counts visible */
+  .adv-dropdown-title {
     display: none;
+  }
+  
+  /* Show tags and counts on mobile (matching desktop) */
+  .adv-tag {
+    display: inline;
+    font-size: 9px;
   }
 
   /* When burger checked, show menu */
@@ -276,6 +282,27 @@ input.adv-nav-toggle {
     justify-content: flex-start;
     gap: 8px;
   }
+  
+  /* Mobile swipe indicator at bottom */
+  .adv-mobile-swipe-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 0 4px;
+    font-size: 10px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-top: 1px solid #111827;
+    margin-top: 4px;
+  }
+  
+  .adv-mobile-swipe-hint svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+  }
 }
 
 /* Desktop: make dropdowns easier to hover into */
@@ -288,6 +315,11 @@ input.adv-nav-toggle {
   /* Remove the gap between the link and dropdown */
   .adv-dropdown {
     margin-top: 0;
+  }
+  
+  /* Hide mobile swipe indicator on desktop */
+  .adv-mobile-swipe-hint {
+    display: none;
   }
 }
 
