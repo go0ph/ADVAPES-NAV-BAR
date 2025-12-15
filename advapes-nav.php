@@ -56,6 +56,30 @@ function advapes_enqueue_nav_scripts() {
 
         // Track if handlers are already attached to prevent duplicates
         let handlersAttached = false;
+        
+        // Enhance hamburger menu toggle reliability
+        function initHamburgerMenu() {
+            const toggle = document.getElementById('adv-nav-toggle');
+            const toggleBtn = document.querySelector('.adv-nav-toggle-btn');
+            
+            if (toggle && toggleBtn && isMobile()) {
+                // Update aria-expanded on change
+                toggle.addEventListener('change', function() {
+                    toggleBtn.setAttribute('aria-expanded', toggle.checked ? 'true' : 'false');
+                });
+                
+                // Add touch handler for visual feedback using CSS class
+                toggleBtn.addEventListener('touchstart', function() {
+                    toggleBtn.classList.add('touching');
+                    setTimeout(function() {
+                        toggleBtn.classList.remove('touching');
+                    }, 150);
+                }, { passive: true });
+                
+                // Initialize aria-expanded
+                toggleBtn.setAttribute('aria-expanded', toggle.checked ? 'true' : 'false');
+            }
+        }
 
         function initMobileDropdowns() {
             if (!isMobile()) {
@@ -118,7 +142,9 @@ function advapes_enqueue_nav_scripts() {
             handlersAttached = true;
         }
 
-        // Initialize on load
+        // Initialize hamburger menu first
+        initHamburgerMenu();
+        // Then initialize dropdowns
         initMobileDropdowns();
 
         // Re-initialize on window resize (if switching between mobile/desktop)
@@ -132,6 +158,7 @@ function advapes_enqueue_nav_scripts() {
                 // Only re-init if we crossed the mobile/desktop breakpoint
                 if ((lastWidth <= 1024 && currentWidth > 1024) || (lastWidth > 1024 && currentWidth <= 1024)) {
                     handlersAttached = false;
+                    initHamburgerMenu();
                     initMobileDropdowns();
                 }
                 lastWidth = currentWidth;

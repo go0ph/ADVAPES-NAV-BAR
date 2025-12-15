@@ -44,6 +44,8 @@
   background: #f9fafb;
   border-radius: 999px;
   transition: transform 0.18s ease, opacity 0.18s ease;
+  /* Ensure spans don't interfere with click events */
+  pointer-events: none;
 }
 
 .adv-nav-toggle-label {
@@ -214,14 +216,26 @@ input.adv-nav-toggle {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 12px 0;
+    padding: 12px 8px;
     cursor: pointer;
+    background: transparent;
+    border: none;
     
     /* Optimize touch responsiveness */
     touch-action: manipulation;
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
     user-select: none;
     -webkit-user-select: none;
+    
+    /* Increase touch target size for better mobile interaction */
+    min-height: 44px;
+    position: relative;
+    z-index: 10;
+  }
+  
+  /* Visual feedback on touch - use class instead of inline styles */
+  .adv-nav-toggle-btn.touching {
+    opacity: 0.7;
   }
 
   /* Hide desktop-style nav by default */
@@ -370,6 +384,16 @@ input.adv-nav-toggle {
   .adv-nav-toggle-btn {
     justify-content: flex-start;
     gap: 8px;
+    /* Ensure label is always clickable */
+    display: flex !important;
+  }
+  
+  /* Make checkbox accessible but visually hidden for screen readers */
+  .adv-nav-toggle {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
   }
   
   /* Mobile-specific styling for "Browse all" - explicitly maintain highlight */
@@ -428,4 +452,39 @@ header#site-header.minimized {
   background-color: red !important;
   box-shadow: 0px 0px 0px 0px red !important;
   border-bottom: 1px solid #ffffff00 !important;
+}
+
+/* Prevent logo from resizing when mobile menu opens/closes */
+@media (max-width: 1024px) {
+  /* Fix logo size on mobile - prevent glitching/expanding */
+  .site-header .site-branding img,
+  .site-header .logo img,
+  #site-header .site-branding img,
+  #site-header .logo img {
+    max-height: 60px !important;
+    width: auto !important;
+    height: auto !important;
+    transition: none !important;
+  }
+  
+  /* Ensure logo container doesn't expand */
+  .site-header .site-branding,
+  .site-header .logo,
+  #site-header .site-branding,
+  #site-header .logo {
+    max-height: 60px !important;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  
+  /* Prevent header from changing height when menu opens */
+  #site-header {
+    position: relative;
+  }
+  
+  /* Ensure navigation doesn't affect header height */
+  .adv-main-nav {
+    position: relative;
+    width: 100%;
+  }
 }
