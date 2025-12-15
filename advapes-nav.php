@@ -240,6 +240,94 @@ function advapes_find_category( $slug_or_name ) {
 }
 
 /**
+ * Detect strength taxonomy from common candidates or by searching
+ * 
+ * Checks for strength taxonomies in order:
+ * - 'pa_strength' (most common WooCommerce product attribute)
+ * - Any taxonomy containing "strength" with a term named '50mg NS'
+ * 
+ * @return string|false Strength taxonomy name or false if not found
+ */
+function advapes_detect_strength_taxonomy() {
+    // Check if WooCommerce is active
+    if ( ! class_exists( 'WooCommerce' ) ) {
+        return false;
+    }
+
+    // Try pa_strength first (most common)
+    if ( taxonomy_exists( 'pa_strength' ) ) {
+        return 'pa_strength';
+    }
+
+    // Search through all WooCommerce attribute taxonomies for one containing "strength"
+    $attribute_taxonomies = wc_get_attribute_taxonomies();
+    if ( ! empty( $attribute_taxonomies ) ) {
+        foreach ( $attribute_taxonomies as $tax ) {
+            if ( strpos( strtolower( $tax->attribute_name ), 'strength' ) !== false ) {
+                $taxonomy_name = wc_attribute_taxonomy_name( $tax->attribute_name );
+                // Verify this taxonomy has a term named '50mg NS' to confirm it's the right one
+                $test_term = get_term_by( 'name', '50mg NS', $taxonomy_name );
+                if ( $test_term && ! is_wp_error( $test_term ) ) {
+                    return $taxonomy_name;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Get strength pill links for the MTL & Nic Salts dropdown
+ * 
+ * Returns an array of pill link data with dynamic URLs based on term slugs.
+ * Uses the base URL from the nic salts category or falls back to /shop/.
+ * 
+ * @param int $category_id Optional category ID to use as base URL context
+ * @return array Array of pill data (name, url, count) or empty if taxonomy not found
+ */
+function advapes_get_strength_pills( $category_id = 0 ) {
+    $strength_taxonomy = advapes_detect_strength_taxonomy();
+    if ( ! $strength_taxonomy ) {
+        return array();
+    }
+
+    // Define the strength names we want to display
+    $strength_names = array( '10mg NS', '20mg NS', '50mg NS' );
+    
+    // Determine base URL
+    $base_url = '/shop/';
+    if ( $category_id > 0 ) {
+        $category = get_term( $category_id, 'product_cat' );
+        if ( $category && ! is_wp_error( $category ) ) {
+            $base_url = get_term_link( $category );
+        }
+    }
+    
+    $pills = array();
+    foreach ( $strength_names as $strength_name ) {
+        $term = get_term_by( 'name', $strength_name, $strength_taxonomy );
+        if ( $term && ! is_wp_error( $term ) ) {
+            $url = add_query_arg( 
+                array( 
+                    'filter_strength' => $term->slug, 
+                    'filter' => 1 
+                ), 
+                $base_url 
+            );
+            
+            $pills[] = array(
+                'name' => $strength_name,
+                'url' => $url,
+                'count' => $term->count, // Include count for optional display
+            );
+        }
+    }
+    
+    return $pills;
+}
+
+/**
  * Helper function to get child categories for a parent category
  * 
  * @param int $parent_id Parent category term ID
@@ -739,11 +827,20 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             }
         }
         
-        // Add strength hint label (non-clickable informational hint)
-        $children[] = array(
-            'type' => 'group_label',
-            'name' => 'By Strength (10mg / 20mg / 50mg)',
-        );
+        // Add strength pills section (clickable filters)
+        $strength_pills = advapes_get_strength_pills( $nic_salts->term_id );
+        if ( ! empty( $strength_pills ) ) {
+            // Add "NIC SALT STRENGTHS" group label (non-clickable)
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'NIC SALT STRENGTHS',
+            );
+            // Add strength pills as a special type that will be rendered differently
+            $children[] = array(
+                'type' => 'strength_pills',
+                'pills' => $strength_pills,
+            );
+        }
         
         // Add top brands for this category - limit to 3 to stay within 10 items total
         $brands = advapes_get_category_brands( $nic_salts->term_id, 3 );
@@ -979,6 +1076,21 @@ function advapes_render_nav() {
                 if ( isset( $child['type'] ) && $child['type'] === 'group_label' ) {
                     echo '<li class="adv-dropdown-group-label">' . "\n";
                     echo '<span>' . esc_html( $child['name'] ) . '</span>' . "\n";
+                    echo '</li>' . "\n";
+                } elseif ( isset( $child['type'] ) && $child['type'] === 'strength_pills' ) {
+                    // Render strength pills as a special list item with flex layout
+                    echo '<li class="adv-strength-pills-container">' . "\n";
+                    echo '<div class="adv-strength-pills">' . "\n";
+                    foreach ( $child['pills'] as $pill ) {
+                        echo '<a href="' . esc_url( $pill['url'] ) . '" class="adv-strength-pill">' . "\n";
+                        echo '<span class="adv-pill-label">' . esc_html( $pill['name'] ) . '</span>' . "\n";
+                        // Optionally show count as a tiny badge if available
+                        if ( ! empty( $pill['count'] ) && $pill['count'] > 0 ) {
+                            echo '<span class="adv-pill-count">' . absint( $pill['count'] ) . '</span>' . "\n";
+                        }
+                        echo '</a>' . "\n";
+                    }
+                    echo '</div>' . "\n";
                     echo '</li>' . "\n";
                 } else {
                     // Regular clickable item
