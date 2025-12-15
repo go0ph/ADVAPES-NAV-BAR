@@ -1,21 +1,23 @@
 <?php
 /**
  * ADVapes Dynamic Navigation System
- * Version 3.1.2 (December 2025)
+ * Version 3.2.0 (December 2025)
  * 
- * Hybrid Approach with Mobile Enhancements:
+ * Hybrid Approach with Mobile Enhancements + Filter Chips:
  * - Fixed parent menu structure from v2 (for user familiarity)
  * - Dynamic subcategories from v3 (auto-updating from WooCommerce)
  * - Enhanced mobile menu with collapsible dropdowns and accordion behavior
  * - Touch-optimized with instant response and smooth animations
  * - Brand detection prioritizes pwb-brand taxonomy
  * - Security improvements with proper SQL sanitization
+ * - Max 3 items per group (BY TYPE and TOP BRANDS)
+ * - Smart filter chips: Puff Count (Disposables) and Nic Salt Strengths (Pod Disposables, MTL & Nic Salts)
  * 
  * Parent menu order stays consistent, but content under each parent
  * updates automatically based on WooCommerce categories and products.
  * 
  * @package Razzi Child / ADVapes
- * @version 3.1.2
+ * @version 3.2.0
  */
 
 // Prevent direct access
@@ -40,7 +42,7 @@ function advapes_enqueue_nav_styles() {
             'advapes-nav', 
             get_stylesheet_directory_uri() . '/advapes-nav.css', 
             array(), 
-            '3.1.2', 
+            '3.2.0', 
             'all' 
         );
     }
@@ -275,6 +277,127 @@ function advapes_detect_strength_taxonomy() {
     }
 
     return false;
+}
+
+/**
+ * Detect size taxonomy from common candidates or by searching
+ * 
+ * Checks for size taxonomies in order:
+ * - 'pa_size' (most common WooCommerce product attribute)
+ * - Any taxonomy containing a term named '5000 Puff' or similar puff counts
+ * 
+ * @return string|false Size taxonomy name or false if not found
+ */
+function advapes_detect_size_taxonomy() {
+    // Check if WooCommerce is active
+    if ( ! class_exists( 'WooCommerce' ) ) {
+        return false;
+    }
+
+    // Try pa_size first (most common)
+    if ( taxonomy_exists( 'pa_size' ) ) {
+        return 'pa_size';
+    }
+
+    // Search through all WooCommerce attribute taxonomies for one containing puff count terms
+    $attribute_taxonomies = wc_get_attribute_taxonomies();
+    if ( ! empty( $attribute_taxonomies ) ) {
+        foreach ( $attribute_taxonomies as $tax ) {
+            $taxonomy_name = wc_attribute_taxonomy_name( $tax->attribute_name );
+            // Check if this taxonomy contains typical puff count terms
+            $test_terms = array( '5000 Puff', '10 000 Puff', '10000 Puff', '20 000 Puff' );
+            foreach ( $test_terms as $test_name ) {
+                $test_term = get_term_by( 'name', $test_name, $taxonomy_name );
+                if ( $test_term && ! is_wp_error( $test_term ) ) {
+                    return $taxonomy_name;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Get puff count chip links for the Disposables dropdown
+ * 
+ * Returns an array of chip link data with dynamic URLs based on term slugs.
+ * Uses term name lookup with fallbacks for each puff count range.
+ * 
+ * @param int $category_id Optional category ID to use as base URL context
+ * @return array Array of chip data (name, url, count) or empty if taxonomy not found
+ */
+function advapes_get_puff_count_chips( $category_id = 0 ) {
+    $size_taxonomy = advapes_detect_size_taxonomy();
+    if ( ! $size_taxonomy ) {
+        return array();
+    }
+
+    // Define puff count ranges with preferred terms and fallbacks
+    $puff_ranges = array(
+        array(
+            'label' => '10k–15k',
+            'preferred' => '10 000 Puff',
+            'fallbacks' => array( '12 000 Puff', '15 000 Puff', '10000 Puff', '12000 Puff', '15000 Puff' ),
+        ),
+        array(
+            'label' => '20k–30k',
+            'preferred' => '20 000 Puff',
+            'fallbacks' => array( '25 000 Puff', '30 000 Puff', '20000 Puff', '25000 Puff', '30000 Puff' ),
+        ),
+        array(
+            'label' => '40k+',
+            'preferred' => '40 000 Puff',
+            'fallbacks' => array( '50 000 Puff', '55 000 Puff', '40000 Puff', '50000 Puff', '55000 Puff' ),
+        ),
+    );
+    
+    // Determine base URL - prefer category context, fallback to WooCommerce shop page
+    $base_url = wc_get_page_permalink( 'shop' );
+    if ( $category_id > 0 ) {
+        $category = get_term( $category_id, 'product_cat' );
+        if ( $category && ! is_wp_error( $category ) ) {
+            $base_url = get_term_link( $category );
+        }
+    }
+    
+    $chips = array();
+    foreach ( $puff_ranges as $range ) {
+        // Try preferred term first
+        $term = get_term_by( 'name', $range['preferred'], $size_taxonomy );
+        
+        // If preferred not found, try fallbacks
+        if ( ! $term || is_wp_error( $term ) ) {
+            foreach ( $range['fallbacks'] as $fallback ) {
+                $term = get_term_by( 'name', $fallback, $size_taxonomy );
+                if ( $term && ! is_wp_error( $term ) ) {
+                    break; // Found a fallback, stop searching
+                }
+            }
+        }
+        
+        // If we found a valid term, add the chip
+        if ( $term && ! is_wp_error( $term ) ) {
+            // Build filter URL using site's existing WooCommerce filter pattern:
+            // - filter_size: the taxonomy term slug for filtering
+            // - filter=1: activates the filtering system
+            $url = add_query_arg( 
+                array( 
+                    'filter_size' => $term->slug, 
+                    'filter' => 1 
+                ), 
+                $base_url 
+            );
+            
+            $chips[] = array(
+                'name' => $range['label'],
+                'url' => $url,
+                'count' => $term->count, // Include count for optional display
+            );
+        }
+    }
+    
+    return $chips;
 }
 
 /**
@@ -539,14 +662,8 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     // 2. Disposables (hybrid: specific subcategories + dynamic "View All")
     $disposables = advapes_find_category( 'disposables' );
     if ( $disposables ) {
-        // Get 7 subcategories so after removing first, we have 6 left for brands
-        $subcategories = advapes_get_category_children( $disposables->term_id, 7 );
-        
-        // Remove the first child category (requested to remove first option)
-        // After this, we have 6 subcategories + 3 brands + 1 Browse all = 10 items total
-        if ( ! empty( $subcategories ) ) {
-            array_shift( $subcategories );
-        }
+        // Get max 3 subcategories per Goal A requirements
+        $subcategories = advapes_get_category_children( $disposables->term_id, 3 );
         
         // Build children array with micro-grouping
         $children = array();
@@ -557,19 +674,28 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
-            // Add subcategories
+            // Add subcategories (max 3)
             foreach ( $subcategories as $subcat ) {
                 $children[] = $subcat;
             }
         }
         
-        // Add strength hint label (non-clickable informational hint)
-        $children[] = array(
-            'type' => 'group_label',
-            'name' => 'Nic Options (0mg / 20mg / 50mg)',
-        );
+        // Add PUFF COUNT chips section (Goal B)
+        $puff_count_chips = advapes_get_puff_count_chips( $disposables->term_id );
+        if ( ! empty( $puff_count_chips ) ) {
+            // Add "PUFF COUNT" group label (non-clickable)
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'PUFF COUNT',
+            );
+            // Add puff count chips as a special type that will be rendered differently
+            $children[] = array(
+                'type' => 'puff_count_chips',
+                'chips' => $puff_count_chips,
+            );
+        }
         
-        // Add top brands for this category - limit to 3 to stay within 10 items total
+        // Add top brands for this category - limit to 3 per Goal A requirements
         $brands = advapes_get_category_brands( $disposables->term_id, 3 );
         if ( ! empty( $brands ) ) {
             // Add "Top Brands" group label (non-clickable)
@@ -600,8 +726,8 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     // 3. Pod Disposables (hybrid: dynamic subcategories)
     $pod_disposables = advapes_find_category( 'pod-disposables' );
     if ( $pod_disposables ) {
-        // Get subcategories dynamically - limit to 6 to leave room for brands
-        $subcategories = advapes_get_category_children( $pod_disposables->term_id, 6 );
+        // Get max 3 subcategories per Goal A requirements
+        $subcategories = advapes_get_category_children( $pod_disposables->term_id, 3 );
         
         // Build children array with micro-grouping
         $children = array();
@@ -612,19 +738,28 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
-            // Add subcategories
+            // Add subcategories (max 3)
             foreach ( $subcategories as $subcat ) {
                 $children[] = $subcat;
             }
         }
         
-        // Add strength hint label (non-clickable informational hint)
-        $children[] = array(
-            'type' => 'group_label',
-            'name' => 'Common Strengths (20mg / 35mg / 50mg)',
-        );
+        // Add NIC SALT STRENGTHS chips section (Goal C)
+        $strength_pills = advapes_get_strength_pills( $pod_disposables->term_id );
+        if ( ! empty( $strength_pills ) ) {
+            // Add "NIC SALT STRENGTHS" group label (non-clickable)
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'NIC SALT STRENGTHS',
+            );
+            // Add strength pills as a special type that will be rendered differently
+            $children[] = array(
+                'type' => 'strength_pills',
+                'pills' => $strength_pills,
+            );
+        }
         
-        // Add top brands for this category - limit to 3 to stay within 10 items total
+        // Add top brands for this category - limit to 3 per Goal A requirements
         $brands = advapes_get_category_brands( $pod_disposables->term_id, 3 );
         if ( ! empty( $brands ) ) {
             // Add "Top Brands" group label (non-clickable)
@@ -653,10 +788,11 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     }
 
     // 4. Pod Systems & Kits (hybrid: dynamic subcategories)
+    // NOTE: Do NOT add chips to this dropdown per requirements
     $pod_systems = advapes_find_category( 'pod-systems-kits' );
     if ( $pod_systems ) {
-        // Get subcategories dynamically - limit to 6 to leave room for brands
-        $subcategories = advapes_get_category_children( $pod_systems->term_id, 6 );
+        // Get max 3 subcategories per Goal A requirements
+        $subcategories = advapes_get_category_children( $pod_systems->term_id, 3 );
         
         // Build children array with micro-grouping
         $children = array();
@@ -667,13 +803,13 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
-            // Add subcategories
+            // Add subcategories (max 3)
             foreach ( $subcategories as $subcat ) {
                 $children[] = $subcat;
             }
         }
         
-        // Add top brands for this category - limit to 3 to stay within 10 items total
+        // Add top brands for this category - limit to 3 per Goal A requirements
         $brands = advapes_get_category_brands( $pod_systems->term_id, 3 );
         if ( ! empty( $brands ) ) {
             // Add "Top Brands" group label (non-clickable)
@@ -708,8 +844,8 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         $hardware = advapes_find_category( 'vape-hardware' );
     }
     if ( $hardware ) {
-        // Get subcategories dynamically - limit to 6 to leave room for brands
-        $subcategories = advapes_get_category_children( $hardware->term_id, 6 );
+        // Get max 3 subcategories per Goal A requirements
+        $subcategories = advapes_get_category_children( $hardware->term_id, 3 );
         
         // Build children array with micro-grouping
         $children = array();
@@ -720,13 +856,13 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
-            // Add subcategories
+            // Add subcategories (max 3)
             foreach ( $subcategories as $subcat ) {
                 $children[] = $subcat;
             }
         }
         
-        // Add top brands for this category - limit to 3 to stay within 10 items total
+        // Add top brands for this category - limit to 3 per Goal A requirements
         $brands = advapes_get_category_brands( $hardware->term_id, 3 );
         if ( ! empty( $brands ) ) {
             // Add "Top Brands" group label (non-clickable)
@@ -755,13 +891,14 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     }
 
     // 6. DL E-Liquids (hybrid: dynamic subcategories)
+    // NOTE: Do NOT add strength chips to this dropdown per requirements
     $dl_liquids = advapes_find_category( 'dl-liquid' );
     if ( ! $dl_liquids ) {
         $dl_liquids = advapes_find_category( 'dl-liquids' );
     }
     if ( $dl_liquids ) {
-        // Get subcategories dynamically - limit to 6 to leave room for brands
-        $subcategories = advapes_get_category_children( $dl_liquids->term_id, 6 );
+        // Get max 3 subcategories per Goal A requirements
+        $subcategories = advapes_get_category_children( $dl_liquids->term_id, 3 );
         
         // Build children array with micro-grouping
         $children = array();
@@ -772,13 +909,13 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
-            // Add subcategories
+            // Add subcategories (max 3)
             foreach ( $subcategories as $subcat ) {
                 $children[] = $subcat;
             }
         }
         
-        // Add top brands for this category - limit to 3 to stay within 10 items total
+        // Add top brands for this category - limit to 3 per Goal A requirements
         $brands = advapes_get_category_brands( $dl_liquids->term_id, 3 );
         if ( ! empty( $brands ) ) {
             // Add "Top Brands" group label (non-clickable)
@@ -807,13 +944,14 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     }
 
     // 7. MTL & Nic Salts (hybrid: dynamic subcategories)
+    // Already has strength pills - just apply max-3 rule (Goal D)
     $nic_salts = advapes_find_category( 'nic-salts' );
     if ( ! $nic_salts ) {
         $nic_salts = advapes_find_category( 'nic-salts-mtl-liquids' );
     }
     if ( $nic_salts ) {
-        // Get subcategories dynamically - limit to 6 to leave room for brands
-        $subcategories = advapes_get_category_children( $nic_salts->term_id, 6 );
+        // Get max 3 subcategories per Goal A requirements
+        $subcategories = advapes_get_category_children( $nic_salts->term_id, 3 );
         
         // Build children array with micro-grouping
         $children = array();
@@ -824,13 +962,13 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
-            // Add subcategories
+            // Add subcategories (max 3)
             foreach ( $subcategories as $subcat ) {
                 $children[] = $subcat;
             }
         }
         
-        // Add strength pills section (clickable filters)
+        // Add strength pills section (clickable filters) - Goal D
         $strength_pills = advapes_get_strength_pills( $nic_salts->term_id );
         if ( ! empty( $strength_pills ) ) {
             // Add "NIC SALT STRENGTHS" group label (non-clickable)
@@ -845,7 +983,7 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             );
         }
         
-        // Add top brands for this category - limit to 3 to stay within 10 items total
+        // Add top brands for this category - limit to 3 per Goal A requirements
         $brands = advapes_get_category_brands( $nic_salts->term_id, 3 );
         if ( ! empty( $brands ) ) {
             // Add "Top Brands" group label (non-clickable)
@@ -876,8 +1014,8 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     // 8. Nic Alternatives (static parent, dynamic children)
     $nic_alternatives = advapes_find_category( 'nicotine-alternatives' );
     if ( $nic_alternatives ) {
-        // Get subcategories dynamically - limit to 6 to leave room for brands
-        $subcategories = advapes_get_category_children( $nic_alternatives->term_id, 6 );
+        // Get max 3 subcategories per Goal A requirements
+        $subcategories = advapes_get_category_children( $nic_alternatives->term_id, 3 );
         
         // Build children array with micro-grouping
         $children = array();
@@ -888,13 +1026,13 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
-            // Add subcategories
+            // Add subcategories (max 3)
             foreach ( $subcategories as $subcat ) {
                 $children[] = $subcat;
             }
         }
         
-        // Add top brands for this category - limit to 3 to stay within 10 items total
+        // Add top brands for this category - limit to 3 per Goal A requirements
         $brands = advapes_get_category_brands( $nic_alternatives->term_id, 3 );
         if ( ! empty( $brands ) ) {
             // Add "Top Brands" group label (non-clickable)
@@ -1087,9 +1225,24 @@ function advapes_render_nav() {
                     foreach ( $child['pills'] as $pill ) {
                         echo '<a href="' . esc_url( $pill['url'] ) . '" class="adv-strength-pill">' . "\n";
                         echo '<span class="adv-pill-label">' . esc_html( $pill['name'] ) . '</span>' . "\n";
-                        // Optionally show count as a tiny badge if available
+                        // Show count badge if available (can be removed if dropdown height needs to be reduced)
                         if ( ! empty( $pill['count'] ) && $pill['count'] > 0 ) {
                             echo '<span class="adv-pill-count">' . absint( $pill['count'] ) . '</span>' . "\n";
+                        }
+                        echo '</a>' . "\n";
+                    }
+                    echo '</div>' . "\n";
+                    echo '</li>' . "\n";
+                } elseif ( isset( $child['type'] ) && $child['type'] === 'puff_count_chips' ) {
+                    // Render puff count chips using same styling as strength pills
+                    echo '<li class="adv-strength-pills-container">' . "\n";
+                    echo '<div class="adv-strength-pills">' . "\n";
+                    foreach ( $child['chips'] as $chip ) {
+                        echo '<a href="' . esc_url( $chip['url'] ) . '" class="adv-strength-pill">' . "\n";
+                        echo '<span class="adv-pill-label">' . esc_html( $chip['name'] ) . '</span>' . "\n";
+                        // Show count badge if available (can be removed if dropdown height needs to be reduced)
+                        if ( ! empty( $chip['count'] ) && $chip['count'] > 0 ) {
+                            echo '<span class="adv-pill-count">' . absint( $chip['count'] ) . '</span>' . "\n";
                         }
                         echo '</a>' . "\n";
                     }
