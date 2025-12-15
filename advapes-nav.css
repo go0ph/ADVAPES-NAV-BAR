@@ -526,3 +526,96 @@ header#site-header.minimized, header#site-header {
   }
 }
 
+/*------------------------------
+  STRENGTH PILLS
+------------------------------*/
+
+/* Container for strength pills (list item wrapper) */
+.adv-strength-pills-container {
+  padding: 4px 4px 8px 4px !important;
+  list-style: none;
+}
+
+/* Flex row for pills */
+.adv-strength-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Individual pill styling */
+.adv-strength-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 16px;
+  color: #f9fafb;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.adv-strength-pill:hover {
+  background: #1f2937;
+  border-color: #e11d2f;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Pill label */
+.adv-pill-label {
+  font-size: 11px;
+}
+
+/* Optional count badge inside pill */
+.adv-pill-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 16px;
+  padding: 0 4px;
+  background: #374151;
+  border-radius: 8px;
+  color: #9ca3af;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.adv-strength-pill:hover .adv-pill-count {
+  background: #4b5563;
+  color: #d1d5db;
+}
+
+/* Mobile adjustments for pills */
+@media (max-width: 1024px) {
+  .adv-strength-pills-container {
+    padding: 6px 0 8px 0 !important;
+  }
+  
+  .adv-strength-pills {
+    gap: 6px;
+  }
+  
+  .adv-strength-pill {
+    padding: 5px 10px;
+    font-size: 10px;
+  }
+  
+  .adv-pill-label {
+    font-size: 10px;
+  }
+  
+  .adv-pill-count {
+    min-width: 16px;
+    height: 14px;
+    font-size: 8px;
+  }
+}
+
