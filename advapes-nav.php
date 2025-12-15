@@ -472,6 +472,12 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             }
         }
         
+        // Add strength hint label (non-clickable informational hint)
+        $children[] = array(
+            'type' => 'group_label',
+            'name' => 'Nic Options (0mg / 20mg / 50mg)',
+        );
+        
         // Add top brands for this category - limit to 3 to stay within 10 items total
         $brands = advapes_get_category_brands( $disposables->term_id, 3 );
         if ( ! empty( $brands ) ) {
@@ -520,6 +526,12 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                 $children[] = $subcat;
             }
         }
+        
+        // Add strength hint label (non-clickable informational hint)
+        $children[] = array(
+            'type' => 'group_label',
+            'name' => 'Common Strengths (20mg / 35mg / 50mg)',
+        );
         
         // Add top brands for this category - limit to 3 to stay within 10 items total
         $brands = advapes_get_category_brands( $pod_disposables->term_id, 3 );
@@ -726,6 +738,12 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                 $children[] = $subcat;
             }
         }
+        
+        // Add strength hint label (non-clickable informational hint)
+        $children[] = array(
+            'type' => 'group_label',
+            'name' => 'By Strength (10mg / 20mg / 50mg)',
+        );
         
         // Add top brands for this category - limit to 3 to stay within 10 items total
         $brands = advapes_get_category_brands( $nic_salts->term_id, 3 );
