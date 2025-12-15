@@ -99,6 +99,16 @@
   font-weight: 600;
 }
 
+/* Visual state for Deals when major promo is active */
+.adv-nav-link--promo-active {
+  background: #e11d2f;
+  color: #ffffff;
+}
+
+.adv-nav-link--promo-active:hover {
+  background: #b8172a;
+}
+
 /* Desktop dropdowns */
 
 .adv-dropdown {
@@ -158,6 +168,26 @@
   color: #9ca3af;
   margin-left: 10px;
   white-space: nowrap;
+}
+
+/* Group labels (non-clickable micro-grouping) */
+.adv-dropdown-group-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7280;
+  font-weight: 700;
+  padding: 8px 4px 2px 4px;
+  margin-top: 4px;
+  pointer-events: none;
+}
+
+.adv-dropdown-group-label:first-child {
+  margin-top: 0;
+}
+
+.adv-dropdown-group-label span {
+  display: block;
 }
 
 /* Make "Browse all" links stand out more (last item in dropdowns) */
@@ -350,6 +380,12 @@ input.adv-nav-toggle {
     display: inline;
     font-size: 9px;
     margin-left: 4px; /* Reduce gap between name and count on mobile */
+  }
+  
+  /* Group labels on mobile - slightly adjusted */
+  .adv-dropdown-group-label {
+    padding: 6px 0 2px 0;
+    font-size: 8px;
   }
 
   /* When burger checked, show menu */
