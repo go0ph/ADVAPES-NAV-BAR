@@ -319,6 +319,159 @@ function advapes_detect_size_taxonomy() {
 }
 
 /**
+ * Count products for a specific chip filter with context awareness and caching
+ * 
+ * This function provides accurate, context-aware product counts for filter chips.
+ * Unlike term->count which gives global counts, this counts products that:
+ * - Are published
+ * - Are in the specified category context (e.g., Disposables)
+ * - Have the specified attribute term (e.g., "20 000 Puff" for Size)
+ * - Optionally: are in stock (configurable)
+ * 
+ * Results are cached with transients to optimize performance.
+ * 
+ * @param int $context_category_id Category ID for context (e.g., Disposables category ID)
+ * @param string $filter_taxonomy Attribute taxonomy name (e.g., 'pa_size', 'pa_strength')
+ * @param int $filter_term_id Term ID within the attribute taxonomy
+ * @param bool $include_children Whether to include products from child categories (default: true)
+ * @param bool $in_stock_only Whether to filter by stock status (default: false)
+ * @return int Number of products matching the criteria
+ */
+function adv_count_products_for_chip( $context_category_id, $filter_taxonomy, $filter_term_id, $include_children = true, $in_stock_only = false ) {
+    // Validate inputs - ensure IDs are positive integers
+    $context_category_id = absint( $context_category_id );
+    $filter_term_id = absint( $filter_term_id );
+    
+    if ( $context_category_id < 1 || empty( $filter_taxonomy ) || $filter_term_id < 1 ) {
+        return 0;
+    }
+    
+    // Check if WooCommerce is active
+    if ( ! class_exists( 'WooCommerce' ) ) {
+        return 0;
+    }
+    
+    // Build cache key
+    $cache_key = 'adv_chip_count_' . $context_category_id . '_' . $filter_taxonomy . '_' . $filter_term_id;
+    if ( $include_children ) {
+        $cache_key .= '_with_children';
+    }
+    if ( $in_stock_only ) {
+        $cache_key .= '_in_stock';
+    }
+    
+    // Try to get from cache
+    $cached_count = get_transient( $cache_key );
+    if ( false !== $cached_count ) {
+        return (int) $cached_count;
+    }
+    
+    // Build category IDs array (include children if requested)
+    $category_ids = array( $context_category_id );
+    if ( $include_children ) {
+        $children = get_term_children( $context_category_id, 'product_cat' );
+        if ( ! is_wp_error( $children ) && ! empty( $children ) ) {
+            $category_ids = array_merge( $category_ids, $children );
+        }
+    }
+    
+    // Build tax query for WP_Query
+    $tax_query = array(
+        'relation' => 'AND',
+        // Category constraint
+        array(
+            'taxonomy' => 'product_cat',
+            'field'    => 'term_id',
+            'terms'    => $category_ids,
+            'operator' => 'IN',
+        ),
+        // Attribute term constraint
+        array(
+            'taxonomy' => $filter_taxonomy,
+            'field'    => 'term_id',
+            'terms'    => $filter_term_id,
+            'operator' => 'IN',
+        ),
+    );
+    
+    // Build meta query for stock status if needed
+    $meta_query = array();
+    if ( $in_stock_only ) {
+        $meta_query[] = array(
+            'key'     => '_stock_status',
+            'value'   => 'instock',
+            'compare' => '=',
+        );
+    }
+    
+    // Query arguments
+    // Note: Using WP_Query with 'fields' => 'ids' is the WordPress-recommended way to count
+    // products with complex tax_query and meta_query constraints. While 'posts_per_page' => -1
+    // retrieves all IDs, this is acceptable because:
+    // 1. We're only fetching IDs (minimal memory footprint)
+    // 2. Results are cached for 6 hours (query runs rarely)
+    // 3. WooCommerce filter chips typically show <500 products per category/attribute combo
+    // 4. Custom SQL would bypass WooCommerce's product visibility filters
+    $args = array(
+        'post_type'      => 'product',
+        'post_status'    => 'publish',
+        'posts_per_page' => -1,
+        'fields'         => 'ids',
+        'no_found_rows'  => true, // Skip SQL_CALC_FOUND_ROWS for better performance
+        'tax_query'      => $tax_query,
+    );
+    
+    if ( ! empty( $meta_query ) ) {
+        $args['meta_query'] = $meta_query;
+    }
+    
+    // Execute query and count results
+    $query = new WP_Query( $args );
+    $count = count( $query->posts );
+    
+    // Cache the result for 6 hours (21600 seconds)
+    set_transient( $cache_key, $count, 6 * HOUR_IN_SECONDS );
+    
+    return (int) $count;
+}
+
+/**
+ * Clear chip count cache for a specific category and taxonomy
+ * Helper function to invalidate cached counts when products change
+ * 
+ * Note: Uses direct SQL queries for bulk transient deletion. This is necessary because:
+ * 1. WordPress doesn't provide a native API for wildcard transient deletion
+ * 2. Looping through delete_transient() would require knowing all cache keys in advance
+ * 3. This approach is used by WordPress core and major plugins (e.g., WooCommerce)
+ * 4. All values are properly escaped with $wpdb->esc_like() and absint()
+ * 
+ * @param int $category_id Category ID (0 clears all)
+ * @param string $taxonomy Attribute taxonomy (optional, clears all if not provided)
+ */
+function adv_clear_chip_count_cache( $category_id = 0, $taxonomy = '' ) {
+    global $wpdb;
+    
+    if ( empty( $category_id ) && empty( $taxonomy ) ) {
+        // Clear all chip count caches using prepared statements for safety
+        $wpdb->query( $wpdb->prepare( 
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 
+            $wpdb->esc_like( '_transient_adv_chip_count_' ) . '%' 
+        ) );
+        $wpdb->query( $wpdb->prepare( 
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 
+            $wpdb->esc_like( '_transient_timeout_adv_chip_count_' ) . '%' 
+        ) );
+    } elseif ( $category_id > 0 ) {
+        // Clear caches for specific category using prepared statements
+        $like_pattern = $wpdb->esc_like( '_transient_adv_chip_count_' . absint( $category_id ) . '_' ) . '%';
+        $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $like_pattern ) );
+        
+        $like_pattern = $wpdb->esc_like( '_transient_timeout_adv_chip_count_' . absint( $category_id ) . '_' ) . '%';
+        $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $like_pattern ) );
+    }
+}
+
+/**
  * Get puff count chip links for the Disposables dropdown
  * 
  * Returns an array of chip link data with dynamic URLs based on term slugs.
@@ -389,10 +542,19 @@ function advapes_get_puff_count_chips( $category_id = 0 ) {
                 $base_url 
             );
             
+            // Get context-aware count (products in this category with this size attribute)
+            $count = 0;
+            if ( $category_id > 0 ) {
+                $count = adv_count_products_for_chip( $category_id, $size_taxonomy, $term->term_id );
+            } else {
+                // Fallback to term count if no category context
+                $count = $term->count;
+            }
+            
             $chips[] = array(
                 'name' => $range['label'],
                 'url' => $url,
-                'count' => $term->count, // Include count for optional display
+                'count' => $count,
             );
         }
     }
@@ -442,10 +604,19 @@ function advapes_get_strength_pills( $category_id = 0 ) {
                 $base_url 
             );
             
+            // Get context-aware count (products in this category with this strength attribute)
+            $count = 0;
+            if ( $category_id > 0 ) {
+                $count = adv_count_products_for_chip( $category_id, $strength_taxonomy, $term->term_id );
+            } else {
+                // Fallback to term count if no category context
+                $count = $term->count;
+            }
+            
             $pills[] = array(
                 'name' => $strength_name,
                 'url' => $url,
-                'count' => $term->count, // Include count for optional display
+                'count' => $count,
             );
         }
     }
@@ -797,15 +968,61 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         // Build children array with micro-grouping
         $children = array();
         
-        // Add "By Type" group label (non-clickable)
-        if ( ! empty( $subcategories ) ) {
+        // NEW REQUIREMENT: Only show "By Type" if we have 2+ subcategories
+        // Otherwise replace with "POPULAR PICKS" guidance group
+        if ( ! empty( $subcategories ) && count( $subcategories ) >= 2 ) {
             $children[] = array(
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
             // Add subcategories (max 3)
-            foreach ( $subcategories as $subcat ) {
+            foreach ( array_slice( $subcategories, 0, 3 ) as $subcat ) {
                 $children[] = $subcat;
+            }
+        } else {
+            // Add "POPULAR PICKS" group with guidance links
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'POPULAR PICKS',
+            );
+            
+            // Try to find preferred guidance categories (max 3)
+            $guidance_categories = array(
+                array( 'slug' => 'beginner-friendly-pods', 'fallback_name' => 'Beginner-Friendly Pods' ),
+                array( 'slug' => 'compact-pod-kits', 'fallback_name' => 'Compact Pod Kits' ),
+                array( 'slug' => 'advanced-pod-kits', 'fallback_name' => 'Advanced Pod Kits' ),
+            );
+            
+            $guidance_count = 0;
+            foreach ( $guidance_categories as $guidance ) {
+                if ( $guidance_count >= 3 ) break;
+                
+                $cat = advapes_find_category( $guidance['slug'] );
+                if ( $cat && ! is_wp_error( $cat ) ) {
+                    $children[] = array(
+                        'name' => $cat->name,
+                        'url'  => get_term_link( $cat ),
+                        'count' => $cat->count,
+                    );
+                    $guidance_count++;
+                }
+            }
+            
+            // If no specific guidance categories found, use available subcategories with friendly labels
+            if ( $guidance_count === 0 && ! empty( $subcategories ) ) {
+                foreach ( array_slice( $subcategories, 0, 3 ) as $subcat ) {
+                    $children[] = $subcat;
+                    $guidance_count++;
+                }
+            }
+            
+            // Fallback: if still no items, show the parent category itself
+            if ( $guidance_count === 0 ) {
+                $children[] = array(
+                    'name' => 'Pod Systems & Kits',
+                    'url'  => get_term_link( $pod_systems ),
+                    'count' => $pod_systems->count,
+                );
             }
         }
         
@@ -844,20 +1061,86 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         $hardware = advapes_find_category( 'vape-hardware' );
     }
     if ( $hardware ) {
-        // Get max 3 subcategories per Goal A requirements
-        $subcategories = advapes_get_category_children( $hardware->term_id, 3 );
-        
         // Build children array with micro-grouping
         $children = array();
         
-        // Add "By Type" group label (non-clickable)
-        if ( ! empty( $subcategories ) ) {
-            $children[] = array(
-                'type' => 'group_label',
-                'name' => 'By Type',
-            );
-            // Add subcategories (max 3)
+        // NEW REQUIREMENT: Replace "By Type" with "BY HARDWARE TYPE"
+        // Show exactly 3 proper hardware type links (not brands)
+        $children[] = array(
+            'type' => 'group_label',
+            'name' => 'BY HARDWARE TYPE',
+        );
+        
+        // Try to find these specific hardware type categories (max 3)
+        $hardware_types = array(
+            array( 'slug' => 'vape-mods', 'alt_slugs' => array( 'mods' ), 'fallback_name' => 'Vape Mods' ),
+            array( 'slug' => 'tanks-rtas', 'alt_slugs' => array( 'tanks', 'rtas', 'tanks-and-rtas' ), 'fallback_name' => 'Tanks & RTAs' ),
+            array( 'slug' => 'coils-spares', 'alt_slugs' => array( 'coils', 'coils-pods-spares', 'coils-and-spares' ), 'fallback_name' => 'Coils & Spares' ),
+        );
+        
+        $types_added = 0;
+        foreach ( $hardware_types as $type ) {
+            if ( $types_added >= 3 ) break;
+            
+            // Try main slug first
+            $cat = advapes_find_category( $type['slug'] );
+            
+            // Try alternative slugs if main not found
+            if ( ! $cat || is_wp_error( $cat ) ) {
+                foreach ( $type['alt_slugs'] as $alt_slug ) {
+                    $cat = advapes_find_category( $alt_slug );
+                    if ( $cat && ! is_wp_error( $cat ) ) {
+                        break;
+                    }
+                }
+            }
+            
+            if ( $cat && ! is_wp_error( $cat ) ) {
+                $children[] = array(
+                    'name' => $cat->name,
+                    'url'  => get_term_link( $cat ),
+                    'count' => $cat->count,
+                );
+                $types_added++;
+            }
+        }
+        
+        // Fallback: if no specific types found, use top 3 subcategories but filter out brand-like names
+        if ( $types_added === 0 ) {
+            $subcategories = advapes_get_category_children( $hardware->term_id, 10 );
+            // Filter out items that look like brand coil makers (e.g., "Bearded Viking Coils", "White Collar Coils")
+            // Known hardware type words that should NOT be filtered
+            $hardware_type_words = array( 'vape', 'tank', 'mod', 'coil', 'spare', 'kit', 'pod', 'rta', 'rdta', 'rda', 'atomizer' );
+            $filtered_subcats = array();
+            
             foreach ( $subcategories as $subcat ) {
+                $subcat_name_lower = strtolower( $subcat['name'] );
+                $is_brand = false;
+                
+                // Check if it looks like a brand-specific coil/accessory (e.g., "Bearded Viking Coils")
+                // Pattern: Two or more capitalized words followed by "Coils" or similar
+                if ( preg_match( '/^[A-Z][a-z]+\s+[A-Z][a-z]+\s+(Coils|Accessories|Parts)$/i', $subcat['name'] ) ) {
+                    // Only mark as brand if it doesn't contain hardware type words
+                    $contains_hardware_word = false;
+                    foreach ( $hardware_type_words as $hw_word ) {
+                        if ( strpos( $subcat_name_lower, $hw_word ) !== false ) {
+                            $contains_hardware_word = true;
+                            break;
+                        }
+                    }
+                    
+                    if ( ! $contains_hardware_word ) {
+                        $is_brand = true; // Likely "Brand Name Coils"
+                    }
+                }
+                
+                if ( ! $is_brand ) {
+                    $filtered_subcats[] = $subcat;
+                    if ( count( $filtered_subcats ) >= 3 ) break;
+                }
+            }
+            
+            foreach ( array_slice( $filtered_subcats, 0, 3 ) as $subcat ) {
                 $children[] = $subcat;
             }
         }
@@ -897,20 +1180,53 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         $dl_liquids = advapes_find_category( 'dl-liquids' );
     }
     if ( $dl_liquids ) {
-        // Get max 3 subcategories per Goal A requirements
-        $subcategories = advapes_get_category_children( $dl_liquids->term_id, 3 );
-        
         // Build children array with micro-grouping
         $children = array();
         
-        // Add "By Type" group label (non-clickable)
-        if ( ! empty( $subcategories ) ) {
-            $children[] = array(
-                'type' => 'group_label',
-                'name' => 'By Type',
-            );
-            // Add subcategories (max 3)
-            foreach ( $subcategories as $subcat ) {
+        // NEW REQUIREMENT: Add "BY FORMAT" group before Top Brands
+        $children[] = array(
+            'type' => 'group_label',
+            'name' => 'BY FORMAT',
+        );
+        
+        // Try to find format-specific categories (max 3)
+        $format_categories = array(
+            array( 'slug' => 'premixed-dl-liquids', 'alt_slugs' => array( 'dl-premixed', 'pre-mixed-freebase', 'premixed-freebase' ), 'fallback_name' => 'Premixed DL Liquids' ),
+            array( 'slug' => 'dl-longfills', 'alt_slugs' => array( 'dl-long-fill-kits', 'longfills', 'dl-long-fills' ), 'fallback_name' => 'DL Longfills' ),
+            array( 'slug' => 'flavour-shots', 'alt_slugs' => array( 'dl-long-fill-flavour-shots', 'flavor-shots', 'dl-flavour-shots' ), 'fallback_name' => 'Flavour Shots' ),
+        );
+        
+        $formats_added = 0;
+        foreach ( $format_categories as $format ) {
+            if ( $formats_added >= 3 ) break;
+            
+            // Try main slug first
+            $cat = advapes_find_category( $format['slug'] );
+            
+            // Try alternative slugs if main not found
+            if ( ! $cat || is_wp_error( $cat ) ) {
+                foreach ( $format['alt_slugs'] as $alt_slug ) {
+                    $cat = advapes_find_category( $alt_slug );
+                    if ( $cat && ! is_wp_error( $cat ) ) {
+                        break;
+                    }
+                }
+            }
+            
+            if ( $cat && ! is_wp_error( $cat ) ) {
+                $children[] = array(
+                    'name' => $cat->name,
+                    'url'  => get_term_link( $cat ),
+                    'count' => $cat->count,
+                );
+                $formats_added++;
+            }
+        }
+        
+        // Fallback: if no specific format categories found, use top 3 subcategories
+        if ( $formats_added === 0 ) {
+            $subcategories = advapes_get_category_children( $dl_liquids->term_id, 3 );
+            foreach ( array_slice( $subcategories, 0, 3 ) as $subcat ) {
                 $children[] = $subcat;
             }
         }
@@ -1281,6 +1597,8 @@ function advapes_render_nav() {
  */
 function advapes_invalidate_nav_cache() {
     delete_transient( ADVAPES_NAV_TRANSIENT_KEY );
+    // Also clear chip count caches when navigation cache is invalidated
+    adv_clear_chip_count_cache();
 }
 
 /**

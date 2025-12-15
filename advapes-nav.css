@@ -532,7 +532,7 @@ header#site-header.minimized, header#site-header {
 
 /* Container for strength pills (list item wrapper) */
 .adv-strength-pills-container {
-  padding: 4px 4px 8px 4px !important;
+  padding: 2px 4px 8px 4px !important;
   list-style: none;
 }
 
@@ -549,9 +549,9 @@ header#site-header.minimized, header#site-header {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   background: #111827;
-  border: 1px solid #374151;
+  border: 1px solid #2d3748;
   border-radius: 16px;
   color: #f9fafb;
   font-size: 11px;
@@ -581,7 +581,7 @@ header#site-header.minimized, header#site-header {
   min-width: 18px;
   height: 16px;
   padding: 0 4px;
-  background: #374151;
+  background: #2d3748;
   border-radius: 8px;
   color: #9ca3af;
   font-size: 9px;
