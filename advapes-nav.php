@@ -1,21 +1,23 @@
 <?php
 /**
  * ADVapes Dynamic Navigation System
- * Version 3.1.2 (December 2025)
+ * Version 3.2.0 (December 2025)
  * 
- * Hybrid Approach with Mobile Enhancements:
+ * Hybrid Approach with Mobile Enhancements + Filter Chips:
  * - Fixed parent menu structure from v2 (for user familiarity)
  * - Dynamic subcategories from v3 (auto-updating from WooCommerce)
  * - Enhanced mobile menu with collapsible dropdowns and accordion behavior
  * - Touch-optimized with instant response and smooth animations
  * - Brand detection prioritizes pwb-brand taxonomy
  * - Security improvements with proper SQL sanitization
+ * - Max 3 items per group (BY TYPE and TOP BRANDS)
+ * - Smart filter chips: Puff Count (Disposables) and Nic Salt Strengths (Pod Disposables, MTL & Nic Salts)
  * 
  * Parent menu order stays consistent, but content under each parent
  * updates automatically based on WooCommerce categories and products.
  * 
  * @package Razzi Child / ADVapes
- * @version 3.1.2
+ * @version 3.2.0
  */
 
 // Prevent direct access
@@ -40,7 +42,7 @@ function advapes_enqueue_nav_styles() {
             'advapes-nav', 
             get_stylesheet_directory_uri() . '/advapes-nav.css', 
             array(), 
-            '3.1.2', 
+            '3.2.0', 
             'all' 
         );
     }
