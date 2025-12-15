@@ -361,6 +361,35 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
 }
 
 /**
+ * Check if there's an active major promotion
+ * 
+ * This function checks for active promotional categories/pages to determine
+ * if the Deals menu should be highlighted. Uses get_posts() to check for active
+ * promo pages without hardcoding dates.
+ * 
+ * @return bool True if a major promo is active
+ */
+function advapes_has_active_promo() {
+    // Define major promo page slugs to check
+    $promo_slugs = array( 'dezemba-dealz', 'fire-sale', 'black-friday', 'cyber-monday' );
+    
+    // Check if any promo pages are published
+    $args = array(
+        'post_type'      => 'page',
+        'post_status'    => 'publish',
+        'post_name__in'  => $promo_slugs,
+        'posts_per_page' => 1,
+        'fields'         => 'ids',
+    );
+    
+    $promo_pages = get_posts( $args );
+    $has_promo = ! empty( $promo_pages );
+    
+    // Allow filtering for custom promo logic
+    return apply_filters( 'advapes_has_active_promo', $has_promo );
+}
+
+/**
  * Get navigation structure from WooCommerce data
  * 
  * Hybrid approach (v3.1):
@@ -389,11 +418,14 @@ function advapes_get_nav_structure( $force_refresh = false ) {
 
     $nav_structure = array();
 
-    // 1. Static Deals section (fully static - no WooCommerce dependency)
+    // 1. Static Deals section (state-aware for active promotions)
+    $has_active_promo = advapes_has_active_promo();
+    $deals_class = $has_active_promo ? 'adv-nav-link--primary adv-nav-link--promo-active' : 'adv-nav-link--primary';
+    
     $nav_structure['deals'] = array(
         'name' => 'Deals',
         'url' => 'https://www.advapes.co.za/on-sale/',
-        'class' => 'adv-nav-link--primary',
+        'class' => $deals_class,
         'dropdown_title' => 'Shop deals &amp; promotions',
         'children' => array(
             array(
@@ -417,27 +449,47 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     $disposables = advapes_find_category( 'disposables' );
     if ( $disposables ) {
         // Get 7 subcategories so after removing first, we have 6 left for brands
-        $children = advapes_get_category_children( $disposables->term_id, 7 );
+        $subcategories = advapes_get_category_children( $disposables->term_id, 7 );
         
         // Remove the first child category (requested to remove first option)
         // After this, we have 6 subcategories + 3 brands + 1 Browse all = 10 items total
-        if ( ! empty( $children ) ) {
-            array_shift( $children );
+        if ( ! empty( $subcategories ) ) {
+            array_shift( $subcategories );
+        }
+        
+        // Build children array with micro-grouping
+        $children = array();
+        
+        // Add "By Type" group label (non-clickable)
+        if ( ! empty( $subcategories ) ) {
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'By Type',
+            );
+            // Add subcategories
+            foreach ( $subcategories as $subcat ) {
+                $children[] = $subcat;
+            }
         }
         
         // Add top brands for this category - limit to 3 to stay within 10 items total
         $brands = advapes_get_category_brands( $disposables->term_id, 3 );
         if ( ! empty( $brands ) ) {
+            // Add "Top Brands" group label (non-clickable)
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'Top Brands',
+            );
             foreach ( $brands as $brand ) {
                 $children[] = $brand;
             }
         }
         
-        // Add "View All" link at the end
+        // Add "View All" link at the end with improved CTA copy
         $children[] = array(
-            'name' => 'All Disposables',
+            'name' => 'View All Disposables',
             'url'  => get_term_link( $disposables ),
-            'tag'  => 'Browse all',
+            'tag'  => 'Shop all',
         );
         
         $nav_structure['disposables'] = array(
@@ -452,21 +504,41 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     $pod_disposables = advapes_find_category( 'pod-disposables' );
     if ( $pod_disposables ) {
         // Get subcategories dynamically - limit to 6 to leave room for brands
-        $children = advapes_get_category_children( $pod_disposables->term_id, 6 );
+        $subcategories = advapes_get_category_children( $pod_disposables->term_id, 6 );
+        
+        // Build children array with micro-grouping
+        $children = array();
+        
+        // Add "By Type" group label (non-clickable)
+        if ( ! empty( $subcategories ) ) {
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'By Type',
+            );
+            // Add subcategories
+            foreach ( $subcategories as $subcat ) {
+                $children[] = $subcat;
+            }
+        }
         
         // Add top brands for this category - limit to 3 to stay within 10 items total
         $brands = advapes_get_category_brands( $pod_disposables->term_id, 3 );
         if ( ! empty( $brands ) ) {
+            // Add "Top Brands" group label (non-clickable)
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'Top Brands',
+            );
             foreach ( $brands as $brand ) {
                 $children[] = $brand;
             }
         }
         
-        // Add "View All" link at the end
+        // Add "View All" link at the end with improved CTA copy
         $children[] = array(
-            'name' => 'All Pod Disposables',
+            'name' => 'View All Pod Disposables',
             'url'  => get_term_link( $pod_disposables ),
-            'tag'  => 'Browse all',
+            'tag'  => 'Shop all',
         );
         
         $nav_structure['pod-disposables'] = array(
@@ -481,21 +553,41 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     $pod_systems = advapes_find_category( 'pod-systems-kits' );
     if ( $pod_systems ) {
         // Get subcategories dynamically - limit to 6 to leave room for brands
-        $children = advapes_get_category_children( $pod_systems->term_id, 6 );
+        $subcategories = advapes_get_category_children( $pod_systems->term_id, 6 );
+        
+        // Build children array with micro-grouping
+        $children = array();
+        
+        // Add "By Type" group label (non-clickable)
+        if ( ! empty( $subcategories ) ) {
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'By Type',
+            );
+            // Add subcategories
+            foreach ( $subcategories as $subcat ) {
+                $children[] = $subcat;
+            }
+        }
         
         // Add top brands for this category - limit to 3 to stay within 10 items total
         $brands = advapes_get_category_brands( $pod_systems->term_id, 3 );
         if ( ! empty( $brands ) ) {
+            // Add "Top Brands" group label (non-clickable)
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'Top Brands',
+            );
             foreach ( $brands as $brand ) {
                 $children[] = $brand;
             }
         }
         
-        // Add "View All" link at the end
+        // Add "View All" link at the end with improved CTA copy
         $children[] = array(
-            'name' => 'All Pod Systems &amp; Kits',
+            'name' => 'Shop All Pod Systems',
             'url'  => get_term_link( $pod_systems ),
-            'tag'  => 'Browse all',
+            'tag'  => 'Shop all',
         );
         
         $nav_structure['pod-systems-kits'] = array(
@@ -514,21 +606,41 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     }
     if ( $hardware ) {
         // Get subcategories dynamically - limit to 6 to leave room for brands
-        $children = advapes_get_category_children( $hardware->term_id, 6 );
+        $subcategories = advapes_get_category_children( $hardware->term_id, 6 );
+        
+        // Build children array with micro-grouping
+        $children = array();
+        
+        // Add "By Type" group label (non-clickable)
+        if ( ! empty( $subcategories ) ) {
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'By Type',
+            );
+            // Add subcategories
+            foreach ( $subcategories as $subcat ) {
+                $children[] = $subcat;
+            }
+        }
         
         // Add top brands for this category - limit to 3 to stay within 10 items total
         $brands = advapes_get_category_brands( $hardware->term_id, 3 );
         if ( ! empty( $brands ) ) {
+            // Add "Top Brands" group label (non-clickable)
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'Top Brands',
+            );
             foreach ( $brands as $brand ) {
                 $children[] = $brand;
             }
         }
         
-        // Add "View All" link at the end
+        // Add "View All" link at the end with improved CTA copy
         $children[] = array(
-            'name' => 'All Vape Hardware',
+            'name' => 'View All Vape Hardware',
             'url'  => get_term_link( $hardware ),
-            'tag'  => 'Browse all',
+            'tag'  => 'Shop all',
         );
         
         $nav_structure['vape-hardware'] = array(
@@ -546,21 +658,41 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     }
     if ( $dl_liquids ) {
         // Get subcategories dynamically - limit to 6 to leave room for brands
-        $children = advapes_get_category_children( $dl_liquids->term_id, 6 );
+        $subcategories = advapes_get_category_children( $dl_liquids->term_id, 6 );
+        
+        // Build children array with micro-grouping
+        $children = array();
+        
+        // Add "By Type" group label (non-clickable)
+        if ( ! empty( $subcategories ) ) {
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'By Type',
+            );
+            // Add subcategories
+            foreach ( $subcategories as $subcat ) {
+                $children[] = $subcat;
+            }
+        }
         
         // Add top brands for this category - limit to 3 to stay within 10 items total
         $brands = advapes_get_category_brands( $dl_liquids->term_id, 3 );
         if ( ! empty( $brands ) ) {
+            // Add "Top Brands" group label (non-clickable)
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'Top Brands',
+            );
             foreach ( $brands as $brand ) {
                 $children[] = $brand;
             }
         }
         
-        // Add "View All" link at the end
+        // Add "View All" link at the end with improved CTA copy
         $children[] = array(
-            'name' => 'All DL E-Liquids',
+            'name' => 'View All DL E-Liquids',
             'url'  => get_term_link( $dl_liquids ),
-            'tag'  => 'Browse all',
+            'tag'  => 'Shop all',
         );
         
         $nav_structure['dl-liquids'] = array(
@@ -578,21 +710,41 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     }
     if ( $nic_salts ) {
         // Get subcategories dynamically - limit to 6 to leave room for brands
-        $children = advapes_get_category_children( $nic_salts->term_id, 6 );
+        $subcategories = advapes_get_category_children( $nic_salts->term_id, 6 );
+        
+        // Build children array with micro-grouping
+        $children = array();
+        
+        // Add "By Type" group label (non-clickable)
+        if ( ! empty( $subcategories ) ) {
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'By Type',
+            );
+            // Add subcategories
+            foreach ( $subcategories as $subcat ) {
+                $children[] = $subcat;
+            }
+        }
         
         // Add top brands for this category - limit to 3 to stay within 10 items total
         $brands = advapes_get_category_brands( $nic_salts->term_id, 3 );
         if ( ! empty( $brands ) ) {
+            // Add "Top Brands" group label (non-clickable)
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'Top Brands',
+            );
             foreach ( $brands as $brand ) {
                 $children[] = $brand;
             }
         }
         
-        // Add "View All" link at the end
+        // Add "View All" link at the end with improved CTA copy
         $children[] = array(
-            'name' => 'All MTL &amp; Nic Salts',
+            'name' => 'View All Nic Salts',
             'url'  => get_term_link( $nic_salts ),
-            'tag'  => 'Browse all',
+            'tag'  => 'Shop all',
         );
         
         $nav_structure['mtl-nic-salts'] = array(
@@ -607,21 +759,41 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     $nic_alternatives = advapes_find_category( 'nicotine-alternatives' );
     if ( $nic_alternatives ) {
         // Get subcategories dynamically - limit to 6 to leave room for brands
-        $children = advapes_get_category_children( $nic_alternatives->term_id, 6 );
+        $subcategories = advapes_get_category_children( $nic_alternatives->term_id, 6 );
+        
+        // Build children array with micro-grouping
+        $children = array();
+        
+        // Add "By Type" group label (non-clickable)
+        if ( ! empty( $subcategories ) ) {
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'By Type',
+            );
+            // Add subcategories
+            foreach ( $subcategories as $subcat ) {
+                $children[] = $subcat;
+            }
+        }
         
         // Add top brands for this category - limit to 3 to stay within 10 items total
         $brands = advapes_get_category_brands( $nic_alternatives->term_id, 3 );
         if ( ! empty( $brands ) ) {
+            // Add "Top Brands" group label (non-clickable)
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'Top Brands',
+            );
             foreach ( $brands as $brand ) {
                 $children[] = $brand;
             }
         }
         
-        // Add "View All" link
+        // Add "View All" link with improved CTA copy
         $children[] = array(
-            'name' => 'All Nicotine Alternatives',
+            'name' => 'View All Nic Alternatives',
             'url'  => get_term_link( $nic_alternatives ),
-            'tag'  => 'Browse all',
+            'tag'  => 'Shop all',
         );
         
         $nav_structure['nic-alternatives'] = array(
@@ -785,19 +957,27 @@ function advapes_render_nav() {
             echo '<ul>' . "\n";
             
             foreach ( $item['children'] as $child ) {
-                echo '<li>' . "\n";
-                echo '<a href="' . esc_url( $child['url'] ) . '">' . "\n";
-                echo '<span>' . esc_html( $child['name'] ) . '</span>' . "\n";
-                
-                // Add tag or count
-                if ( ! empty( $child['tag'] ) ) {
-                    echo '<span class="adv-tag">' . esc_html( $child['tag'] ) . '</span>' . "\n";
-                } elseif ( ! empty( $child['count'] ) ) {
-                    echo '<span class="adv-tag">' . absint( $child['count'] ) . '+ products</span>' . "\n";
+                // Check if this is a group label (non-clickable)
+                if ( isset( $child['type'] ) && $child['type'] === 'group_label' ) {
+                    echo '<li class="adv-dropdown-group-label">' . "\n";
+                    echo '<span>' . esc_html( $child['name'] ) . '</span>' . "\n";
+                    echo '</li>' . "\n";
+                } else {
+                    // Regular clickable item
+                    echo '<li>' . "\n";
+                    echo '<a href="' . esc_url( $child['url'] ) . '">' . "\n";
+                    echo '<span>' . esc_html( $child['name'] ) . '</span>' . "\n";
+                    
+                    // Add tag or count
+                    if ( ! empty( $child['tag'] ) ) {
+                        echo '<span class="adv-tag">' . esc_html( $child['tag'] ) . '</span>' . "\n";
+                    } elseif ( ! empty( $child['count'] ) ) {
+                        echo '<span class="adv-tag">' . absint( $child['count'] ) . '+ products</span>' . "\n";
+                    }
+                    
+                    echo '</a>' . "\n";
+                    echo '</li>' . "\n";
                 }
-                
-                echo '</a>' . "\n";
-                echo '</li>' . "\n";
             }
             
             echo '</ul>' . "\n";
