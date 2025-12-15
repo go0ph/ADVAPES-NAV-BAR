@@ -338,8 +338,8 @@ function advapes_detect_size_taxonomy() {
  * @return int Number of products matching the criteria
  */
 function adv_count_products_for_chip( $context_category_id, $filter_taxonomy, $filter_term_id, $include_children = true, $in_stock_only = false ) {
-    // Validate inputs
-    if ( empty( $context_category_id ) || empty( $filter_taxonomy ) || empty( $filter_term_id ) ) {
+    // Validate inputs - use specific validation to avoid rejecting category ID 0
+    if ( ! is_numeric( $context_category_id ) || $context_category_id < 1 || empty( $filter_taxonomy ) || empty( $filter_term_id ) ) {
         return 0;
     }
     
@@ -407,7 +407,7 @@ function adv_count_products_for_chip( $context_category_id, $filter_taxonomy, $f
         'post_status'    => 'publish',
         'posts_per_page' => -1,
         'fields'         => 'ids',
-        'no_found_rows'  => false, // We need the total count
+        'no_found_rows'  => true, // Better performance - we'll count posts directly
         'tax_query'      => $tax_query,
     );
     
@@ -417,7 +417,7 @@ function adv_count_products_for_chip( $context_category_id, $filter_taxonomy, $f
     
     // Execute query
     $query = new WP_Query( $args );
-    $count = $query->found_posts;
+    $count = count( $query->posts ); // Count posts directly for better performance
     
     // Cache the result for 6 hours (21600 seconds)
     set_transient( $cache_key, $count, 6 * HOUR_IN_SECONDS );
@@ -436,14 +436,21 @@ function adv_clear_chip_count_cache( $category_id = 0, $taxonomy = '' ) {
     global $wpdb;
     
     if ( empty( $category_id ) && empty( $taxonomy ) ) {
-        // Clear all chip count caches
-        $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_adv_chip_count_%'" );
-        $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_adv_chip_count_%'" );
+        // Clear all chip count caches using prepared statements for safety
+        $wpdb->query( $wpdb->prepare( 
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 
+            $wpdb->esc_like( '_transient_adv_chip_count_' ) . '%' 
+        ) );
+        $wpdb->query( $wpdb->prepare( 
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 
+            $wpdb->esc_like( '_transient_timeout_adv_chip_count_' ) . '%' 
+        ) );
     } elseif ( ! empty( $category_id ) ) {
-        // Clear caches for specific category
-        $like_pattern = '_transient_adv_chip_count_' . $category_id . '_%';
+        // Clear caches for specific category using prepared statements
+        $like_pattern = $wpdb->esc_like( '_transient_adv_chip_count_' . absint( $category_id ) . '_' ) . '%';
         $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $like_pattern ) );
-        $like_pattern = '_transient_timeout_adv_chip_count_' . $category_id . '_%';
+        
+        $like_pattern = $wpdb->esc_like( '_transient_timeout_adv_chip_count_' . absint( $category_id ) . '_' ) . '%';
         $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $like_pattern ) );
     }
 }
