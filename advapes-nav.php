@@ -968,15 +968,61 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         // Build children array with micro-grouping
         $children = array();
         
-        // Add "By Type" group label (non-clickable)
-        if ( ! empty( $subcategories ) ) {
+        // NEW REQUIREMENT: Only show "By Type" if we have 2+ subcategories
+        // Otherwise replace with "POPULAR PICKS" guidance group
+        if ( ! empty( $subcategories ) && count( $subcategories ) >= 2 ) {
             $children[] = array(
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
             // Add subcategories (max 3)
-            foreach ( $subcategories as $subcat ) {
+            foreach ( array_slice( $subcategories, 0, 3 ) as $subcat ) {
                 $children[] = $subcat;
+            }
+        } else {
+            // Add "POPULAR PICKS" group with guidance links
+            $children[] = array(
+                'type' => 'group_label',
+                'name' => 'POPULAR PICKS',
+            );
+            
+            // Try to find preferred guidance categories (max 3)
+            $guidance_categories = array(
+                array( 'slug' => 'beginner-friendly-pods', 'fallback_name' => 'Beginner-Friendly Pods' ),
+                array( 'slug' => 'compact-pod-kits', 'fallback_name' => 'Compact Pod Kits' ),
+                array( 'slug' => 'advanced-pod-kits', 'fallback_name' => 'Advanced Pod Kits' ),
+            );
+            
+            $guidance_count = 0;
+            foreach ( $guidance_categories as $guidance ) {
+                if ( $guidance_count >= 3 ) break;
+                
+                $cat = advapes_find_category( $guidance['slug'] );
+                if ( $cat && ! is_wp_error( $cat ) ) {
+                    $children[] = array(
+                        'name' => $cat->name,
+                        'url'  => get_term_link( $cat ),
+                        'count' => $cat->count,
+                    );
+                    $guidance_count++;
+                }
+            }
+            
+            // If no specific guidance categories found, use available subcategories with friendly labels
+            if ( $guidance_count === 0 && ! empty( $subcategories ) ) {
+                foreach ( array_slice( $subcategories, 0, 3 ) as $subcat ) {
+                    $children[] = $subcat;
+                    $guidance_count++;
+                }
+            }
+            
+            // Fallback: if still no items, show the parent category itself
+            if ( $guidance_count === 0 ) {
+                $children[] = array(
+                    'name' => 'Pod Systems & Kits',
+                    'url'  => get_term_link( $pod_systems ),
+                    'count' => $pod_systems->count,
+                );
             }
         }
         
@@ -1015,20 +1061,73 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         $hardware = advapes_find_category( 'vape-hardware' );
     }
     if ( $hardware ) {
-        // Get max 3 subcategories per Goal A requirements
-        $subcategories = advapes_get_category_children( $hardware->term_id, 3 );
-        
         // Build children array with micro-grouping
         $children = array();
         
-        // Add "By Type" group label (non-clickable)
-        if ( ! empty( $subcategories ) ) {
-            $children[] = array(
-                'type' => 'group_label',
-                'name' => 'By Type',
-            );
-            // Add subcategories (max 3)
+        // NEW REQUIREMENT: Replace "By Type" with "BY HARDWARE TYPE"
+        // Show exactly 3 proper hardware type links (not brands)
+        $children[] = array(
+            'type' => 'group_label',
+            'name' => 'BY HARDWARE TYPE',
+        );
+        
+        // Try to find these specific hardware type categories (max 3)
+        $hardware_types = array(
+            array( 'slug' => 'vape-mods', 'alt_slugs' => array( 'mods' ), 'fallback_name' => 'Vape Mods' ),
+            array( 'slug' => 'tanks-rtas', 'alt_slugs' => array( 'tanks', 'rtas', 'tanks-and-rtas' ), 'fallback_name' => 'Tanks & RTAs' ),
+            array( 'slug' => 'coils-spares', 'alt_slugs' => array( 'coils', 'coils-pods-spares', 'coils-and-spares' ), 'fallback_name' => 'Coils & Spares' ),
+        );
+        
+        $types_added = 0;
+        foreach ( $hardware_types as $type ) {
+            if ( $types_added >= 3 ) break;
+            
+            // Try main slug first
+            $cat = advapes_find_category( $type['slug'] );
+            
+            // Try alternative slugs if main not found
+            if ( ! $cat || is_wp_error( $cat ) ) {
+                foreach ( $type['alt_slugs'] as $alt_slug ) {
+                    $cat = advapes_find_category( $alt_slug );
+                    if ( $cat && ! is_wp_error( $cat ) ) {
+                        break;
+                    }
+                }
+            }
+            
+            if ( $cat && ! is_wp_error( $cat ) ) {
+                $children[] = array(
+                    'name' => $cat->name,
+                    'url'  => get_term_link( $cat ),
+                    'count' => $cat->count,
+                );
+                $types_added++;
+            }
+        }
+        
+        // Fallback: if no specific types found, use top 3 subcategories but filter out brand-like names
+        if ( $types_added === 0 ) {
+            $subcategories = advapes_get_category_children( $hardware->term_id, 10 );
+            // Filter out items that look like brand coil makers
+            $brand_keywords = array( 'coils', 'vape', 'viking', 'collar', 'white', 'bearded' );
+            $filtered_subcats = array();
+            
             foreach ( $subcategories as $subcat ) {
+                $subcat_name_lower = strtolower( $subcat['name'] );
+                $is_brand = false;
+                
+                // Check if it looks like a brand name (contains multiple capital letters or specific keywords)
+                if ( preg_match( '/[A-Z][a-z]+\s+[A-Z][a-z]+/', $subcat['name'] ) ) {
+                    $is_brand = true; // Looks like "Brand Name Coils"
+                }
+                
+                if ( ! $is_brand ) {
+                    $filtered_subcats[] = $subcat;
+                    if ( count( $filtered_subcats ) >= 3 ) break;
+                }
+            }
+            
+            foreach ( array_slice( $filtered_subcats, 0, 3 ) as $subcat ) {
                 $children[] = $subcat;
             }
         }
@@ -1068,20 +1167,53 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         $dl_liquids = advapes_find_category( 'dl-liquids' );
     }
     if ( $dl_liquids ) {
-        // Get max 3 subcategories per Goal A requirements
-        $subcategories = advapes_get_category_children( $dl_liquids->term_id, 3 );
-        
         // Build children array with micro-grouping
         $children = array();
         
-        // Add "By Type" group label (non-clickable)
-        if ( ! empty( $subcategories ) ) {
-            $children[] = array(
-                'type' => 'group_label',
-                'name' => 'By Type',
-            );
-            // Add subcategories (max 3)
-            foreach ( $subcategories as $subcat ) {
+        // NEW REQUIREMENT: Add "BY FORMAT" group before Top Brands
+        $children[] = array(
+            'type' => 'group_label',
+            'name' => 'BY FORMAT',
+        );
+        
+        // Try to find format-specific categories (max 3)
+        $format_categories = array(
+            array( 'slug' => 'premixed-dl-liquids', 'alt_slugs' => array( 'dl-premixed', 'pre-mixed-freebase', 'premixed-freebase' ), 'fallback_name' => 'Premixed DL Liquids' ),
+            array( 'slug' => 'dl-longfills', 'alt_slugs' => array( 'dl-long-fill-kits', 'longfills', 'dl-long-fills' ), 'fallback_name' => 'DL Longfills' ),
+            array( 'slug' => 'flavour-shots', 'alt_slugs' => array( 'dl-long-fill-flavour-shots', 'flavor-shots', 'dl-flavour-shots' ), 'fallback_name' => 'Flavour Shots' ),
+        );
+        
+        $formats_added = 0;
+        foreach ( $format_categories as $format ) {
+            if ( $formats_added >= 3 ) break;
+            
+            // Try main slug first
+            $cat = advapes_find_category( $format['slug'] );
+            
+            // Try alternative slugs if main not found
+            if ( ! $cat || is_wp_error( $cat ) ) {
+                foreach ( $format['alt_slugs'] as $alt_slug ) {
+                    $cat = advapes_find_category( $alt_slug );
+                    if ( $cat && ! is_wp_error( $cat ) ) {
+                        break;
+                    }
+                }
+            }
+            
+            if ( $cat && ! is_wp_error( $cat ) ) {
+                $children[] = array(
+                    'name' => $cat->name,
+                    'url'  => get_term_link( $cat ),
+                    'count' => $cat->count,
+                );
+                $formats_added++;
+            }
+        }
+        
+        // Fallback: if no specific format categories found, use top 3 subcategories
+        if ( $formats_added === 0 ) {
+            $subcategories = advapes_get_category_children( $dl_liquids->term_id, 3 );
+            foreach ( array_slice( $subcategories, 0, 3 ) as $subcat ) {
                 $children[] = $subcat;
             }
         }
