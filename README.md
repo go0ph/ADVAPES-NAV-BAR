@@ -64,7 +64,7 @@ The system looks for WooCommerce categories with these slugs:
 - `nic-salts` or `nic-salts-mtl-liquids`
 - `nicotine-alternatives`
 
-**Important:** If your categories use different slugs, update them in WooCommerce or adjust the slugs in `advapes-nav.php` (lines 257-467).
+**Important:** If your categories use different slugs, update them in WooCommerce or adjust the slugs in `advapes-nav.php` (lines 412-633).
 
 ### Brand Detection
 
@@ -79,7 +79,7 @@ The system automatically detects your brand taxonomy from these common names (in
 
 The system prioritizes `pwb-brand` as this is the taxonomy used by advapes.co.za. Brands are now fetched from both the parent category and all its subcategories to ensure complete brand coverage.
 
-If you use a different brand taxonomy, the system won't find it. Either rename your taxonomy or update the detection code in `advapes_detect_brand_taxonomy()` (lines 186-215).
+If you use a different brand taxonomy, the system won't find it. Either rename your taxonomy or update the detection code in `advapes_detect_brand_taxonomy()` (lines 191-220).
 
 ### Mobile Menu Features
 
@@ -175,14 +175,17 @@ Brands and subcategories appear mixed in the dropdown, ordered by product count 
 In `advapes-nav.php`, adjust these values:
 
 ```php
-// Line 261 (and similar for other categories)
-$children = advapes_get_category_children( $disposables->term_id, 10 ); // Change 10 to any number
+// Line 420 (Disposables - currently 7 subcategories)
+$children = advapes_get_category_children( $disposables->term_id, 7 ); // Change 7 to any number
 
-// Line 264 (and similar for other categories)  
-$brands = advapes_get_category_brands( $disposables->term_id, 4 ); // Change 4 to any number
+// Line 429 (Disposables - currently 3 brands)
+$brands = advapes_get_category_brands( $disposables->term_id, 3 ); // Change 3 to any number
 
-// Line 478 (main Brands menu)
-'number' => 10, // Change 10 to any number
+// Similar for other categories (lines 455+)
+// Most categories use: 6 subcategories + 3 brands = 9 items + "Browse all" = 10 total
+
+// Line 646 (main Brands menu - top brands)
+'number' => 10, // Change 10 to show more/fewer top brands
 ```
 
 ### Change Colors and Styling
@@ -190,13 +193,13 @@ $brands = advapes_get_category_brands( $disposables->term_id, 4 ); // Change 4 t
 Edit `advapes-nav.css`:
 - Background: Line 7 (`background: #050507;`)
 - Border: Line 9 (`border-bottom: 2px solid #e11d2f;`)
-- Link color: Line 76 (`color: #d1d5db;`)
-- Hover color: Line 89 (`background: #e11d2f;`)
-- Deals color: Line 93 (`color: #fbbf24;`)
+- Link color: Line 81 (`color: #d1d5db;`)
+- Hover color: Line 94 (`background: #e11d2f;`)
+- Deals color: Line 98 (`color: #fbbf24;`)
 
 ### Change Cache Duration
 
-In `advapes-nav.php` line 23:
+In `advapes-nav.php` line 28:
 ```php
 define( 'ADVAPES_NAV_TTL', 30 ); // Currently 30 seconds, change to any number
 ```
@@ -205,7 +208,7 @@ Note: Cache duration is set to 30 seconds (not 30 minutes) for near real-time up
 
 ### Add/Remove Menu Items
 
-Edit the navigation structure in `advapes_get_nav_structure()` function (lines 210-580).
+Edit the navigation structure in `advapes_get_nav_structure()` function (lines 376-743).
 
 ## Requirements
 
