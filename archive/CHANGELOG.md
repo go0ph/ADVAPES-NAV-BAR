@@ -1,5 +1,63 @@
 # ADVAPES Navigation Bar - Changelog
 
+**Current Stable Version: 3.1.2** - See `CURRENT_VERSION.md` for complete current version details
+
+---
+
+## [v3.1.2] - 2025-12-15
+
+### 🎯 Mobile Menu Enhancement & Logo Fix
+
+This version completes the mobile experience with enhanced touch responsiveness and fixes the logo resize glitch.
+
+#### Key Improvements
+- ✅ **Mobile Touch Optimization**: Implemented `touchstart` events for instant response
+- ✅ **Logo Stability Fix**: Resolved logo resize glitch when mobile menu opens/closes
+- ✅ **GPU Acceleration**: Added transform-based animations for smoother performance
+- ✅ **Enhanced Accordion Behavior**: Improved collapsible menu with better state management
+- ✅ **Touch Feedback**: Added proper visual feedback for touch interactions
+- ✅ **Scroll Optimization**: Better touch scrolling with proper containment
+
+#### Files Modified
+- `advapes-nav.php` - Enhanced mobile JavaScript with touchstart handlers
+- `advapes-nav.css` - Added GPU acceleration and touch optimizations
+- `README.md` - Updated with mobile features and version history
+
+#### Mobile Features
+- Instant touch response (no delay)
+- Smooth animations with rotating arrows
+- Fixed logo size on mobile (60px max-height)
+- Debounced resize handlers for performance
+- Proper touch-action and tap-highlight CSS
+
+---
+
+## [v3.1.1] - 2025-12-11
+
+### 🎯 Layout Fixes & Brand Detection Enhancement
+
+This version fixes the navigation bar wrapping issue and enhances brand detection.
+
+#### Key Improvements
+- ✅ **Single Line Layout**: All 10 menu items fit without wrapping on desktop
+- ✅ **Enhanced Brand Detection**: Prioritizes `pwb-brand` taxonomy (WordPress Perfect Brands)
+- ✅ **Subcategory Brand Inclusion**: Brands queried from parent + all child categories
+- ✅ **Security Improvements**: Proper SQL sanitization with prepared statements
+
+#### Files Modified
+- `advapes-nav.php` - Brand detection and SQL query improvements
+- `advapes-nav.css` - Layout optimizations (padding, font size, container width)
+- `README.md` - Updated line references and troubleshooting
+
+#### Technical Changes
+- Container max-width: 1200px → 1400px
+- Link padding: 14px 10px → 14px 8px
+- Font size: 12px → 11px
+- Letter spacing: 0.05em → 0.03em
+- Brand taxonomy priority: pwb-brand first
+
+---
+
 ## [v3.1] - 2025-12-10
 
 ### 🎯 Hybrid Approach: Best of V2 + V3

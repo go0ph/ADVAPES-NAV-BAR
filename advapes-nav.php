@@ -1,16 +1,21 @@
 <?php
 /**
  * ADVapes Dynamic Navigation System
- * Version 3.1 (Hybrid Approach)
+ * Version 3.1.2 (December 2025)
  * 
- * Combines the best of v2 and v3:
+ * Hybrid Approach with Mobile Enhancements:
  * - Fixed parent menu structure from v2 (for user familiarity)
  * - Dynamic subcategories from v3 (auto-updating from WooCommerce)
+ * - Enhanced mobile menu with collapsible dropdowns and accordion behavior
+ * - Touch-optimized with instant response and smooth animations
+ * - Brand detection prioritizes pwb-brand taxonomy
+ * - Security improvements with proper SQL sanitization
  * 
  * Parent menu order stays consistent, but content under each parent
  * updates automatically based on WooCommerce categories and products.
  * 
  * @package Razzi Child / ADVapes
+ * @version 3.1.2
  */
 
 // Prevent direct access
