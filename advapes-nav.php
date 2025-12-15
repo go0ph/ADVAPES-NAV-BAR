@@ -563,6 +563,29 @@ function advapes_get_puff_count_chips( $category_id = 0 ) {
 }
 
 /**
+ * Helper function to strip "NS" or "Nic Salt" from strength labels for display
+ * 
+ * This is a presentation-only change - removes trailing "NS" or "Nic Salt" variations
+ * from labels while keeping internal logic unchanged.
+ * 
+ * @param string $label Original label (e.g., "10mg NS", "20mg Nic Salt")
+ * @return string Cleaned label (e.g., "10mg", "20mg")
+ */
+function advapes_strip_ns_from_label( $label ) {
+    // Trim any extra spaces first
+    $label = trim( $label );
+    
+    // Remove trailing "NS" and any preceding spaces
+    $label = preg_replace( '/\s+NS$/i', '', $label );
+    
+    // Remove trailing "Nic Salt" and any preceding spaces
+    $label = preg_replace( '/\s+Nic\s+Salt$/i', '', $label );
+    
+    // Trim again to ensure no trailing spaces
+    return trim( $label );
+}
+
+/**
  * Get strength pill links for the MTL & Nic Salts dropdown
  * 
  * Returns an array of pill link data with dynamic URLs based on term slugs.
@@ -578,6 +601,7 @@ function advapes_get_strength_pills( $category_id = 0 ) {
     }
 
     // Define the strength names we want to display
+    // These are the internal term names - we look up terms using these full names
     $strength_names = array( '10mg NS', '20mg NS', '50mg NS' );
     
     // Determine base URL - prefer category context, fallback to WooCommerce shop page
@@ -591,6 +615,7 @@ function advapes_get_strength_pills( $category_id = 0 ) {
     
     $pills = array();
     foreach ( $strength_names as $strength_name ) {
+        // Continue matching the full term name internally (e.g., "20mg NS")
         $term = get_term_by( 'name', $strength_name, $strength_taxonomy );
         if ( $term && ! is_wp_error( $term ) ) {
             // Build filter URL using site's existing WooCommerce filter pattern:
@@ -613,9 +638,13 @@ function advapes_get_strength_pills( $category_id = 0 ) {
                 $count = $term->count;
             }
             
+            // Strip "NS" or "Nic Salt" only from the rendered label
+            // Internal term name: "10mg NS" → Display label: "10mg"
+            $display_label = advapes_strip_ns_from_label( $strength_name );
+            
             $pills[] = array(
-                'name' => $strength_name,
-                'url' => $url,
+                'name' => $display_label,  // Display label without NS
+                'url' => $url,             // URL unchanged - uses term slug
                 'count' => $count,
             );
         }
