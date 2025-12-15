@@ -1108,17 +1108,30 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         // Fallback: if no specific types found, use top 3 subcategories but filter out brand-like names
         if ( $types_added === 0 ) {
             $subcategories = advapes_get_category_children( $hardware->term_id, 10 );
-            // Filter out items that look like brand coil makers
-            $brand_keywords = array( 'coils', 'vape', 'viking', 'collar', 'white', 'bearded' );
+            // Filter out items that look like brand coil makers (e.g., "Bearded Viking Coils", "White Collar Coils")
+            // Known hardware type words that should NOT be filtered
+            $hardware_type_words = array( 'vape', 'tank', 'mod', 'coil', 'spare', 'kit', 'pod', 'rta', 'rdta', 'rda', 'atomizer' );
             $filtered_subcats = array();
             
             foreach ( $subcategories as $subcat ) {
                 $subcat_name_lower = strtolower( $subcat['name'] );
                 $is_brand = false;
                 
-                // Check if it looks like a brand name (contains multiple capital letters or specific keywords)
-                if ( preg_match( '/[A-Z][a-z]+\s+[A-Z][a-z]+/', $subcat['name'] ) ) {
-                    $is_brand = true; // Looks like "Brand Name Coils"
+                // Check if it looks like a brand-specific coil/accessory (e.g., "Bearded Viking Coils")
+                // Pattern: Two or more capitalized words followed by "Coils" or similar
+                if ( preg_match( '/^[A-Z][a-z]+\s+[A-Z][a-z]+\s+(Coils|Accessories|Parts)$/i', $subcat['name'] ) ) {
+                    // Only mark as brand if it doesn't contain hardware type words
+                    $contains_hardware_word = false;
+                    foreach ( $hardware_type_words as $hw_word ) {
+                        if ( strpos( $subcat_name_lower, $hw_word ) !== false ) {
+                            $contains_hardware_word = true;
+                            break;
+                        }
+                    }
+                    
+                    if ( ! $contains_hardware_word ) {
+                        $is_brand = true; // Likely "Brand Name Coils"
+                    }
                 }
                 
                 if ( ! $is_brand ) {
