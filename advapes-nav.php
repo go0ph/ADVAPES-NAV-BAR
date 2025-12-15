@@ -319,6 +319,136 @@ function advapes_detect_size_taxonomy() {
 }
 
 /**
+ * Count products for a specific chip filter with context awareness and caching
+ * 
+ * This function provides accurate, context-aware product counts for filter chips.
+ * Unlike term->count which gives global counts, this counts products that:
+ * - Are published
+ * - Are in the specified category context (e.g., Disposables)
+ * - Have the specified attribute term (e.g., "20 000 Puff" for Size)
+ * - Optionally: are in stock (configurable)
+ * 
+ * Results are cached with transients to optimize performance.
+ * 
+ * @param int $context_category_id Category ID for context (e.g., Disposables category ID)
+ * @param string $filter_taxonomy Attribute taxonomy name (e.g., 'pa_size', 'pa_strength')
+ * @param int $filter_term_id Term ID within the attribute taxonomy
+ * @param bool $include_children Whether to include products from child categories (default: true)
+ * @param bool $in_stock_only Whether to filter by stock status (default: false)
+ * @return int Number of products matching the criteria
+ */
+function adv_count_products_for_chip( $context_category_id, $filter_taxonomy, $filter_term_id, $include_children = true, $in_stock_only = false ) {
+    // Validate inputs
+    if ( empty( $context_category_id ) || empty( $filter_taxonomy ) || empty( $filter_term_id ) ) {
+        return 0;
+    }
+    
+    // Check if WooCommerce is active
+    if ( ! class_exists( 'WooCommerce' ) ) {
+        return 0;
+    }
+    
+    // Build cache key
+    $cache_key = 'adv_chip_count_' . $context_category_id . '_' . $filter_taxonomy . '_' . $filter_term_id;
+    if ( $include_children ) {
+        $cache_key .= '_with_children';
+    }
+    if ( $in_stock_only ) {
+        $cache_key .= '_in_stock';
+    }
+    
+    // Try to get from cache
+    $cached_count = get_transient( $cache_key );
+    if ( false !== $cached_count ) {
+        return (int) $cached_count;
+    }
+    
+    // Build category IDs array (include children if requested)
+    $category_ids = array( $context_category_id );
+    if ( $include_children ) {
+        $children = get_term_children( $context_category_id, 'product_cat' );
+        if ( ! is_wp_error( $children ) && ! empty( $children ) ) {
+            $category_ids = array_merge( $category_ids, $children );
+        }
+    }
+    
+    // Build tax query for WP_Query
+    $tax_query = array(
+        'relation' => 'AND',
+        // Category constraint
+        array(
+            'taxonomy' => 'product_cat',
+            'field'    => 'term_id',
+            'terms'    => $category_ids,
+            'operator' => 'IN',
+        ),
+        // Attribute term constraint
+        array(
+            'taxonomy' => $filter_taxonomy,
+            'field'    => 'term_id',
+            'terms'    => $filter_term_id,
+            'operator' => 'IN',
+        ),
+    );
+    
+    // Build meta query for stock status if needed
+    $meta_query = array();
+    if ( $in_stock_only ) {
+        $meta_query[] = array(
+            'key'     => '_stock_status',
+            'value'   => 'instock',
+            'compare' => '=',
+        );
+    }
+    
+    // Query arguments
+    $args = array(
+        'post_type'      => 'product',
+        'post_status'    => 'publish',
+        'posts_per_page' => -1,
+        'fields'         => 'ids',
+        'no_found_rows'  => false, // We need the total count
+        'tax_query'      => $tax_query,
+    );
+    
+    if ( ! empty( $meta_query ) ) {
+        $args['meta_query'] = $meta_query;
+    }
+    
+    // Execute query
+    $query = new WP_Query( $args );
+    $count = $query->found_posts;
+    
+    // Cache the result for 6 hours (21600 seconds)
+    set_transient( $cache_key, $count, 6 * HOUR_IN_SECONDS );
+    
+    return (int) $count;
+}
+
+/**
+ * Clear chip count cache for a specific category and taxonomy
+ * Helper function to invalidate cached counts when products change
+ * 
+ * @param int $category_id Category ID
+ * @param string $taxonomy Attribute taxonomy (optional, clears all if not provided)
+ */
+function adv_clear_chip_count_cache( $category_id = 0, $taxonomy = '' ) {
+    global $wpdb;
+    
+    if ( empty( $category_id ) && empty( $taxonomy ) ) {
+        // Clear all chip count caches
+        $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_adv_chip_count_%'" );
+        $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_adv_chip_count_%'" );
+    } elseif ( ! empty( $category_id ) ) {
+        // Clear caches for specific category
+        $like_pattern = '_transient_adv_chip_count_' . $category_id . '_%';
+        $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $like_pattern ) );
+        $like_pattern = '_transient_timeout_adv_chip_count_' . $category_id . '_%';
+        $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $like_pattern ) );
+    }
+}
+
+/**
  * Get puff count chip links for the Disposables dropdown
  * 
  * Returns an array of chip link data with dynamic URLs based on term slugs.
@@ -389,10 +519,19 @@ function advapes_get_puff_count_chips( $category_id = 0 ) {
                 $base_url 
             );
             
+            // Get context-aware count (products in this category with this size attribute)
+            $count = 0;
+            if ( $category_id > 0 ) {
+                $count = adv_count_products_for_chip( $category_id, $size_taxonomy, $term->term_id );
+            } else {
+                // Fallback to term count if no category context
+                $count = $term->count;
+            }
+            
             $chips[] = array(
                 'name' => $range['label'],
                 'url' => $url,
-                'count' => $term->count, // Include count for optional display
+                'count' => $count,
             );
         }
     }
@@ -442,10 +581,19 @@ function advapes_get_strength_pills( $category_id = 0 ) {
                 $base_url 
             );
             
+            // Get context-aware count (products in this category with this strength attribute)
+            $count = 0;
+            if ( $category_id > 0 ) {
+                $count = adv_count_products_for_chip( $category_id, $strength_taxonomy, $term->term_id );
+            } else {
+                // Fallback to term count if no category context
+                $count = $term->count;
+            }
+            
             $pills[] = array(
                 'name' => $strength_name,
                 'url' => $url,
-                'count' => $term->count, // Include count for optional display
+                'count' => $count,
             );
         }
     }
@@ -1281,6 +1429,8 @@ function advapes_render_nav() {
  */
 function advapes_invalidate_nav_cache() {
     delete_transient( ADVAPES_NAV_TRANSIENT_KEY );
+    // Also clear chip count caches when navigation cache is invalidated
+    adv_clear_chip_count_cache();
 }
 
 /**
