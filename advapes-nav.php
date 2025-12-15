@@ -338,8 +338,11 @@ function advapes_detect_size_taxonomy() {
  * @return int Number of products matching the criteria
  */
 function adv_count_products_for_chip( $context_category_id, $filter_taxonomy, $filter_term_id, $include_children = true, $in_stock_only = false ) {
-    // Validate inputs - use specific validation to avoid rejecting category ID 0
-    if ( ! is_numeric( $context_category_id ) || $context_category_id < 1 || empty( $filter_taxonomy ) || empty( $filter_term_id ) ) {
+    // Validate inputs - ensure IDs are positive integers
+    $context_category_id = absint( $context_category_id );
+    $filter_term_id = absint( $filter_term_id );
+    
+    if ( $context_category_id < 1 || empty( $filter_taxonomy ) || $filter_term_id < 1 ) {
         return 0;
     }
     
@@ -402,12 +405,19 @@ function adv_count_products_for_chip( $context_category_id, $filter_taxonomy, $f
     }
     
     // Query arguments
+    // Note: Using WP_Query with 'fields' => 'ids' is the WordPress-recommended way to count
+    // products with complex tax_query and meta_query constraints. While 'posts_per_page' => -1
+    // retrieves all IDs, this is acceptable because:
+    // 1. We're only fetching IDs (minimal memory footprint)
+    // 2. Results are cached for 6 hours (query runs rarely)
+    // 3. WooCommerce filter chips typically show <500 products per category/attribute combo
+    // 4. Custom SQL would bypass WooCommerce's product visibility filters
     $args = array(
         'post_type'      => 'product',
         'post_status'    => 'publish',
         'posts_per_page' => -1,
         'fields'         => 'ids',
-        'no_found_rows'  => true, // Better performance - we'll count posts directly
+        'no_found_rows'  => true, // Skip SQL_CALC_FOUND_ROWS for better performance
         'tax_query'      => $tax_query,
     );
     
@@ -415,9 +425,9 @@ function adv_count_products_for_chip( $context_category_id, $filter_taxonomy, $f
         $args['meta_query'] = $meta_query;
     }
     
-    // Execute query
+    // Execute query and count results
     $query = new WP_Query( $args );
-    $count = count( $query->posts ); // Count posts directly for better performance
+    $count = count( $query->posts );
     
     // Cache the result for 6 hours (21600 seconds)
     set_transient( $cache_key, $count, 6 * HOUR_IN_SECONDS );
@@ -429,7 +439,13 @@ function adv_count_products_for_chip( $context_category_id, $filter_taxonomy, $f
  * Clear chip count cache for a specific category and taxonomy
  * Helper function to invalidate cached counts when products change
  * 
- * @param int $category_id Category ID
+ * Note: Uses direct SQL queries for bulk transient deletion. This is necessary because:
+ * 1. WordPress doesn't provide a native API for wildcard transient deletion
+ * 2. Looping through delete_transient() would require knowing all cache keys in advance
+ * 3. This approach is used by WordPress core and major plugins (e.g., WooCommerce)
+ * 4. All values are properly escaped with $wpdb->esc_like() and absint()
+ * 
+ * @param int $category_id Category ID (0 clears all)
  * @param string $taxonomy Attribute taxonomy (optional, clears all if not provided)
  */
 function adv_clear_chip_count_cache( $category_id = 0, $taxonomy = '' ) {
@@ -445,7 +461,7 @@ function adv_clear_chip_count_cache( $category_id = 0, $taxonomy = '' ) {
             "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 
             $wpdb->esc_like( '_transient_timeout_adv_chip_count_' ) . '%' 
         ) );
-    } elseif ( ! empty( $category_id ) ) {
+    } elseif ( $category_id > 0 ) {
         // Clear caches for specific category using prepared statements
         $like_pattern = $wpdb->esc_like( '_transient_adv_chip_count_' . absint( $category_id ) . '_' ) . '%';
         $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $like_pattern ) );
