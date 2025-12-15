@@ -249,12 +249,13 @@
             <li>Dynamic updates still work - brands auto-populate by product count <span class="improvement-tag">Future-proof</span></li>
         </ul>
 
-        <h2 style="margin-top: 30px;">📱 Mobile Menu Improvements</h2>
+        <h2 style="margin-top: 30px;">📱 Mobile Menu Performance Fixes</h2>
         <ul>
-            <li>Reverted to clean vertical scrolling layout <span class="improvement-tag">v2.0 style</span></li>
-            <li>Simple, user-friendly mobile navigation <span class="improvement-tag">Familiar UX</span></li>
-            <li>All menu items visible in vertical list <span class="improvement-tag">Easy access</span></li>
-            <li>Dropdowns expand inline under parent items <span class="improvement-tag">Clear hierarchy</span></li>
+            <li>Touch events now register instantly <span class="improvement-tag">touchstart + click</span></li>
+            <li>Prevents duplicate event listeners <span class="improvement-tag">No lag</span></li>
+            <li>GPU-accelerated animations <span class="improvement-tag">Smooth transitions</span></li>
+            <li>Optimized scroll behavior <span class="improvement-tag">No glitches</span></li>
+            <li>Touch-action CSS prevents unintended gestures <span class="improvement-tag">Responsive</span></li>
         </ul>
 
         <h2 style="margin-top: 30px;">🧪 Testing Instructions</h2>
@@ -263,11 +264,106 @@
             <li><strong>Desktop:</strong> Check Brands shows 10 items + "View All Brands"</li>
             <li><strong>Desktop:</strong> Verify menu order: ...MTL → Nic Alt → Brands → Support</li>
             <li><strong>Mobile:</strong> Resize browser window to < 1024px width</li>
-            <li><strong>Mobile:</strong> Click the burger menu icon to open menu</li>
-            <li><strong>Mobile:</strong> Scroll vertically through all menu items</li>
-            <li><strong>Mobile:</strong> Verify clean, simple vertical layout</li>
+            <li><strong>Mobile:</strong> Click/tap the burger menu icon - should respond instantly</li>
+            <li><strong>Mobile:</strong> Tap menu items - should expand/collapse smoothly</li>
+            <li><strong>Mobile:</strong> Scroll through menu - should feel smooth without lag</li>
+            <li><strong>Mobile:</strong> Test accordion behavior - only one section open at a time</li>
         </ul>
     </div>
+
+    <!-- Mobile Menu JavaScript -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Only apply on mobile (matching CSS breakpoint)
+        function isMobile() {
+            return window.innerWidth <= 1024;
+        }
+
+        // Track if handlers are already attached to prevent duplicates
+        let handlersAttached = false;
+
+        function initMobileDropdowns() {
+            if (!isMobile()) {
+                // Clean up mobile classes when switching to desktop
+                document.querySelectorAll('.adv-nav-item.is-expanded').forEach(function(item) {
+                    item.classList.remove('is-expanded');
+                });
+                return;
+            }
+
+            // Prevent duplicate handler attachments
+            if (handlersAttached) return;
+
+            // Get all nav items with dropdowns
+            const navItems = document.querySelectorAll('.adv-nav-item');
+            
+            navItems.forEach(function(item) {
+                const dropdown = item.querySelector('.adv-dropdown');
+                
+                if (dropdown) {
+                    // Add class to identify items with dropdowns
+                    item.classList.add('has-dropdown');
+                    
+                    const link = item.querySelector('.adv-nav-link');
+                    
+                    if (link) {
+                        // Use touchstart for better mobile responsiveness, with click as fallback
+                        const handleToggle = function(e) {
+                            if (isMobile()) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                
+                                // Toggle expanded state
+                                const isExpanded = item.classList.contains('is-expanded');
+                                
+                                // Close all other items (accordion behavior)
+                                document.querySelectorAll('.adv-nav-item.is-expanded').forEach(function(otherItem) {
+                                    if (otherItem !== item) {
+                                        otherItem.classList.remove('is-expanded');
+                                    }
+                                });
+                                
+                                // Toggle current item
+                                if (isExpanded) {
+                                    item.classList.remove('is-expanded');
+                                } else {
+                                    item.classList.add('is-expanded');
+                                }
+                            }
+                        };
+                        
+                        // Use touchstart for instant feedback on mobile devices
+                        link.addEventListener('touchstart', handleToggle, { passive: false });
+                        // Keep click handler as fallback for non-touch devices
+                        link.addEventListener('click', handleToggle);
+                    }
+                }
+            });
+
+            handlersAttached = true;
+        }
+
+        // Initialize on load
+        initMobileDropdowns();
+
+        // Re-initialize on window resize (if switching between mobile/desktop)
+        let resizeTimer;
+        let lastWidth = window.innerWidth;
+        
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                const currentWidth = window.innerWidth;
+                // Only re-init if we crossed the mobile/desktop breakpoint
+                if ((lastWidth <= 1024 && currentWidth > 1024) || (lastWidth > 1024 && currentWidth <= 1024)) {
+                    handlersAttached = false;
+                    initMobileDropdowns();
+                }
+                lastWidth = currentWidth;
+            }, 250);
+        });
+    });
+    </script>
 
 </body>
 </html>

@@ -216,6 +216,12 @@ input.adv-nav-toggle {
     width: 100%;
     padding: 12px 0;
     cursor: pointer;
+    
+    /* Optimize touch responsiveness */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   /* Hide desktop-style nav by default */
@@ -231,9 +237,13 @@ input.adv-nav-toggle {
     max-height: calc(100vh - 120px);
     overflow-y: auto;
     
-    /* Prevent background scroll on touch devices */
-    overscroll-behavior: contain;
+    /* Optimize scrolling performance on touch devices */
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    
+    /* Enable GPU acceleration for smoother scrolling */
+    transform: translateZ(0);
+    will-change: scroll-position;
   }
 
   .adv-nav-item {
@@ -252,6 +262,12 @@ input.adv-nav-toggle {
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
+    
+    /* Optimize touch responsiveness */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   /* Dropdown icon for collapsible items */
@@ -265,31 +281,44 @@ input.adv-nav-toggle {
     border-right: 5px solid transparent;
     border-top: 5px solid #d1d5db;
     transition: transform 0.2s ease;
+    
+    /* GPU acceleration for smoother rotation */
+    transform: translateZ(0);
+    will-change: transform;
   }
 
   /* Rotate arrow when expanded */
   .adv-nav-item.has-dropdown.is-expanded .adv-nav-link::after {
-    transform: rotate(180deg);
+    transform: rotate(180deg) translateZ(0);
   }
 
   /* Compact mobile dropdowns into inline sections - initially hidden */
   .adv-dropdown {
     position: static;
-    display: none;
+    /* Keep display: block (not 'none') to allow smooth CSS transitions */
+    display: block;
     margin-top: 2px;
     background: transparent;
     border: none;
     box-shadow: none;
-    padding: 2px 0 6px 16px;
+    padding: 0 0 0 16px;
     overflow: hidden;
     max-height: 0;
-    transition: max-height 0.3s ease-out;
+    opacity: 0;
+    
+    /* Use transform for better performance instead of just max-height */
+    transition: max-height 0.25s ease-out, opacity 0.2s ease-out, padding 0.25s ease-out;
+    
+    /* GPU acceleration for smoother animations */
+    transform: translateZ(0);
+    will-change: max-height, opacity;
   }
 
   /* Show dropdown when parent item is expanded */
   .adv-nav-item.is-expanded .adv-dropdown {
-    display: block;
-    max-height: 1000px;
+    max-height: 2000px;
+    opacity: 1;
+    padding: 2px 0 6px 16px;
   }
 
   .adv-dropdown a {
