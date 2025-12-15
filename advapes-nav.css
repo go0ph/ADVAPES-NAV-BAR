@@ -295,6 +295,7 @@ input.adv-nav-toggle {
   /* Compact mobile dropdowns into inline sections - initially hidden */
   .adv-dropdown {
     position: static;
+    /* Keep display: block (not 'none') to allow smooth CSS transitions */
     display: block;
     margin-top: 2px;
     background: transparent;
