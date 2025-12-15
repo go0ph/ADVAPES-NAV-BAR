@@ -54,8 +54,20 @@ function advapes_enqueue_nav_scripts() {
             return window.innerWidth <= 1024;
         }
 
+        // Track if handlers are already attached to prevent duplicates
+        let handlersAttached = false;
+
         function initMobileDropdowns() {
-            if (!isMobile()) return;
+            if (!isMobile()) {
+                // Clean up mobile classes when switching to desktop
+                document.querySelectorAll('.adv-nav-item.is-expanded').forEach(function(item) {
+                    item.classList.remove('is-expanded');
+                });
+                return;
+            }
+
+            // Prevent duplicate handler attachments
+            if (handlersAttached) return;
 
             // Get all nav items with dropdowns
             const navItems = document.querySelectorAll('.adv-nav-item');
@@ -70,10 +82,11 @@ function advapes_enqueue_nav_scripts() {
                     const link = item.querySelector('.adv-nav-link');
                     
                     if (link) {
-                        // Prevent default link behavior on mobile for items with dropdowns
-                        link.addEventListener('click', function(e) {
+                        // Use touchstart for better mobile responsiveness, with click as fallback
+                        const handleToggle = function(e) {
                             if (isMobile()) {
                                 e.preventDefault();
+                                e.stopPropagation();
                                 
                                 // Toggle expanded state
                                 const isExpanded = item.classList.contains('is-expanded');
@@ -92,10 +105,17 @@ function advapes_enqueue_nav_scripts() {
                                     item.classList.add('is-expanded');
                                 }
                             }
-                        });
+                        };
+                        
+                        // Use touchstart for instant feedback on mobile devices
+                        link.addEventListener('touchstart', handleToggle, { passive: false });
+                        // Keep click handler as fallback for non-touch devices
+                        link.addEventListener('click', handleToggle);
                     }
                 }
             });
+
+            handlersAttached = true;
         }
 
         // Initialize on load
@@ -103,10 +123,18 @@ function advapes_enqueue_nav_scripts() {
 
         // Re-initialize on window resize (if switching between mobile/desktop)
         let resizeTimer;
+        let lastWidth = window.innerWidth;
+        
         window.addEventListener('resize', function() {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function() {
-                initMobileDropdowns();
+                const currentWidth = window.innerWidth;
+                // Only re-init if we crossed the mobile/desktop breakpoint
+                if ((lastWidth <= 1024 && currentWidth > 1024) || (lastWidth > 1024 && currentWidth <= 1024)) {
+                    handlersAttached = false;
+                    initMobileDropdowns();
+                }
+                lastWidth = currentWidth;
             }, 250);
         });
     });
