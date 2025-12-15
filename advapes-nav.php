@@ -56,6 +56,38 @@ function advapes_enqueue_nav_scripts() {
 
         // Track if handlers are already attached to prevent duplicates
         let handlersAttached = false;
+        
+        // Enhance hamburger menu toggle reliability
+        function initHamburgerMenu() {
+            const toggle = document.getElementById('adv-nav-toggle');
+            const toggleBtn = document.querySelector('.adv-nav-toggle-btn');
+            
+            if (toggle && toggleBtn && isMobile()) {
+                // Add click handler to label for better reliability
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Toggle checkbox programmatically
+                    toggle.checked = !toggle.checked;
+                    
+                    // Force immediate UI update
+                    if (toggle.checked) {
+                        toggleBtn.setAttribute('aria-expanded', 'true');
+                    } else {
+                        toggleBtn.setAttribute('aria-expanded', 'false');
+                    }
+                }, { passive: false });
+                
+                // Add touch handler for instant feedback
+                toggleBtn.addEventListener('touchstart', function(e) {
+                    // Add visual feedback
+                    toggleBtn.style.opacity = '0.7';
+                    setTimeout(function() {
+                        toggleBtn.style.opacity = '1';
+                    }, 150);
+                }, { passive: true });
+            }
+        }
 
         function initMobileDropdowns() {
             if (!isMobile()) {
@@ -118,7 +150,9 @@ function advapes_enqueue_nav_scripts() {
             handlersAttached = true;
         }
 
-        // Initialize on load
+        // Initialize hamburger menu first
+        initHamburgerMenu();
+        // Then initialize dropdowns
         initMobileDropdowns();
 
         // Re-initialize on window resize (if switching between mobile/desktop)
@@ -132,6 +166,7 @@ function advapes_enqueue_nav_scripts() {
                 // Only re-init if we crossed the mobile/desktop breakpoint
                 if ((lastWidth <= 1024 && currentWidth > 1024) || (lastWidth > 1024 && currentWidth <= 1024)) {
                     handlersAttached = false;
+                    initHamburgerMenu();
                     initMobileDropdowns();
                 }
                 lastWidth = currentWidth;
