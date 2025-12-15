@@ -1,7 +1,7 @@
 # ADVapes Dynamic Navigation Bar
 
-[![Version](https://img.shields.io/badge/version-3.1.2-blue.svg)](https://github.com/go0ph/ADVAPES-NAV-BAR)
-[![Status](https://img.shields.io/badge/status-stable-green.svg)](https://github.com/go0ph/ADVAPES-NAV-BAR)
+![Version](https://img.shields.io/badge/version-3.1.2-blue.svg)
+![Status](https://img.shields.io/badge/status-stable-green.svg)
 [![WordPress](https://img.shields.io/badge/wordpress-5.0%2B-blue.svg)](https://wordpress.org/)
 [![WooCommerce](https://img.shields.io/badge/woocommerce-4.0%2B-purple.svg)](https://woocommerce.com/)
 
@@ -17,7 +17,7 @@ A simple, dynamic navigation menu for WooCommerce that automatically updates bas
 - **Touch optimized** for excellent mobile user experience
 - **Cached for performance** (30-second cache with auto-invalidation)
 
-## 📦 Current Version: 3.1.2 (December 2025)
+## 📦 Current Version: 3.1.2 (December 15, 2025)
 
 **Status:** ✅ Stable - Desktop and Mobile fully optimized
 
@@ -232,20 +232,20 @@ For detailed documentation, see the `archive/` directory.
 
 ## 📋 Version History
 
-### Version 3.1.2 (December 2025) - Current
+### Version 3.1.2 (December 15, 2025) - Current
 - ✅ Mobile menu enhancements with instant touch response
 - ✅ Fixed logo resize glitch on mobile  
 - ✅ Collapsible mobile dropdowns with accordion behavior
 - ✅ GPU-accelerated animations
 - ✅ Touch event optimization
 
-### Version 3.1.1 (December 2025)
+### Version 3.1.1 (December 11, 2025)
 - Fixed navigation bar wrapping to single line
 - Enhanced brand detection (prioritizes `pwb-brand` taxonomy)
 - Improved brand queries to include subcategories
 - Security improvements with proper SQL sanitization
 
-### Version 3.1 (December 2025)
+### Version 3.1 (December 10, 2025)
 - Hybrid approach: Fixed parent menu structure with dynamic subcategories
 - 10 consistent parent menus with auto-updating content
 
