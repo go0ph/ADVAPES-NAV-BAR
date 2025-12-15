@@ -295,8 +295,8 @@ function advapes_get_strength_pills( $category_id = 0 ) {
     // Define the strength names we want to display
     $strength_names = array( '10mg NS', '20mg NS', '50mg NS' );
     
-    // Determine base URL
-    $base_url = '/shop/';
+    // Determine base URL - prefer category context, fallback to WooCommerce shop page
+    $base_url = wc_get_page_permalink( 'shop' );
     if ( $category_id > 0 ) {
         $category = get_term( $category_id, 'product_cat' );
         if ( $category && ! is_wp_error( $category ) ) {
@@ -308,6 +308,9 @@ function advapes_get_strength_pills( $category_id = 0 ) {
     foreach ( $strength_names as $strength_name ) {
         $term = get_term_by( 'name', $strength_name, $strength_taxonomy );
         if ( $term && ! is_wp_error( $term ) ) {
+            // Build filter URL using site's existing WooCommerce filter pattern:
+            // - filter_strength: the taxonomy term slug for filtering
+            // - filter=1: activates the filtering system
             $url = add_query_arg( 
                 array( 
                     'filter_strength' => $term->slug, 
