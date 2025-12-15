@@ -384,7 +384,6 @@ function advapes_has_active_promo() {
     
     $query = new WP_Query( $args );
     $has_promo = $query->have_posts();
-    wp_reset_postdata();
     
     // Allow filtering for custom promo logic
     return apply_filters( 'advapes_has_active_promo', $has_promo );
@@ -743,7 +742,7 @@ function advapes_get_nav_structure( $force_refresh = false ) {
         
         // Add "View All" link at the end with improved CTA copy
         $children[] = array(
-            'name' => 'Browse All Nic Salts',
+            'name' => 'View All Nic Salts',
             'url'  => get_term_link( $nic_salts ),
             'tag'  => 'Shop all',
         );

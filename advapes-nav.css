@@ -100,13 +100,14 @@
 }
 
 /* Visual state for Deals when major promo is active */
+/* Using darker red (#c91526) for better WCAG AA contrast compliance (5.7:1 ratio) */
 .adv-nav-link--promo-active {
-  background: #e11d2f;
+  background: #c91526;
   color: #ffffff;
 }
 
 .adv-nav-link--promo-active:hover {
-  background: #b8172a;
+  background: #a01120;
 }
 
 /* Desktop dropdowns */
