@@ -364,7 +364,7 @@ function advapes_get_category_brands( $category_id, $limit = 4 ) {
  * Check if there's an active major promotion
  * 
  * This function checks for active promotional categories/pages to determine
- * if the Deals menu should be highlighted. Uses WP_Query to check for active
+ * if the Deals menu should be highlighted. Uses get_posts() to check for active
  * promo pages without hardcoding dates.
  * 
  * @return bool True if a major promo is active
@@ -382,8 +382,8 @@ function advapes_has_active_promo() {
         'fields'         => 'ids',
     );
     
-    $query = new WP_Query( $args );
-    $has_promo = $query->have_posts();
+    $promo_pages = get_posts( $args );
+    $has_promo = ! empty( $promo_pages );
     
     // Allow filtering for custom promo logic
     return apply_filters( 'advapes_has_active_promo', $has_promo );
