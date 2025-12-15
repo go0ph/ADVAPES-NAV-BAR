@@ -988,100 +988,118 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     }
 
     // 4. Pod Systems & Kits (hybrid: dynamic subcategories)
-    // NOTE: Do NOT add chips to this dropdown per requirements
-    $pod_systems = advapes_find_category( 'pod-systems-kits' );
-    if ( $pod_systems ) {
-        // Get max 3 subcategories per Goal A requirements
-        $subcategories = advapes_get_category_children( $pod_systems->term_id, 3 );
-        
-        // Build children array with micro-grouping
-        $children = array();
-        
-        // NEW REQUIREMENT: Only show "By Type" if we have 2+ subcategories
-        // Otherwise replace with "POPULAR PICKS" guidance group
-        if ( ! empty( $subcategories ) && count( $subcategories ) >= 2 ) {
-            $children[] = array(
-                'type' => 'group_label',
-                'name' => 'By Type',
-            );
-            // Add subcategories (max 3)
-            foreach ( array_slice( $subcategories, 0, 3 ) as $subcat ) {
-                $children[] = $subcat;
-            }
-        } else {
-            // Add "POPULAR PICKS" group with guidance links
-            $children[] = array(
-                'type' => 'group_label',
-                'name' => 'POPULAR PICKS',
-            );
-            
-            // Try to find preferred guidance categories (max 3)
-            $guidance_categories = array(
-                array( 'slug' => 'beginner-friendly-pods', 'fallback_name' => 'Beginner-Friendly Pods' ),
-                array( 'slug' => 'compact-pod-kits', 'fallback_name' => 'Compact Pod Kits' ),
-                array( 'slug' => 'advanced-pod-kits', 'fallback_name' => 'Advanced Pod Kits' ),
-            );
-            
-            $guidance_count = 0;
-            foreach ( $guidance_categories as $guidance ) {
-                if ( $guidance_count >= 3 ) break;
-                
-                $cat = advapes_find_category( $guidance['slug'] );
-                if ( $cat && ! is_wp_error( $cat ) ) {
-                    $children[] = array(
-                        'name' => $cat->name,
-                        'url'  => get_term_link( $cat ),
-                        'count' => $cat->count,
-                    );
-                    $guidance_count++;
-                }
-            }
-            
-            // If no specific guidance categories found, use available subcategories with friendly labels
-            if ( $guidance_count === 0 && ! empty( $subcategories ) ) {
-                foreach ( array_slice( $subcategories, 0, 3 ) as $subcat ) {
-                    $children[] = $subcat;
-                    $guidance_count++;
-                }
-            }
-            
-            // Fallback: if still no items, show the parent category itself
-            if ( $guidance_count === 0 ) {
-                $children[] = array(
-                    'name' => 'Pod Systems & Kits',
-                    'url'  => get_term_link( $pod_systems ),
-                    'count' => $pod_systems->count,
-                );
-            }
-        }
-        
-        // Add top brands for this category - limit to 3 per Goal A requirements
-        $brands = advapes_get_category_brands( $pod_systems->term_id, 3 );
-        if ( ! empty( $brands ) ) {
-            // Add "Top Brands" group label (non-clickable)
-            $children[] = array(
-                'type' => 'group_label',
-                'name' => 'Top Brands',
-            );
-            foreach ( $brands as $brand ) {
-                $children[] = $brand;
-            }
-        }
-        
-        // Add "View All" link at the end with improved CTA copy
+// NOTE: Do NOT add chips to this dropdown per requirements
+$pod_systems = advapes_find_category( 'pod-systems-kits' );
+if ( $pod_systems ) {
+    // Get max 3 subcategories per Goal A requirements
+    $subcategories = advapes_get_category_children( $pod_systems->term_id, 3 );
+
+    // Build children array with micro-grouping
+    $children = array();
+
+    // NEW REQUIREMENT: Only show "By Type" if we have 2+ subcategories
+    // Otherwise replace with "POPULAR PICKS" guidance group
+    if ( ! empty( $subcategories ) && count( $subcategories ) >= 2 ) {
         $children[] = array(
-            'name' => 'Shop All Pod Systems',
-            'url'  => get_term_link( $pod_systems ),
-            'tag'  => 'Shop all',
+            'type' => 'group_label',
+            'name' => 'By Type',
         );
-        
-        $nav_structure['pod-systems-kits'] = array(
-            'name' => 'Pod Systems &amp; Kits',
-            'url'  => get_term_link( $pod_systems ),
-            'dropdown_title' => 'Refillable pod systems (' . $pod_systems->count . '+)',
-            'children' => $children,
+
+        // Add subcategories (max 3) with NAV label override
+        foreach ( array_slice( $subcategories, 0, 3 ) as $subcat ) {
+
+            // NAV DISPLAY OVERRIDE ONLY:
+            // If the "refillable-pods" subcategory is present, show it as "Pod Kits" in the menu.
+            // URL remains /pod-systems-kits/refillable-pods/ and the actual category name stays unchanged in WooCommerce.
+            if ( ! empty( $subcat['url'] ) && strpos( $subcat['url'], '/pod-systems-kits/refillable-pods/' ) !== false ) {
+                $subcat['name'] = 'Pod Kits';
+            }
+
+            $children[] = $subcat;
+        }
+
+    } else {
+        // Add "POPULAR PICKS" group with guidance links
+        $children[] = array(
+            'type' => 'group_label',
+            'name' => 'POPULAR PICKS',
         );
+
+        // Try to find preferred guidance categories (max 3)
+        $guidance_categories = array(
+            array( 'slug' => 'beginner-friendly-pods', 'fallback_name' => 'Beginner-Friendly Pods' ),
+            array( 'slug' => 'compact-pod-kits', 'fallback_name' => 'Compact Pod Kits' ),
+            array( 'slug' => 'advanced-pod-kits', 'fallback_name' => 'Advanced Pod Kits' ),
+        );
+
+        $guidance_count = 0;
+        foreach ( $guidance_categories as $guidance ) {
+            if ( $guidance_count >= 3 ) break;
+
+            $cat = advapes_find_category( $guidance['slug'] );
+            if ( $cat && ! is_wp_error( $cat ) ) {
+                $children[] = array(
+                    'name'  => $cat->name,
+                    'url'   => get_term_link( $cat ),
+                    'count' => $cat->count,
+                );
+                $guidance_count++;
+            }
+        }
+
+        // If no specific guidance categories found, use available subcategories with friendly labels
+        if ( $guidance_count === 0 && ! empty( $subcategories ) ) {
+            foreach ( array_slice( $subcategories, 0, 3 ) as $subcat ) {
+
+                // Apply the same NAV label override here too (in case fallback uses subcategories)
+                if ( ! empty( $subcat['url'] ) && strpos( $subcat['url'], '/pod-systems-kits/refillable-pods/' ) !== false ) {
+                    $subcat['name'] = 'Pod Kits';
+                }
+
+                $children[] = $subcat;
+                $guidance_count++;
+                if ( $guidance_count >= 3 ) break;
+            }
+        }
+
+        // Fallback: if still no items, show the parent category itself
+        if ( $guidance_count === 0 ) {
+            $children[] = array(
+                'name'  => 'Pod Systems & Kits',
+                'url'   => get_term_link( $pod_systems ),
+                'count' => $pod_systems->count,
+            );
+        }
     }
+
+    // Add top brands for this category - limit to 3 per Goal A requirements
+    $brands = advapes_get_category_brands( $pod_systems->term_id, 3 );
+    if ( ! empty( $brands ) ) {
+        // Add "Top Brands" group label (non-clickable)
+        $children[] = array(
+            'type' => 'group_label',
+            'name' => 'Top Brands',
+        );
+        foreach ( $brands as $brand ) {
+            $children[] = $brand;
+        }
+    }
+
+    // Add "View All" link at the end with improved CTA copy
+    $children[] = array(
+        'name' => 'Shop All Pod Systems',
+        'url'  => get_term_link( $pod_systems ),
+        'tag'  => 'Shop all',
+    );
+
+    $nav_structure['pod-systems-kits'] = array(
+        'name'           => 'Pod Systems &amp; Kits',
+        'url'            => get_term_link( $pod_systems ),
+        'dropdown_title' => 'Refillable pod systems (' . $pod_systems->count . '+)',
+        'children'       => $children,
+    );
+}
+
 
     // 5. Vape Hardware (hybrid: dynamic subcategories)
     // Try 'dl-hardware' first (v2 slug), then 'vape-hardware'
