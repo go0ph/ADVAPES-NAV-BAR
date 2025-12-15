@@ -22,9 +22,16 @@
   min-height: 44px;
 }
 
-/* Burger toggle (hidden on desktop) */
-.adv-nav-toggle {
-  display: none;
+/* Burger toggle checkbox (iOS-safe: do NOT use display:none) */
+input.adv-nav-toggle {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  left: -9999px !important;
 }
 
 .adv-nav-toggle-btn {
@@ -220,11 +227,6 @@
 .adv-nav-list > li::before,
 .adv-nav-list > li::after {
   content: none !important;
-  display: none !important;
-}
-
-/* Make sure the hidden checkbox really stays hidden */
-input.adv-nav-toggle {
   display: none !important;
 }
 
@@ -425,14 +427,6 @@ input.adv-nav-toggle {
     display: flex !important;
   }
   
-  /* Make checkbox accessible but visually hidden for screen readers */
-  .adv-nav-toggle {
-    position: absolute;
-    left: -9999px;
-    width: 1px;
-    height: 1px;
-  }
-  
   /* Mobile-specific styling for "Browse all" - explicitly maintain highlight */
   .adv-dropdown li:last-child a {
     background: #111827;
@@ -592,4 +586,3 @@ header#site-header.minimized, header#site-header {
     font-size: 10px;
   }
 }
-
