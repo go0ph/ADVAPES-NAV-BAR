@@ -573,26 +573,6 @@ header#site-header.minimized, header#site-header {
   font-size: 11px;
 }
 
-/* Optional count badge inside pill */
-.adv-pill-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 16px;
-  padding: 0 4px;
-  background: #2d3748;
-  border-radius: 8px;
-  color: #9ca3af;
-  font-size: 9px;
-  font-weight: 600;
-}
-
-.adv-strength-pill:hover .adv-pill-count {
-  background: #4b5563;
-  color: #d1d5db;
-}
-
 /* Mobile adjustments for pills */
 @media (max-width: 1024px) {
   .adv-strength-pills-container {
@@ -610,12 +590,6 @@ header#site-header.minimized, header#site-header {
   
   .adv-pill-label {
     font-size: 10px;
-  }
-  
-  .adv-pill-count {
-    min-width: 16px;
-    height: 14px;
-    font-size: 8px;
   }
 }
 
