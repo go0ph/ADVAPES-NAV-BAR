@@ -36,9 +36,6 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 8px;
-  /* Increase touch area */
-  margin: -8px;
 }
 
 .adv-burger span {
@@ -47,7 +44,7 @@
   background: #f9fafb;
   border-radius: 999px;
   transition: transform 0.18s ease, opacity 0.18s ease;
-  /* Ensure spans are always visible and clickable */
+  /* Ensure spans don't interfere with click events */
   pointer-events: none;
 }
 
@@ -219,7 +216,7 @@ input.adv-nav-toggle {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 12px 0;
+    padding: 12px 8px;
     cursor: pointer;
     background: transparent;
     border: none;
@@ -234,6 +231,11 @@ input.adv-nav-toggle {
     min-height: 44px;
     position: relative;
     z-index: 10;
+  }
+  
+  /* Visual feedback on touch - use class instead of inline styles */
+  .adv-nav-toggle-btn.touching {
+    opacity: 0.7;
   }
 
   /* Hide desktop-style nav by default */
@@ -386,12 +388,12 @@ input.adv-nav-toggle {
     display: flex !important;
   }
   
-  /* Make checkbox more reliable - ensure it's accessible to clicks */
+  /* Make checkbox accessible but visually hidden for screen readers */
   .adv-nav-toggle {
     position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    z-index: -1;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
   }
   
   /* Mobile-specific styling for "Browse all" - explicitly maintain highlight */

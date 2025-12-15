@@ -63,29 +63,21 @@ function advapes_enqueue_nav_scripts() {
             const toggleBtn = document.querySelector('.adv-nav-toggle-btn');
             
             if (toggle && toggleBtn && isMobile()) {
-                // Add click handler to label for better reliability
-                toggleBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Toggle checkbox programmatically
-                    toggle.checked = !toggle.checked;
-                    
-                    // Force immediate UI update
-                    if (toggle.checked) {
-                        toggleBtn.setAttribute('aria-expanded', 'true');
-                    } else {
-                        toggleBtn.setAttribute('aria-expanded', 'false');
-                    }
-                }, { passive: false });
+                // Update aria-expanded on change
+                toggle.addEventListener('change', function() {
+                    toggleBtn.setAttribute('aria-expanded', toggle.checked ? 'true' : 'false');
+                });
                 
-                // Add touch handler for instant feedback
-                toggleBtn.addEventListener('touchstart', function(e) {
-                    // Add visual feedback
-                    toggleBtn.style.opacity = '0.7';
+                // Add touch handler for visual feedback using CSS class
+                toggleBtn.addEventListener('touchstart', function() {
+                    toggleBtn.classList.add('touching');
                     setTimeout(function() {
-                        toggleBtn.style.opacity = '1';
+                        toggleBtn.classList.remove('touching');
                     }, 150);
                 }, { passive: true });
+                
+                // Initialize aria-expanded
+                toggleBtn.setAttribute('aria-expanded', toggle.checked ? 'true' : 'false');
             }
         }
 
