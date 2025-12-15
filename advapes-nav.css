@@ -448,7 +448,7 @@ input.adv-nav-toggle {
   }
 }
 
-header#site-header.minimized {
+header#site-header.minimized, header#site-header {
   background-color: red !important;
   box-shadow: 0px 0px 0px 0px red !important;
   border-bottom: 1px solid #ffffff00 !important;
@@ -488,3 +488,4 @@ header#site-header.minimized {
     width: 100%;
   }
 }
+
