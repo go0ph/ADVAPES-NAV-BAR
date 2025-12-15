@@ -1,8 +1,13 @@
 # ADVapes Dynamic Navigation Bar
 
+![Version](https://img.shields.io/badge/version-3.1.2-blue.svg)
+![Status](https://img.shields.io/badge/status-stable-green.svg)
+[![WordPress](https://img.shields.io/badge/wordpress-5.0%2B-blue.svg)](https://wordpress.org/)
+[![WooCommerce](https://img.shields.io/badge/woocommerce-4.0%2B-purple.svg)](https://woocommerce.com/)
+
 A simple, dynamic navigation menu for WooCommerce that automatically updates based on your product categories and brands.
 
-## What It Does
+## ✨ Features
 
 - **Automatically displays product categories** from your WooCommerce store
 - **Shows top brands** in each category dropdown (if brands exist)
@@ -12,13 +17,30 @@ A simple, dynamic navigation menu for WooCommerce that automatically updates bas
 - **Touch optimized** for excellent mobile user experience
 - **Cached for performance** (30-second cache with auto-invalidation)
 
-## Files
+## 📦 Current Version: 3.1.2 (December 15, 2025)
 
-- `header.php` - Header template that includes the navigation bar
-- `advapes-nav.php` - Main navigation system (functions and logic)
-- `advapes-nav.css` - Navigation styling
+**Status:** ✅ Stable - Desktop and Mobile fully optimized
 
-## Installation
+### Latest Updates:
+- ✅ Mobile menu enhancements with instant touch response
+- ✅ Fixed logo resize glitch on mobile
+- ✅ Collapsible mobile dropdowns with smooth accordion behavior
+- ✅ GPU-accelerated animations for better performance
+- ✅ Single-line desktop layout (all 10 items fit without wrapping)
+
+## 📁 Repository Structure
+
+```
+/
+├── advapes-nav.php      # Main navigation system (functions and logic)
+├── advapes-nav.css      # Navigation styling
+├── header.php           # Header template that includes the navigation bar
+├── README.md            # This file
+├── archive/             # Historical documentation and changelogs
+└── backups/             # Backup versions (if any)
+```
+
+## 🚀 Installation
 
 1. Upload all three files to your WordPress child theme directory:
    ```
@@ -29,29 +51,31 @@ A simple, dynamic navigation menu for WooCommerce that automatically updates bas
 
 3. That's it! The menu will populate automatically from your WooCommerce categories and products
 
-## How It Works
+## 🎯 How It Works
 
 ### Menu Structure
 
-The navigation shows these menu items in order:
+The navigation displays **10 fixed parent menu items** in consistent order:
 
-1. **Deals** - Static links to promotions
-2. **Disposables** - Dynamic category with subcategories and top brands
-3. **Pod Disposables** - Dynamic category with subcategories and top brands
-4. **Pod Systems & Kits** - Dynamic category with subcategories and top brands
-5. **Vape Hardware** - Dynamic category with subcategories and top brands
-6. **DL E-Liquids** - Dynamic category with subcategories and top brands
-7. **MTL & Nic Salts** - Dynamic category with subcategories and top brands
-8. **Nic Alternatives** - Dynamic category with subcategories and top brands
+1. **Deals** - Static promotion links
+2. **Disposables** - Dynamic category dropdown
+3. **Pod Disposables** - Dynamic category dropdown
+4. **Pod Systems & Kits** - Dynamic category dropdown
+5. **Vape Hardware** - Dynamic category dropdown
+6. **DL E-Liquids** - Dynamic category dropdown
+7. **MTL & Nic Salts** - Dynamic category dropdown
+8. **Nic Alternatives** - Dynamic category dropdown
 9. **Brands** - Top 10 brands across all products
-10. **Support** - Static links to help pages
+10. **Support** - Static help links
 
-### Dynamic Updates
+### Dynamic Dropdowns
 
-Each category dropdown automatically shows:
-- Up to 10 subcategories (ordered by product count)
-- Up to 4 top brands for that category (ordered by product count)
+Each category dropdown automatically displays:
+- Up to 10 subcategories (sorted by product count)
+- Up to 4 top brands for that category (sorted by product count)
 - "View All" link at the bottom
+
+Dropdowns update automatically when products or categories change!
 
 ### Category Detection
 
@@ -81,182 +105,151 @@ The system prioritizes `pwb-brand` as this is the taxonomy used by advapes.co.za
 
 If you use a different brand taxonomy, the system won't find it. Either rename your taxonomy or update the detection code in `advapes_detect_brand_taxonomy()` (lines 191-220).
 
-### Mobile Menu Features
+### 📱 Mobile Experience
 
-The navigation includes an enhanced mobile experience:
-- **Hamburger Toggle**: Clean burger icon on mobile (≤1024px width)
-- **Collapsible Dropdowns**: All menu items with children collapse/expand on tap
-- **Accordion Behavior**: Opening one section automatically closes others
+Enhanced mobile navigation (≤1024px width):
+- **Hamburger Toggle**: Clean burger icon
+- **Collapsible Dropdowns**: Tap to expand/collapse menu items
+- **Accordion Behavior**: Only one section open at a time
 - **Touch Optimized**: Instant response with `touchstart` events
-- **Visual Feedback**: Smooth animations with rotating arrows
-- **Smooth Scrolling**: GPU-accelerated scrolling with touch optimization
-- **Logo Stability**: Fixed logo resize glitch during menu interactions
-- **No Menu Overlap**: Desktop menu hidden on mobile, mobile menu hidden on desktop
+- **Smooth Animations**: GPU-accelerated with rotating arrows
+- **Logo Stability**: No resize glitches during menu interactions
 
-## Cache Management
+## ⚡ Cache Management
 
-Navigation data is cached for 30 seconds to improve performance.
+Navigation data is cached for **30 seconds** for optimal performance.
 
 ### Automatic Cache Invalidation
 
-Cache is automatically cleared when you:
+Cache clears automatically when you:
 - Save/update/trash any product
 - Create/edit/delete a category
 - Create/edit/delete a brand
 
-### Manual Cache Clear
+### Manual Cache Refresh
 
-If you need to force a cache refresh:
-1. Edit any product
-2. Click "Update" (even without changes)
-3. Navigation will rebuild immediately
+**Option 1:** Edit any product and click "Update" (no changes needed)
 
-Or call the REST API endpoint (admin only):
-```
+**Option 2:** Call the REST API endpoint (admin only):
+```bash
 POST /wp-json/advapes/v1/nav/refresh
 ```
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
 ### Navigation is empty or shows fallback menu
 
-**Causes:**
-- WooCommerce is not active
-- No product categories exist
-- Category slugs don't match expected names
+**Causes:** WooCommerce not active, no categories, or wrong category slugs
 
 **Solution:**
 1. Activate WooCommerce plugin
-2. Create categories with the correct slugs (see "Category Detection" above)
+2. Create categories with correct slugs (see "Category Detection" section)
 3. Add products to those categories
 
 ### Brands not showing in dropdowns
 
-**Causes:**
-- Brand taxonomy doesn't exist
-- Products don't have brands assigned
-- Cache is stale
+**Causes:** No brand taxonomy, unassigned brands, or stale cache
 
 **Solution:**
 1. Create a brand attribute in WooCommerce (Products → Attributes)
 2. Assign brands to your products
-3. Make sure products are published (not drafts)
-4. Clear the cache (edit any product and click Update)
+3. Ensure products are published (not drafts)
+4. Clear cache (edit any product and click Update)
 
 ### Navigation wrapping to multiple lines
 
-This issue is fixed in v3.1.1+:
-- Optimized padding in `.adv-nav-link` (14px 8px)
-- Reduced font size to 11px
-- Container max-width increased to 1400px
-- All 10 menu items fit on a single line on desktop
+**Fixed in v3.1.1+** - All 10 menu items now fit on a single line on desktop
 
-### Mobile menu not responding or feels sluggish
+### Mobile menu sluggish or unresponsive
 
-Fixed in v3.1.2:
-- Implemented `touchstart` events for instant feedback
-- Added proper touch-action and tap-highlight CSS
-- GPU acceleration for smooth animations
-- Debounced resize handlers for better performance
+**Fixed in v3.1.2** - Touch events optimized with instant feedback and GPU acceleration
 
-### Brands showing but indistinguishable from categories
+## 🎨 Customization
 
-This is intentional - both use the same format:
-```
-Item Name ──────── XX+ products
-```
+### Change Number of Items in Dropdowns
 
-Brands and subcategories appear mixed in the dropdown, ordered by product count (highest first).
-
-## Customization
-
-### Change Number of Items Shown
-
-In `advapes-nav.php`, adjust these values:
+In `advapes-nav.php`, modify the category-specific functions:
 
 ```php
-// Line 420 (Disposables - currently 7 subcategories)
-$children = advapes_get_category_children( $disposables->term_id, 7 ); // Change 7 to any number
+// Example: Change Disposables to show 10 subcategories and 5 brands
+$children = advapes_get_category_children( $disposables->term_id, 10 );
+$brands = advapes_get_category_brands( $disposables->term_id, 5 );
 
-// Line 429 (Disposables - currently 3 brands)
-$brands = advapes_get_category_brands( $disposables->term_id, 3 ); // Change 3 to any number
-
-// Similar for other categories (lines 455+)
-// Most categories use: 6 subcategories + 3 brands = 9 items + "Browse all" = 10 total
-
-// Line 646 (main Brands menu - top brands)
-'number' => 10, // Change 10 to show more/fewer top brands
+// Main Brands menu (default: 10 top brands)
+'number' => 15, // Show 15 top brands instead
 ```
 
 ### Change Colors and Styling
 
 Edit `advapes-nav.css`:
-- Background: Line 7 (`background: #050507;`)
-- Border: Line 9 (`border-bottom: 2px solid #e11d2f;`)
-- Link color: Line 81 (`color: #d1d5db;`)
-- Hover color: Line 94 (`background: #e11d2f;`)
-- Deals color: Line 98 (`color: #fbbf24;`)
+
+```css
+background: #050507;           /* Navigation background */
+border-bottom: 2px solid #e11d2f;  /* Bottom border */
+color: #d1d5db;                /* Link color */
+background: #e11d2f;           /* Hover color */
+color: #fbbf24;                /* Deals highlight color */
+```
 
 ### Change Cache Duration
 
-In `advapes-nav.php` line 28:
+In `advapes-nav.php`:
+
 ```php
-define( 'ADVAPES_NAV_TTL', 30 ); // Currently 30 seconds, change to any number
+define( 'ADVAPES_NAV_TTL', 30 ); // Seconds (30 = near real-time updates)
 ```
 
-Note: Cache duration is set to 30 seconds (not 30 minutes) for near real-time updates while maintaining performance.
+### Modify Menu Structure
 
-### Add/Remove Menu Items
+Edit `advapes_get_nav_structure()` function in `advapes-nav.php` to add/remove menu items.
 
-Edit the navigation structure in `advapes_get_nav_structure()` function (lines 376-743).
-
-## Requirements
+## 📋 Requirements
 
 - WordPress 5.0+
 - WooCommerce 4.0+
 - PHP 7.4+
 - Razzi theme (or modify `header.php` for your theme)
 
-## Performance
+## ⚡ Performance
 
-- Database queries are optimized with proper JOINs and sanitization
-- Results are cached for 30 seconds for near real-time updates
-- Cache invalidates automatically on product/category/brand changes
-- Mobile-first responsive design with GPU-accelerated animations
-- Touch events optimized for instant mobile response
-- No external dependencies or heavy libraries
+- Optimized database queries with proper JOINs and sanitization
+- 30-second cache for near real-time updates
+- Automatic cache invalidation on content changes
+- GPU-accelerated animations for smooth mobile experience
+- Zero external dependencies
 
-## Support
+## 💬 Support
 
-If something isn't working:
+Having issues? Check these:
 
-1. Make sure WooCommerce is active
-2. Check that you have product categories with correct slugs
-3. Verify products are published and in categories
-4. Clear the navigation cache
-5. Check browser console for JavaScript errors (F12)
+1. ✅ WooCommerce is active
+2. ✅ Product categories exist with correct slugs
+3. ✅ Products are published and categorized
+4. ✅ Cache is cleared (edit any product → Update)
+5. ✅ No JavaScript errors in browser console (F12)
 
-## Version History
+For detailed documentation, see the `archive/` directory.
 
-### Current Version: 3.1.2 (December 2025)
+## 📋 Version History
 
-**Latest Updates:**
-- ✅ **Mobile Menu Enhancements**: Fixed mobile menu unresponsiveness and touch interaction issues
-- ✅ **Logo Stability**: Resolved logo resize glitch when mobile menu opens/closes
-- ✅ **Collapsible Mobile Dropdowns**: All menu items collapse/expand smoothly on mobile with accordion behavior
-- ✅ **Touch Optimization**: Improved touch responsiveness with proper event handling
-- ✅ **GPU Acceleration**: Smooth animations using CSS transforms and hardware acceleration
+### Version 3.1.2 (December 15, 2025) - Current
+- ✅ Mobile menu enhancements with instant touch response
+- ✅ Fixed logo resize glitch on mobile  
+- ✅ Collapsible mobile dropdowns with accordion behavior
+- ✅ GPU-accelerated animations
+- ✅ Touch event optimization
 
-### Version 3.1.1 (December 2025)
-- Fixed navigation bar wrapping to single line on all screen sizes
-- Enhanced brand detection to prioritize `pwb-brand` taxonomy (WordPress Perfect Brands)
-- Improved brand queries to include products from subcategories
+### Version 3.1.1 (December 11, 2025)
+- Fixed navigation bar wrapping to single line
+- Enhanced brand detection (prioritizes `pwb-brand` taxonomy)
+- Improved brand queries to include subcategories
 - Security improvements with proper SQL sanitization
 
-### Version 3.1 (December 2025)
+### Version 3.1 (December 10, 2025)
 - Hybrid approach: Fixed parent menu structure with dynamic subcategories
-- Maintains v2.0 user familiarity while providing v3.0 automatic updates
 - 10 consistent parent menus with auto-updating content
+
+For detailed version history and changelogs, see the `archive/` directory.
 
 ## License
 
