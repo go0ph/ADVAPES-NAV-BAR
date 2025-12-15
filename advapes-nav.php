@@ -1223,7 +1223,7 @@ function advapes_render_nav() {
                     foreach ( $child['pills'] as $pill ) {
                         echo '<a href="' . esc_url( $pill['url'] ) . '" class="adv-strength-pill">' . "\n";
                         echo '<span class="adv-pill-label">' . esc_html( $pill['name'] ) . '</span>' . "\n";
-                        // Optionally show count as a tiny badge if available
+                        // Show count badge if available (can be removed if dropdown height needs to be reduced)
                         if ( ! empty( $pill['count'] ) && $pill['count'] > 0 ) {
                             echo '<span class="adv-pill-count">' . absint( $pill['count'] ) . '</span>' . "\n";
                         }
@@ -1238,7 +1238,7 @@ function advapes_render_nav() {
                     foreach ( $child['chips'] as $chip ) {
                         echo '<a href="' . esc_url( $chip['url'] ) . '" class="adv-strength-pill">' . "\n";
                         echo '<span class="adv-pill-label">' . esc_html( $chip['name'] ) . '</span>' . "\n";
-                        // Optionally show count as a tiny badge if available
+                        // Show count badge if available (can be removed if dropdown height needs to be reduced)
                         if ( ! empty( $chip['count'] ) && $chip['count'] > 0 ) {
                             echo '<span class="adv-pill-count">' . absint( $chip['count'] ) . '</span>' . "\n";
                         }
