@@ -1,24 +1,23 @@
 <?php
 /**
  * ADVapes Dynamic Navigation System
- * Version 4.0.0 (V2 - December 2025)
+ * Version 3.2.0 (December 2025)
  * 
- * V2 Major Redesign:
- * - MOBILE: Right-side flyout drawer menu with hierarchical drill-down navigation
- * - DESKTOP: Expanded content with more subcategories for full catalogue browsing
- * - Enhanced user experience to browse entire product range
- * - Maintains high SEO scores while providing comprehensive navigation
+ * Hybrid Approach with Mobile Enhancements + Filter Chips:
+ * - Fixed parent menu structure from v2 (for user familiarity)
+ * - Dynamic subcategories from v3 (auto-updating from WooCommerce)
+ * - Enhanced mobile menu with collapsible dropdowns and accordion behavior
+ * - Touch-optimized with instant response and smooth animations
+ * - Brand detection prioritizes pwb-brand taxonomy
+ * - Security improvements with proper SQL sanitization
+ * - Max 3 items per group (BY TYPE and TOP BRANDS)
+ * - Smart filter chips: Puff Count (Disposables) and Nic Salt Strengths (Pod Disposables, MTL & Nic Salts)
  * 
- * Key Features:
- * - Mobile: Slide-out drawer from right with back navigation
- * - Desktop: Expanded dropdowns (6-8 items per group vs 3 in V1)
- * - Hierarchical mobile navigation with smooth transitions
- * - Dynamic content from WooCommerce
- * - Smart filter chips for quick filtering
- * - 30-second cache with auto-invalidation
+ * Parent menu order stays consistent, but content under each parent
+ * updates automatically based on WooCommerce categories and products.
  * 
  * @package Razzi Child / ADVapes
- * @version 4.0.0
+ * @version 3.2.0
  */
 
 // Prevent direct access
@@ -51,10 +50,10 @@ function advapes_enqueue_nav_styles() {
 add_action( 'wp_enqueue_scripts', 'advapes_enqueue_nav_styles' );
 
 /**
- * Add inline JavaScript for mobile menu functionality (V2 - Flyout Drawer)
+ * Add inline JavaScript for mobile menu toggle functionality
  */
 function advapes_enqueue_nav_scripts() {
-    // V2: Mobile flyout drawer with hierarchical drill-down navigation
+    // Add inline JavaScript for mobile dropdown toggles
     $script = "
     document.addEventListener('DOMContentLoaded', function() {
         // Only apply on mobile (matching CSS breakpoint)
@@ -65,36 +64,18 @@ function advapes_enqueue_nav_scripts() {
         // Track if handlers are already attached to prevent duplicates
         let handlersAttached = false;
         
-        // V2: Flyout drawer state management
-        let drawerStack = []; // Track navigation history for back button
-        
-        // Enhance hamburger menu toggle with drawer functionality
+        // Enhance hamburger menu toggle reliability
         function initHamburgerMenu() {
             const toggle = document.getElementById('adv-nav-toggle');
             const toggleBtn = document.querySelector('.adv-nav-toggle-btn');
-            const drawer = document.querySelector('.adv-mobile-drawer');
             
-            if (toggle && toggleBtn && drawer && isMobile()) {
-                // Update aria-expanded and drawer state on change
+            if (toggle && toggleBtn && isMobile()) {
+                // Update aria-expanded on change
                 toggle.addEventListener('change', function() {
-                    const isOpen = toggle.checked;
-                    toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-                    drawer.setAttribute('data-open', isOpen ? 'true' : 'false');
-                    
-                    // Reset drawer to main menu when closed
-                    if (!isOpen) {
-                        resetDrawer();
-                    }
-                    
-                    // Prevent body scroll when drawer is open
-                    if (isOpen) {
-                        document.body.style.overflow = 'hidden';
-                    } else {
-                        document.body.style.overflow = '';
-                    }
+                    toggleBtn.setAttribute('aria-expanded', toggle.checked ? 'true' : 'false');
                 });
                 
-                // Add touch handler for visual feedback
+                // Add touch handler for visual feedback using CSS class
                 toggleBtn.addEventListener('touchstart', function() {
                     toggleBtn.classList.add('touching');
                     setTimeout(function() {
@@ -106,128 +87,74 @@ function advapes_enqueue_nav_scripts() {
                 toggleBtn.setAttribute('aria-expanded', toggle.checked ? 'true' : 'false');
             }
         }
-        
-        // V2: Reset drawer to main menu state
-        function resetDrawer() {
-            drawerStack = [];
-            const panels = document.querySelectorAll('.adv-drawer-panel');
-            panels.forEach(function(panel) {
-                panel.classList.remove('active', 'previous');
-            });
-            
-            const mainPanel = document.querySelector('.adv-drawer-panel[data-level=\"main\"]');
-            if (mainPanel) {
-                mainPanel.classList.add('active');
-            }
-        }
-        
-        // V2: Navigate to sub-panel
-        function navigateToPanel(targetPanelId, title) {
-            const currentPanel = document.querySelector('.adv-drawer-panel.active');
-            const targetPanel = document.getElementById(targetPanelId);
-            
-            if (!currentPanel || !targetPanel) return;
-            
-            // Add current panel to stack for back navigation
-            drawerStack.push({
-                panelId: currentPanel.id,
-                title: currentPanel.dataset.title || 'Menu'
-            });
-            
-            // Animate transition
-            currentPanel.classList.remove('active');
-            currentPanel.classList.add('previous');
-            targetPanel.classList.add('active');
-            
-            // Update back button text
-            updateBackButton();
-        }
-        
-        // V2: Navigate back to previous panel
-        function navigateBack() {
-            if (drawerStack.length === 0) return;
-            
-            const previousState = drawerStack.pop();
-            const currentPanel = document.querySelector('.adv-drawer-panel.active');
-            const targetPanel = document.getElementById(previousState.panelId);
-            
-            if (!currentPanel || !targetPanel) return;
-            
-            // Animate transition
-            currentPanel.classList.remove('active');
-            targetPanel.classList.remove('previous');
-            targetPanel.classList.add('active');
-            
-            // Update back button text
-            updateBackButton();
-        }
-        
-        // V2: Update back button visibility and text
-        function updateBackButton() {
-            const backButtons = document.querySelectorAll('.adv-drawer-back');
-            backButtons.forEach(function(btn) {
-                if (drawerStack.length > 0) {
-                    btn.style.display = 'flex';
-                    const backText = btn.querySelector('.adv-back-text');
-                    if (backText) {
-                        const prevTitle = drawerStack[drawerStack.length - 1].title;
-                        backText.textContent = prevTitle;
-                    }
-                } else {
-                    btn.style.display = 'none';
-                }
-            });
-        }
 
-        // V2: Initialize mobile flyout drawer
-        function initMobileDrawer() {
+        function initMobileDropdowns() {
             if (!isMobile()) {
+                // Clean up mobile classes when switching to desktop
+                document.querySelectorAll('.adv-nav-item.is-expanded').forEach(function(item) {
+                    item.classList.remove('is-expanded');
+                });
                 return;
             }
 
             // Prevent duplicate handler attachments
             if (handlersAttached) return;
 
-            // Handle panel navigation links
-            const navLinks = document.querySelectorAll('[data-panel-target]');
-            navLinks.forEach(function(link) {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetPanelId = this.dataset.panelTarget;
-                    const title = this.textContent.trim();
-                    navigateToPanel(targetPanelId, title);
-                });
-            });
+            // Get all nav items with dropdowns
+            const navItems = document.querySelectorAll('.adv-nav-item');
             
-            // Handle back buttons
-            const backButtons = document.querySelectorAll('.adv-drawer-back');
-            backButtons.forEach(function(btn) {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    navigateBack();
-                });
-            });
-            
-            // Close drawer when clicking overlay
-            const overlay = document.querySelector('.adv-drawer-overlay');
-            if (overlay) {
-                overlay.addEventListener('click', function() {
-                    const toggle = document.getElementById('adv-nav-toggle');
-                    if (toggle) {
-                        toggle.checked = false;
-                        toggle.dispatchEvent(new Event('change'));
+            navItems.forEach(function(item) {
+                const dropdown = item.querySelector('.adv-dropdown');
+                
+                if (dropdown) {
+                    // Add class to identify items with dropdowns
+                    item.classList.add('has-dropdown');
+                    
+                    const link = item.querySelector('.adv-nav-link');
+                    
+                    if (link) {
+                        // Use touchstart for better mobile responsiveness, with click as fallback
+                        const handleToggle = function(e) {
+                            if (isMobile()) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                
+                                // Toggle expanded state
+                                const isExpanded = item.classList.contains('is-expanded');
+                                
+                                // Close all other items (accordion behavior)
+                                document.querySelectorAll('.adv-nav-item.is-expanded').forEach(function(otherItem) {
+                                    if (otherItem !== item) {
+                                        otherItem.classList.remove('is-expanded');
+                                    }
+                                });
+                                
+                                // Toggle current item
+                                if (isExpanded) {
+                                    item.classList.remove('is-expanded');
+                                } else {
+                                    item.classList.add('is-expanded');
+                                }
+                            }
+                        };
+                        
+                        // Use touchstart for instant feedback on mobile devices
+                        link.addEventListener('touchstart', handleToggle, { passive: false });
+                        // Keep click handler as fallback for non-touch devices
+                        link.addEventListener('click', handleToggle);
                     }
-                });
-            }
+                }
+            });
 
             handlersAttached = true;
         }
 
-        // Initialize components
+        // Initialize hamburger menu first
         initHamburgerMenu();
-        initMobileDrawer();
+        // Then initialize dropdowns
+        initMobileDropdowns();
 
-        // Re-initialize on window resize
+        // Re-initialize on window resize (if switching between mobile/desktop)
         let resizeTimer;
         let lastWidth = window.innerWidth;
         
@@ -235,10 +162,11 @@ function advapes_enqueue_nav_scripts() {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function() {
                 const currentWidth = window.innerWidth;
+                // Only re-init if we crossed the mobile/desktop breakpoint
                 if ((lastWidth <= 1024 && currentWidth > 1024) || (lastWidth > 1024 && currentWidth <= 1024)) {
                     handlersAttached = false;
                     initHamburgerMenu();
-                    initMobileDrawer();
+                    initMobileDropdowns();
                 }
                 lastWidth = currentWidth;
             }, 250);
@@ -934,8 +862,8 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     // 2. Disposables (hybrid: specific subcategories + dynamic "View All")
     $disposables = advapes_find_category( 'disposables' );
     if ( $disposables ) {
-        // V2: Get max 8 subcategories for better catalogue coverage
-        $subcategories = advapes_get_category_children( $disposables->term_id, 8 );
+        // Get max 3 subcategories per Goal A requirements
+        $subcategories = advapes_get_category_children( $disposables->term_id, 3 );
         
         // Build children array with micro-grouping
         $children = array();
@@ -967,8 +895,8 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             );
         }
         
-        // V2: Add top brands for this category - increased to 6 for better coverage
-        $brands = advapes_get_category_brands( $disposables->term_id, 6 );
+        // Add top brands for this category - limit to 3 per Goal A requirements
+        $brands = advapes_get_category_brands( $disposables->term_id, 3 );
         if ( ! empty( $brands ) ) {
             // Add "Top Brands" group label (non-clickable)
             $children[] = array(
@@ -998,8 +926,8 @@ function advapes_get_nav_structure( $force_refresh = false ) {
     // 3. Pod Disposables (hybrid: dynamic subcategories)
     $pod_disposables = advapes_find_category( 'pod-disposables' );
     if ( $pod_disposables ) {
-        // V2: Get max 8 subcategories for better catalogue coverage
-        $subcategories = advapes_get_category_children( $pod_disposables->term_id, 8 );
+        // Get max 3 subcategories per Goal A requirements
+        $subcategories = advapes_get_category_children( $pod_disposables->term_id, 3 );
         
         // Build children array with micro-grouping
         $children = array();
@@ -1010,7 +938,7 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
-            // V2: Add subcategories (max 8 for better coverage)
+            // Add subcategories (max 3)
             foreach ( $subcategories as $subcat ) {
                 $children[] = $subcat;
             }
@@ -1031,8 +959,8 @@ function advapes_get_nav_structure( $force_refresh = false ) {
             );
         }
         
-        // V2: Add top brands for this category - increased to 6 for better coverage
-        $brands = advapes_get_category_brands( $pod_disposables->term_id, 6 );
+        // Add top brands for this category - limit to 3 per Goal A requirements
+        $brands = advapes_get_category_brands( $pod_disposables->term_id, 3 );
         if ( ! empty( $brands ) ) {
             // Add "Top Brands" group label (non-clickable)
             $children[] = array(
@@ -1063,8 +991,8 @@ function advapes_get_nav_structure( $force_refresh = false ) {
 // NOTE: Do NOT add chips to this dropdown per requirements
 $pod_systems = advapes_find_category( 'pod-systems-kits' );
 if ( $pod_systems ) {
-    // V2: Get max 8 subcategories for better catalogue coverage
-    $subcategories = advapes_get_category_children( $pod_systems->term_id, 8 );
+    // Get max 3 subcategories per Goal A requirements
+    $subcategories = advapes_get_category_children( $pod_systems->term_id, 3 );
 
     // Build children array with micro-grouping
     $children = array();
@@ -1121,7 +1049,7 @@ if ( $pod_systems ) {
 
         // If no specific guidance categories found, use available subcategories with friendly labels
         if ( $guidance_count === 0 && ! empty( $subcategories ) ) {
-            foreach ( array_slice( $subcategories, 0, 8 ) as $subcat ) {
+            foreach ( array_slice( $subcategories, 0, 3 ) as $subcat ) {
 
                 // Apply the same NAV label override here too (in case fallback uses subcategories)
                 if ( ! empty( $subcat['url'] ) && strpos( $subcat['url'], '/pod-systems-kits/refillable-pods/' ) !== false ) {
@@ -1130,7 +1058,7 @@ if ( $pod_systems ) {
 
                 $children[] = $subcat;
                 $guidance_count++;
-                if ( $guidance_count >= 8 ) break;
+                if ( $guidance_count >= 3 ) break;
             }
         }
 
@@ -1144,8 +1072,8 @@ if ( $pod_systems ) {
         }
     }
 
-    // V2: Add top brands for this category - increased to 6 for better coverage
-    $brands = advapes_get_category_brands( $pod_systems->term_id, 6 );
+    // Add top brands for this category - limit to 3 per Goal A requirements
+    $brands = advapes_get_category_brands( $pod_systems->term_id, 3 );
     if ( ! empty( $brands ) ) {
         // Add "Top Brands" group label (non-clickable)
         $children[] = array(
@@ -1183,8 +1111,8 @@ if ( $pod_systems ) {
         // Build children array with micro-grouping
         $children = array();
         
-        // V2: Replace "By Type" with "BY HARDWARE TYPE"
-        // Show up to 6 proper hardware type links (not brands)
+        // NEW REQUIREMENT: Replace "By Type" with "BY HARDWARE TYPE"
+        // Show exactly 3 proper hardware type links (not brands)
         $children[] = array(
             'type' => 'group_label',
             'name' => 'BY HARDWARE TYPE',
@@ -1199,7 +1127,7 @@ if ( $pod_systems ) {
         
         $types_added = 0;
         foreach ( $hardware_types as $type ) {
-            if ( $types_added >= 6 ) break;
+            if ( $types_added >= 3 ) break;
             
             // Try main slug first
             $cat = advapes_find_category( $type['slug'] );
@@ -1224,9 +1152,9 @@ if ( $pod_systems ) {
             }
         }
         
-        // V2: Fallback - if no specific types found, use top 6 subcategories but filter out brand-like names
+        // Fallback: if no specific types found, use top 3 subcategories but filter out brand-like names
         if ( $types_added === 0 ) {
-            $subcategories = advapes_get_category_children( $hardware->term_id, 12 );
+            $subcategories = advapes_get_category_children( $hardware->term_id, 10 );
             // Filter out items that look like brand coil makers (e.g., "Bearded Viking Coils", "White Collar Coils")
             // Known hardware type words that should NOT be filtered
             $hardware_type_words = array( 'vape', 'tank', 'mod', 'coil', 'spare', 'kit', 'pod', 'rta', 'rdta', 'rda', 'atomizer' );
@@ -1255,17 +1183,17 @@ if ( $pod_systems ) {
                 
                 if ( ! $is_brand ) {
                     $filtered_subcats[] = $subcat;
-                    if ( count( $filtered_subcats ) >= 6 ) break;
+                    if ( count( $filtered_subcats ) >= 3 ) break;
                 }
             }
             
-            foreach ( array_slice( $filtered_subcats, 0, 6 ) as $subcat ) {
+            foreach ( array_slice( $filtered_subcats, 0, 3 ) as $subcat ) {
                 $children[] = $subcat;
             }
         }
         
-        // V2: Add top brands for this category - increased to 6 for better coverage
-        $brands = advapes_get_category_brands( $hardware->term_id, 6 );
+        // Add top brands for this category - limit to 3 per Goal A requirements
+        $brands = advapes_get_category_brands( $hardware->term_id, 3 );
         if ( ! empty( $brands ) ) {
             // Add "Top Brands" group label (non-clickable)
             $children[] = array(
@@ -1317,7 +1245,7 @@ if ( $pod_systems ) {
         
         $formats_added = 0;
         foreach ( $format_categories as $format ) {
-            if ( $formats_added >= 6 ) break;
+            if ( $formats_added >= 3 ) break;
             
             // Try main slug first
             $cat = advapes_find_category( $format['slug'] );
@@ -1342,16 +1270,16 @@ if ( $pod_systems ) {
             }
         }
         
-        // V2: Fallback - if no specific format categories found, use top 6 subcategories
+        // Fallback: if no specific format categories found, use top 3 subcategories
         if ( $formats_added === 0 ) {
-            $subcategories = advapes_get_category_children( $dl_liquids->term_id, 6 );
-            foreach ( array_slice( $subcategories, 0, 6 ) as $subcat ) {
+            $subcategories = advapes_get_category_children( $dl_liquids->term_id, 3 );
+            foreach ( array_slice( $subcategories, 0, 3 ) as $subcat ) {
                 $children[] = $subcat;
             }
         }
         
-        // V2: Add top brands for this category - increased to 6 for better coverage
-        $brands = advapes_get_category_brands( $dl_liquids->term_id, 6 );
+        // Add top brands for this category - limit to 3 per Goal A requirements
+        $brands = advapes_get_category_brands( $dl_liquids->term_id, 3 );
         if ( ! empty( $brands ) ) {
             // Add "Top Brands" group label (non-clickable)
             $children[] = array(
@@ -1379,14 +1307,14 @@ if ( $pod_systems ) {
     }
 
     // 7. MTL & Nic Salts (hybrid: dynamic subcategories)
-    // Already has strength pills
+    // Already has strength pills - just apply max-3 rule (Goal D)
     $nic_salts = advapes_find_category( 'nic-salts' );
     if ( ! $nic_salts ) {
         $nic_salts = advapes_find_category( 'nic-salts-mtl-liquids' );
     }
     if ( $nic_salts ) {
-        // V2: Get max 8 subcategories for better catalogue coverage
-        $subcategories = advapes_get_category_children( $nic_salts->term_id, 8 );
+        // Get max 3 subcategories per Goal A requirements
+        $subcategories = advapes_get_category_children( $nic_salts->term_id, 3 );
         
         // Build children array with micro-grouping
         $children = array();
@@ -1397,7 +1325,7 @@ if ( $pod_systems ) {
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
-            // V2: Add subcategories (max 8 for better coverage)
+            // Add subcategories (max 3)
             foreach ( $subcategories as $subcat ) {
                 $children[] = $subcat;
             }
@@ -1418,8 +1346,8 @@ if ( $pod_systems ) {
             );
         }
         
-        // V2: Add top brands for this category - increased to 6 for better coverage
-        $brands = advapes_get_category_brands( $nic_salts->term_id, 6 );
+        // Add top brands for this category - limit to 3 per Goal A requirements
+        $brands = advapes_get_category_brands( $nic_salts->term_id, 3 );
         if ( ! empty( $brands ) ) {
             // Add "Top Brands" group label (non-clickable)
             $children[] = array(
@@ -1449,8 +1377,8 @@ if ( $pod_systems ) {
     // 8. Nic Alternatives (static parent, dynamic children)
     $nic_alternatives = advapes_find_category( 'nicotine-alternatives' );
     if ( $nic_alternatives ) {
-        // V2: Get max 8 subcategories for better catalogue coverage
-        $subcategories = advapes_get_category_children( $nic_alternatives->term_id, 8 );
+        // Get max 3 subcategories per Goal A requirements
+        $subcategories = advapes_get_category_children( $nic_alternatives->term_id, 3 );
         
         // Build children array with micro-grouping
         $children = array();
@@ -1461,14 +1389,14 @@ if ( $pod_systems ) {
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
-            // V2: Add subcategories (max 8 for better coverage)
+            // Add subcategories (max 3)
             foreach ( $subcategories as $subcat ) {
                 $children[] = $subcat;
             }
         }
         
-        // V2: Add top brands for this category - increased to 6 for better coverage
-        $brands = advapes_get_category_brands( $nic_alternatives->term_id, 6 );
+        // Add top brands for this category - limit to 3 per Goal A requirements
+        $brands = advapes_get_category_brands( $nic_alternatives->term_id, 3 );
         if ( ! empty( $brands ) ) {
             // Add "Top Brands" group label (non-clickable)
             $children[] = array(
@@ -1501,13 +1429,12 @@ if ( $pod_systems ) {
     $brand_children = array();
     
     if ( $brand_taxonomy ) {
-        // V2: Show more brands for better catalogue coverage (20 instead of 10)
         $brands = get_terms( array(
             'taxonomy'   => $brand_taxonomy,
             'hide_empty' => true,
             'orderby'    => 'count',
             'order'      => 'DESC',
-            'number'     => 20,
+            'number'     => 10,
         ) );
 
         if ( ! is_wp_error( $brands ) && ! empty( $brands ) ) {
@@ -1604,115 +1531,6 @@ if ( $pod_systems ) {
     set_transient( ADVAPES_NAV_TRANSIENT_KEY, $nav_structure, ADVAPES_NAV_TTL );
 
     return $nav_structure;
-}
-
-/**
- * Render mobile drawer navigation (V2 - Flyout style)
- * 
- * Generates hierarchical panel-based navigation for mobile devices
- */
-function advapes_render_mobile_drawer() {
-    $nav_structure = advapes_get_nav_structure();
-    
-    if ( empty( $nav_structure ) ) {
-        return;
-    }
-    
-    echo '<div class="adv-drawer-overlay"></div>' . "\n";
-    echo '<div class="adv-mobile-drawer">' . "\n";
-    
-    // Drawer header
-    echo '<div class="adv-drawer-header">' . "\n";
-    echo '<span class="adv-drawer-title">Menu</span>' . "\n";
-    echo '<label for="adv-nav-toggle" class="adv-drawer-close">&times;</label>' . "\n";
-    echo '</div>' . "\n";
-    
-    // Drawer content with panels
-    echo '<div class="adv-drawer-content">' . "\n";
-    
-    // Main panel
-    echo '<div class="adv-drawer-panel active" id="panel-main" data-level="main" data-title="Menu">' . "\n";
-    echo '<ul class="adv-drawer-menu">' . "\n";
-    
-    foreach ( $nav_structure as $key => $item ) {
-        $has_children = ! empty( $item['children'] );
-        $link_class = isset( $item['class'] ) && strpos( $item['class'], 'adv-nav-link--primary' ) !== false ? 'adv-drawer-link adv-drawer-link--primary' : 'adv-drawer-link';
-        
-        // Check if this is a promo item
-        if ( isset( $item['class'] ) && strpos( $item['class'], 'promo-active' ) !== false ) {
-            $link_class .= ' adv-drawer-link--promo';
-        }
-        
-        echo '<li class="adv-drawer-item">' . "\n";
-        
-        if ( $has_children ) {
-            // Item with sub-menu - navigate to panel
-            echo '<a href="#" class="' . $link_class . '" data-panel-target="panel-' . esc_attr( $key ) . '">' . "\n";
-            echo '<span>' . esc_html( $item['name'] ) . '</span>' . "\n";
-            echo '<span class="adv-drawer-arrow"></span>' . "\n";
-            echo '</a>' . "\n";
-        } else {
-            // Direct link
-            echo '<a href="' . esc_url( $item['url'] ) . '" class="' . $link_class . '">' . "\n";
-            echo '<span>' . esc_html( $item['name'] ) . '</span>' . "\n";
-            echo '</a>' . "\n";
-        }
-        
-        echo '</li>' . "\n";
-    }
-    
-    echo '</ul>' . "\n";
-    echo '</div>' . "\n";
-    
-    // Sub-panels for each menu item with children
-    foreach ( $nav_structure as $key => $item ) {
-        if ( empty( $item['children'] ) ) {
-            continue;
-        }
-        
-        echo '<div class="adv-drawer-panel" id="panel-' . esc_attr( $key ) . '" data-level="sub" data-title="' . esc_attr( $item['name'] ) . '">' . "\n";
-        
-        // Back button
-        echo '<div class="adv-drawer-back">' . "\n";
-        echo '<span class="adv-back-arrow"></span>' . "\n";
-        echo '<span class="adv-back-text">Back to Menu</span>' . "\n";
-        echo '</div>' . "\n";
-        
-        echo '<ul class="adv-drawer-menu">' . "\n";
-        
-        // Add "View All" link at top
-        echo '<li class="adv-drawer-item">' . "\n";
-        echo '<a href="' . esc_url( $item['url'] ) . '" class="adv-drawer-link adv-drawer-link--primary">' . "\n";
-        echo '<span>View All ' . esc_html( $item['name'] ) . '</span>' . "\n";
-        echo '</a>' . "\n";
-        echo '</li>' . "\n";
-        
-        // Render children with section headers
-        $current_section = '';
-        foreach ( $item['children'] as $child ) {
-            // Check if this is a group label
-            if ( isset( $child['type'] ) && $child['type'] === 'group_label' ) {
-                $current_section = $child['name'];
-                echo '<li class="adv-drawer-section-header">' . esc_html( $child['name'] ) . '</li>' . "\n";
-            } elseif ( isset( $child['type'] ) && ( $child['type'] === 'strength_pills' || $child['type'] === 'puff_count_chips' ) ) {
-                // Skip pills/chips in mobile drawer for now (can add later if needed)
-                continue;
-            } else {
-                // Regular link
-                echo '<li class="adv-drawer-item">' . "\n";
-                echo '<a href="' . esc_url( $child['url'] ) . '" class="adv-drawer-link">' . "\n";
-                echo '<span>' . esc_html( $child['name'] ) . '</span>' . "\n";
-                echo '</a>' . "\n";
-                echo '</li>' . "\n";
-            }
-        }
-        
-        echo '</ul>' . "\n";
-        echo '</div>' . "\n";
-    }
-    
-    echo '</div>' . "\n";
-    echo '</div>' . "\n";
 }
 
 /**
