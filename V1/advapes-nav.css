@@ -1,0 +1,588 @@
+/*==============================
+  ADVapes Custom Nav Bar
+==============================*/
+
+.adv-main-nav {
+  width: 100%;
+  background: #050507;
+  border-top: 1px solid #111827;
+  border-bottom: 2px solid #e11d2f;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Inner container (desktop + mobile) */
+.adv-main-nav .adv-nav-inner {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
+/* Burger toggle checkbox (iOS-safe: do NOT use display:none) */
+input.adv-nav-toggle {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  left: -9999px !important;
+}
+
+.adv-nav-toggle-btn {
+  display: none;
+}
+
+/* Burger icon */
+.adv-burger {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.adv-burger span {
+  width: 20px;
+  height: 2px;
+  background: #f9fafb;
+  border-radius: 999px;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+  /* Ensure spans don't interfere with click events */
+  pointer-events: none;
+}
+
+.adv-nav-toggle-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #f9fafb;
+}
+
+/* Nav list / items (desktop baseline) */
+
+.adv-nav-list {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  flex-wrap: nowrap;
+  justify-content: center; /* Center the nav items */
+}
+
+.adv-nav-item {
+  position: relative;
+  flex: 0 1 auto; /* Don't grow, can shrink, size to content */
+  min-width: 0; /* Allow shrinking below natural content width */
+}
+
+.adv-nav-link {
+  display: block;
+  padding: 14px 6px;
+  color: #d1d5db;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transition: color 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.adv-nav-link:hover,
+.adv-nav-item:hover > .adv-nav-link {
+  color: #ffffff;
+  background: #e11d2f;
+}
+
+.adv-nav-link--primary {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+/* Visual state for Deals when major promo is active */
+/* Using darker red (#c91526) for better WCAG AA contrast compliance (5.7:1 ratio) */
+.adv-nav-link--promo-active {
+  background: #c91526;
+  color: #ffffff;
+}
+
+.adv-nav-link--promo-active:hover {
+  background: #a01120;
+}
+
+/* Desktop dropdowns */
+
+.adv-dropdown {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: 10px;
+  background: #07080c;
+  border-radius: 10px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+  padding: 10px 12px;
+  min-width: 230px;
+  border: 1px solid #1f2937;
+  z-index: 50;
+}
+
+.adv-nav-item:hover > .adv-dropdown {
+  display: block;
+}
+
+.adv-dropdown-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+.adv-dropdown ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+}
+
+.adv-dropdown a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  padding: 4px 4px;
+  border-radius: 8px;
+  color: #f9fafb;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.adv-dropdown a:hover {
+  background: #111827;
+  color: #ffffff;
+}
+
+.adv-tag {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
+/* Group labels (non-clickable micro-grouping) */
+.adv-dropdown-group-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7280;
+  font-weight: 700;
+  padding: 8px 4px 2px 4px;
+  margin-top: 4px;
+  pointer-events: none;
+}
+
+.adv-dropdown-group-label:first-child {
+  margin-top: 0;
+}
+
+.adv-dropdown-group-label span {
+  display: block;
+}
+
+/* Make "Browse all" links stand out more (last item in dropdowns) */
+.adv-dropdown li:last-child .adv-tag {
+  color: #fbbf24;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.adv-dropdown li:last-child a {
+  background: #111827;
+  border: 1px solid #1f2937;
+  margin-top: 4px;
+  padding: 6px 8px;
+}
+
+.adv-dropdown li:last-child a:hover {
+  background: #1f2937;
+  border-color: #e11d2f;
+}
+
+/* Wider dropdown for Brands menu with more items */
+.adv-dropdown--wide {
+  min-width: 260px;
+}
+
+/* Remove any theme-generated lines in our nav */
+.adv-nav-list > li::before,
+.adv-nav-list > li::after {
+  content: none !important;
+  display: none !important;
+}
+
+/*------------------------------
+  MOBILE BEHAVIOUR
+------------------------------*/
+
+@media (max-width: 1024px) {
+  /* Make nav stack */
+  .adv-main-nav .adv-nav-inner {
+    max-width: 100%;
+    padding: 0 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Show burger row */
+  .adv-nav-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 8px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    
+    /* Optimize touch responsiveness */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+    user-select: none;
+    -webkit-user-select: none;
+    
+    /* Increase touch target size for better mobile interaction */
+    min-height: 44px;
+    position: relative;
+    z-index: 10;
+  }
+  
+  /* Visual feedback on touch - use class instead of inline styles */
+  .adv-nav-toggle-btn.touching {
+    opacity: 0.7;
+  }
+
+  /* Hide desktop-style nav by default */
+  .adv-nav-list {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    gap: 0;
+    border-top: 1px solid #111827;
+    padding: 8px 0 10px;
+
+    /* Scroll if the menu gets too tall */
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    
+    /* Optimize scrolling performance on touch devices */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    
+    /* Enable GPU acceleration for smoother scrolling */
+    transform: translateZ(0);
+    will-change: scroll-position;
+  }
+
+  .adv-nav-item {
+    width: 100%;
+    margin: 0;
+    margin-bottom: 4px;
+  }
+
+  /* Mobile: make main nav link a button with dropdown icon */
+  .adv-nav-link {
+    width: 100%;
+    padding: 10px 0;
+    border-radius: 0;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    
+    /* Optimize touch responsiveness */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Dropdown icon for collapsible items */
+  .adv-nav-item.has-dropdown .adv-nav-link::after {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 8px;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #d1d5db;
+    transition: transform 0.2s ease;
+    
+    /* GPU acceleration for smoother rotation */
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  /* Rotate arrow when expanded */
+  .adv-nav-item.has-dropdown.is-expanded .adv-nav-link::after {
+    transform: rotate(180deg) translateZ(0);
+  }
+
+  /* Compact mobile dropdowns into inline sections - initially hidden */
+  .adv-dropdown {
+    position: static;
+    /* Keep display: block (not 'none') to allow smooth CSS transitions */
+    display: block;
+    margin-top: 2px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0 0 0 16px;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    
+    /* Use transform for better performance instead of just max-height */
+    transition: max-height 0.25s ease-out, opacity 0.2s ease-out, padding 0.25s ease-out;
+    
+    /* GPU acceleration for smoother animations */
+    transform: translateZ(0);
+    will-change: max-height, opacity;
+  }
+
+  /* Show dropdown when parent item is expanded */
+  .adv-nav-item.is-expanded .adv-dropdown {
+    max-height: 2000px;
+    opacity: 1;
+    padding: 2px 0 6px 16px;
+  }
+
+  .adv-dropdown a {
+    padding: 3px 0;
+    font-size: 11px;
+  }
+
+  /* Hide subtitles on mobile but keep tags/counts visible */
+  .adv-dropdown-title {
+    display: none;
+  }
+  
+  /* Show tags and counts on mobile (matching desktop) */
+  .adv-tag {
+    display: inline;
+    font-size: 9px;
+    margin-left: 4px; /* Reduce gap between name and count on mobile */
+  }
+  
+  /* Group labels on mobile - slightly adjusted */
+  .adv-dropdown-group-label {
+    padding: 6px 0 2px 0;
+    font-size: 8px;
+  }
+
+  /* When burger checked, show menu */
+  .adv-nav-toggle:checked ~ .adv-nav-list {
+    display: flex;
+  }
+
+  /* Burger animation */
+  .adv-nav-toggle:checked + .adv-nav-toggle-btn .adv-burger span:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+
+  .adv-nav-toggle:checked + .adv-nav-toggle-btn .adv-burger span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .adv-nav-toggle:checked + .adv-nav-toggle-btn .adv-burger span:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  /* Hide Razzi's original mobile burger so only ADVapes menu shows */
+  button.mobile-menu-toggle.hamburger-menu {
+    display: none !important;
+  }
+
+  /* Hide the "MENU" text, keep only the burger icon */
+  .adv-nav-toggle-label {
+    display: none;
+  }
+
+  /* Align burger to the left nicely */
+  .adv-nav-toggle-btn {
+    justify-content: flex-start;
+    gap: 8px;
+    /* Ensure label is always clickable */
+    display: flex !important;
+  }
+  
+  /* Mobile-specific styling for "Browse all" - explicitly maintain highlight */
+  .adv-dropdown li:last-child a {
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 6px;
+    margin-top: 6px;
+    padding: 6px 8px;
+  }
+  
+  .adv-dropdown li:last-child a:hover {
+    background: #1f2937;
+  }
+  
+  .adv-dropdown li:last-child .adv-tag {
+    color: #fbbf24;
+    font-weight: 600;
+  }
+}
+
+/* Desktop: make dropdowns easier to hover into */
+@media (min-width: 1025px) {
+  /* Extend the hover area below the link */
+  .adv-nav-item {
+    padding-bottom: 10px;
+  }
+
+  /* Remove the gap between the link and dropdown */
+  .adv-dropdown {
+    margin-top: 0;
+  }
+}
+
+/* Medium desktops - slightly larger spacing */
+@media (min-width: 1200px) {
+  .adv-nav-link {
+    padding: 14px 8px;
+    font-size: 11px;
+  }
+}
+
+/* Large desktops - more comfortable spacing */
+@media (min-width: 1400px) {
+  .adv-main-nav .adv-nav-inner {
+    max-width: 1400px;
+    padding: 0 16px;
+  }
+  
+  .adv-nav-link {
+    padding: 14px 10px;
+  }
+}
+
+header#site-header.minimized, header#site-header {
+  background-color: red !important;
+  box-shadow: 0px 0px 0px 0px red !important;
+  border-bottom: 1px solid #ffffff00 !important;
+}
+
+/* Prevent logo from resizing when mobile menu opens/closes */
+@media (max-width: 1024px) {
+  /* Fix logo size on mobile - prevent glitching/expanding */
+  .site-header .site-branding img,
+  .site-header .logo img,
+  #site-header .site-branding img,
+  #site-header .logo img {
+    max-height: 60px !important;
+    width: auto !important;
+    height: auto !important;
+    transition: none !important;
+  }
+  
+  /* Ensure logo container doesn't expand */
+  .site-header .site-branding,
+  .site-header .logo,
+  #site-header .site-branding,
+  #site-header .logo {
+    max-height: 60px !important;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  
+  /* Prevent header from changing height when menu opens */
+  #site-header {
+    position: relative;
+  }
+  
+  /* Ensure navigation doesn't affect header height */
+  .adv-main-nav {
+    position: relative;
+    width: 100%;
+  }
+}
+
+/*------------------------------
+  STRENGTH PILLS
+------------------------------*/
+
+/* Container for strength pills (list item wrapper) */
+.adv-strength-pills-container {
+  padding: 2px 4px 8px 4px !important;
+  list-style: none;
+}
+
+/* Flex row for pills */
+.adv-strength-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Individual pill styling */
+.adv-strength-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: #111827;
+  border: 1px solid #2d3748;
+  border-radius: 16px;
+  color: #f9fafb;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.adv-strength-pill:hover {
+  background: #1f2937;
+  border-color: #e11d2f;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Pill label */
+.adv-pill-label {
+  font-size: 11px;
+}
+
+/* Mobile adjustments for pills */
+@media (max-width: 1024px) {
+  .adv-strength-pills-container {
+    padding: 6px 0 8px 0 !important;
+  }
+  
+  .adv-strength-pills {
+    gap: 6px;
+  }
+  
+  .adv-strength-pill {
+    padding: 5px 10px;
+    font-size: 10px;
+  }
+  
+  .adv-pill-label {
+    font-size: 10px;
+  }
+}
