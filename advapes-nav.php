@@ -1010,7 +1010,7 @@ function advapes_get_nav_structure( $force_refresh = false ) {
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
-            // Add subcategories (max 3)
+            // V2: Add subcategories (max 8 for better coverage)
             foreach ( $subcategories as $subcat ) {
                 $children[] = $subcat;
             }
@@ -1121,7 +1121,7 @@ if ( $pod_systems ) {
 
         // If no specific guidance categories found, use available subcategories with friendly labels
         if ( $guidance_count === 0 && ! empty( $subcategories ) ) {
-            foreach ( array_slice( $subcategories, 0, 3 ) as $subcat ) {
+            foreach ( array_slice( $subcategories, 0, 8 ) as $subcat ) {
 
                 // Apply the same NAV label override here too (in case fallback uses subcategories)
                 if ( ! empty( $subcat['url'] ) && strpos( $subcat['url'], '/pod-systems-kits/refillable-pods/' ) !== false ) {
@@ -1130,7 +1130,7 @@ if ( $pod_systems ) {
 
                 $children[] = $subcat;
                 $guidance_count++;
-                if ( $guidance_count >= 3 ) break;
+                if ( $guidance_count >= 8 ) break;
             }
         }
 
@@ -1224,9 +1224,9 @@ if ( $pod_systems ) {
             }
         }
         
-        // Fallback: if no specific types found, use top 3 subcategories but filter out brand-like names
+        // V2: Fallback - if no specific types found, use top 6 subcategories but filter out brand-like names
         if ( $types_added === 0 ) {
-            $subcategories = advapes_get_category_children( $hardware->term_id, 10 );
+            $subcategories = advapes_get_category_children( $hardware->term_id, 12 );
             // Filter out items that look like brand coil makers (e.g., "Bearded Viking Coils", "White Collar Coils")
             // Known hardware type words that should NOT be filtered
             $hardware_type_words = array( 'vape', 'tank', 'mod', 'coil', 'spare', 'kit', 'pod', 'rta', 'rdta', 'rda', 'atomizer' );
@@ -1255,11 +1255,11 @@ if ( $pod_systems ) {
                 
                 if ( ! $is_brand ) {
                     $filtered_subcats[] = $subcat;
-                    if ( count( $filtered_subcats ) >= 3 ) break;
+                    if ( count( $filtered_subcats ) >= 6 ) break;
                 }
             }
             
-            foreach ( array_slice( $filtered_subcats, 0, 3 ) as $subcat ) {
+            foreach ( array_slice( $filtered_subcats, 0, 6 ) as $subcat ) {
                 $children[] = $subcat;
             }
         }
@@ -1317,7 +1317,7 @@ if ( $pod_systems ) {
         
         $formats_added = 0;
         foreach ( $format_categories as $format ) {
-            if ( $formats_added >= 3 ) break;
+            if ( $formats_added >= 6 ) break;
             
             // Try main slug first
             $cat = advapes_find_category( $format['slug'] );
@@ -1345,7 +1345,7 @@ if ( $pod_systems ) {
         // V2: Fallback - if no specific format categories found, use top 6 subcategories
         if ( $formats_added === 0 ) {
             $subcategories = advapes_get_category_children( $dl_liquids->term_id, 6 );
-            foreach ( array_slice( $subcategories, 0, 3 ) as $subcat ) {
+            foreach ( array_slice( $subcategories, 0, 6 ) as $subcat ) {
                 $children[] = $subcat;
             }
         }
@@ -1397,7 +1397,7 @@ if ( $pod_systems ) {
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
-            // Add subcategories (max 3)
+            // V2: Add subcategories (max 8 for better coverage)
             foreach ( $subcategories as $subcat ) {
                 $children[] = $subcat;
             }
@@ -1461,7 +1461,7 @@ if ( $pod_systems ) {
                 'type' => 'group_label',
                 'name' => 'By Type',
             );
-            // Add subcategories (max 3)
+            // V2: Add subcategories (max 8 for better coverage)
             foreach ( $subcategories as $subcat ) {
                 $children[] = $subcat;
             }

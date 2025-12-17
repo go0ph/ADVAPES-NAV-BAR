@@ -55,7 +55,7 @@ require_once get_stylesheet_directory() . '/advapes-nav.php';
                         <span class="adv-nav-toggle-label">Menu</span>
                     </label>
 
-                    <!-- Main nav list (desktop) - V2 -->
+                    <!-- V2: Desktop nav list (hidden on mobile ≤1024px) -->
                     <?php
                     // V2: Use hybrid navigation for desktop, mobile drawer for mobile
                     if ( function_exists( 'advapes_render_nav' ) ) {
