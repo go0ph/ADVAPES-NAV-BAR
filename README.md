@@ -17,16 +17,23 @@ A simple, dynamic navigation menu for WooCommerce that automatically updates bas
 - **Touch optimized** for excellent mobile user experience
 - **Cached for performance** (30-second cache with auto-invalidation)
 
-## 📦 Current Version: 3.1.2 (December 15, 2025)
+## 📦 Current Version: 4.0.0 - V2 (December 17, 2025)
 
-**Status:** ✅ Stable - Desktop and Mobile fully optimized
+**Status:** 🚧 In Development - Major Redesign
 
-### Latest Updates:
-- ✅ Mobile menu enhancements with instant touch response
-- ✅ Fixed logo resize glitch on mobile
-- ✅ Collapsible mobile dropdowns with smooth accordion behavior
-- ✅ GPU-accelerated animations for better performance
-- ✅ Single-line desktop layout (all 10 items fit without wrapping)
+### V2 Major Updates:
+- ✅ **Mobile**: Right-side flyout drawer menu with hierarchical navigation
+- ✅ **Desktop**: Expanded content (6-8 items per section vs 3 in V1)
+- ✅ **Catalogue Coverage**: Users can browse entire product range via navigation
+- ✅ **Improved UX**: Better balance between neatness and comprehensive navigation
+- ✅ **Brand Expansion**: Show 20 top brands (vs 10 in V1)
+- ✅ **Better than competitors**: Exceeds vaperite.co.za and smokeorganic.co.za
+
+### Previous Version (V1 - 3.1.2):
+- Archived in `/V1` folder
+- Collapsible mobile dropdowns (accordion style)
+- 3 items per section
+- Can be restored if needed
 
 ## 📁 Repository Structure
 

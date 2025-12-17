@@ -5,7 +5,7 @@
  * Adds a custom ADVapes nav bar under the default Razzi header
  * without touching the logo or existing header layout.
  *
- * Version 3.1: Hybrid navigation (fixed parent menus + dynamic subcategories)
+ * Version 4.0 (V2): Mobile flyout drawer + Expanded desktop content
  *
  * @package Razzi Child
  */
@@ -55,11 +55,11 @@ require_once get_stylesheet_directory() . '/advapes-nav.php';
                         <span class="adv-nav-toggle-label">Menu</span>
                     </label>
 
-                    <!-- Main nav list (desktop + mobile) - Hybrid v3.1 -->
+                    <!-- Main nav list (desktop) - V2 -->
                     <?php
-                    // Use hybrid navigation if available, otherwise fallback to static
+                    // V2: Use hybrid navigation for desktop, mobile drawer for mobile
                     if ( function_exists( 'advapes_render_nav' ) ) {
-                        advapes_render_nav();
+                        advapes_render_nav(); // Desktop navigation
                     } else {
                         // Fallback: static navigation
                         echo '<!-- ADVapes Nav: Fallback to static menu (dynamic nav not loaded) -->';
@@ -69,6 +69,13 @@ require_once get_stylesheet_directory() . '/advapes-nav.php';
                         echo '<li class="adv-nav-item"><a href="https://www.advapes.co.za/brands/" class="adv-nav-link">Brands</a></li>';
                         echo '<li class="adv-nav-item"><a href="https://www.advapes.co.za/faq/" class="adv-nav-link">Support</a></li>';
                         echo '</ul>';
+                    }
+                    ?>
+
+                    <!-- V2: Mobile drawer (flyout from right) -->
+                    <?php
+                    if ( function_exists( 'advapes_render_mobile_drawer' ) ) {
+                        advapes_render_mobile_drawer();
                     }
                     ?>
 
