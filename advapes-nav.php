@@ -1694,9 +1694,24 @@ function advapes_render_mobile_drawer() {
             if ( isset( $child['type'] ) && $child['type'] === 'group_label' ) {
                 $current_section = $child['name'];
                 echo '<li class="adv-drawer-section-header">' . esc_html( $child['name'] ) . '</li>' . "\n";
-            } elseif ( isset( $child['type'] ) && ( $child['type'] === 'strength_pills' || $child['type'] === 'puff_count_chips' ) ) {
-                // Skip pills/chips in mobile drawer for now (can add later if needed)
-                continue;
+            } elseif ( isset( $child['type'] ) && $child['type'] === 'strength_pills' ) {
+                // Render strength pills in mobile drawer
+                echo '<li class="adv-drawer-item adv-drawer-pills">' . "\n";
+                foreach ( $child['pills'] as $pill ) {
+                    echo '<a href="' . esc_url( $pill['url'] ) . '" class="adv-drawer-pill">' . "\n";
+                    echo esc_html( $pill['name'] ) . "\n";
+                    echo '</a>' . "\n";
+                }
+                echo '</li>' . "\n";
+            } elseif ( isset( $child['type'] ) && $child['type'] === 'puff_count_chips' ) {
+                // Render puff count chips in mobile drawer
+                echo '<li class="adv-drawer-item adv-drawer-pills">' . "\n";
+                foreach ( $child['chips'] as $chip ) {
+                    echo '<a href="' . esc_url( $chip['url'] ) . '" class="adv-drawer-pill">' . "\n";
+                    echo esc_html( $chip['name'] ) . "\n";
+                    echo '</a>' . "\n";
+                }
+                echo '</li>' . "\n";
             } else {
                 // Regular link
                 echo '<li class="adv-drawer-item">' . "\n";
