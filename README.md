@@ -1,62 +1,100 @@
 # ADVapes Dynamic Navigation Bar
 
-![Version](https://img.shields.io/badge/version-3.1.2-blue.svg)
+![Version](https://img.shields.io/badge/version-4.0.0-blue.svg)
 ![Status](https://img.shields.io/badge/status-stable-green.svg)
 [![WordPress](https://img.shields.io/badge/wordpress-5.0%2B-blue.svg)](https://wordpress.org/)
 [![WooCommerce](https://img.shields.io/badge/woocommerce-4.0%2B-purple.svg)](https://woocommerce.com/)
 
-A simple, dynamic navigation menu for WooCommerce that automatically updates based on your product categories and brands.
+A dynamic, professional navigation menu for WooCommerce that automatically updates based on your product categories and brands. Designed for vape shops and e-commerce stores.
 
 ## ✨ Features
 
-- **Automatically displays product categories** from your WooCommerce store
-- **Shows top brands** in each category dropdown (if brands exist)
-- **Updates dynamically** as you add/remove products and categories
-- **Single line layout** that fits all menu items without wrapping on desktop
-- **Mobile responsive** with collapsible hamburger menu and accordion dropdowns
-- **Touch optimized** for excellent mobile user experience
-- **Cached for performance** (30-second cache with auto-invalidation)
+- **🎯 Automatically displays product categories** from your WooCommerce store
+- **🏷️ Shows top brands** in each category dropdown (if brands exist)
+- **🔄 Updates dynamically** as you add/remove products and categories
+- **📏 Single line layout** that fits all menu items without wrapping on desktop
+- **📱 Mobile responsive** with right-side flyout drawer and hierarchical navigation
+- **👆 Touch optimized** for excellent mobile user experience
+- **⚡ Cached for performance** (30-second cache with auto-invalidation)
+- **🎨 Preview before installing** with standalone HTML demo
 
-## 📦 Current Version: 4.0.0 - V2 (December 17, 2025)
+## 📦 Current Version: 4.0.0 (V2)
 
-**Status:** 🚧 In Development - Major Redesign
+**Status:** ✅ Stable - Production Ready
 
-### V2 Major Updates:
+### What's New in V2:
 - ✅ **Mobile**: Right-side flyout drawer menu with hierarchical navigation
-- ✅ **Desktop**: Expanded content (6-8 items per section vs 3 in V1)
-- ✅ **Catalogue Coverage**: Users can browse entire product range via navigation
+- ✅ **Desktop**: Expanded dropdowns (6-8 items per section vs 3 in V1)
+- ✅ **Full Catalogue**: Browse entire product range via navigation
 - ✅ **Improved UX**: Better balance between neatness and comprehensive navigation
-- ✅ **Brand Expansion**: Show 20 top brands (vs 10 in V1)
-- ✅ **Better than competitors**: Exceeds vaperite.co.za and smokeorganic.co.za
+- ✅ **Enhanced Performance**: 30-second cache with auto-invalidation
+- ✅ **Preview Demo**: Test before installing with `preview.html`
 
-### Previous Version (V1 - 3.1.2):
-- Archived in `/V1` folder
-- Collapsible mobile dropdowns (accordion style)
-- 3 items per section
-- Can be restored if needed
+### V3 Available (Optional):
+- Brand-first navigation structure
+- See `QUICKSTART-V3.md` and `README-V3.md` for details
+- Files: `advapes-nav-v3.php`, `header-v3.php`
 
 ## 📁 Repository Structure
 
 ```
 /
-├── advapes-nav.php      # Main navigation system (functions and logic)
-├── advapes-nav.css      # Navigation styling
-├── header.php           # Header template that includes the navigation bar
-├── README.md            # This file
-├── archive/             # Historical documentation and changelogs
-└── backups/             # Backup versions (if any)
+├── advapes-nav.php        # Main navigation system (V2 - Current)
+├── advapes-nav-v3.php     # V3 navigation system (Brand-first approach)
+├── advapes-nav.css        # Navigation styling (works with V2 and V3)
+├── header.php             # Header template for V2
+├── header-v3.php          # Header template for V3
+├── preview.html           # 🆕 Standalone HTML demo - Preview before installing!
+├── INSTALLATION-GUIDE.md  # 🆕 Complete step-by-step installation guide
+├── README.md              # This file - Overview and features
+├── QUICKSTART-V3.md       # Quick start guide for V3 installation
+├── README-V3.md           # V3 documentation
+└── archive/               # Historical documentation and changelogs
 ```
 
-## 🚀 Installation
+## 🎨 Preview the Navigation
 
-1. Upload all three files to your WordPress child theme directory:
-   ```
-   /wp-content/themes/razzi-child/
-   ```
+**NEW!** You can now preview the navigation bar before installing it on your site:
 
-2. The navigation will automatically appear below your header
+1. Download `preview.html` from this repository
+2. Open it in any web browser
+3. See exactly how it will look on desktop and mobile
+4. No WordPress or server needed!
 
-3. That's it! The menu will populate automatically from your WooCommerce categories and products
+**Screenshot:**
+
+![ADVapes Navigation Preview](https://github.com/user-attachments/assets/1d5b0c63-8e60-4757-a1e1-ad7d37077a98)
+
+This is perfect for:
+- Testing the design before committing
+- Showing stakeholders what it will look like
+- Understanding the mobile drawer behavior
+- Verifying it matches your brand
+
+## 🚀 Quick Start
+
+### Step 1: Preview First (Recommended)
+
+1. Download `preview.html`
+2. Open in browser
+3. See exactly how it will look!
+
+### Step 2: Install on Your Site
+
+**For detailed instructions, see [INSTALLATION-GUIDE.md](INSTALLATION-GUIDE.md)**
+
+Quick summary:
+1. Download 3 files: `advapes-nav.php`, `advapes-nav.css`, `header.php`
+2. Upload to `/wp-content/themes/razzi-child/`
+3. Clear all caches (WordPress, browser, CDN)
+4. Visit your site - navigation appears below header!
+
+**Common Issues:**
+- **Navigation doesn't appear?** → Clear cache and refresh with Ctrl+Shift+R
+- **Shows fallback menu?** → Check WooCommerce is active and categories exist
+- **Brands not showing?** → Assign brands to products in WooCommerce
+
+See the [Installation Guide](INSTALLATION-GUIDE.md) for complete troubleshooting.
 
 ## 🎯 How It Works
 
@@ -144,32 +182,52 @@ POST /wp-json/advapes/v1/nav/refresh
 
 ## 🔧 Troubleshooting
 
-### Navigation is empty or shows fallback menu
+### Navigation doesn't appear after installation
 
-**Causes:** WooCommerce not active, no categories, or wrong category slugs
+**Most common cause:** Cache not cleared
 
 **Solution:**
-1. Activate WooCommerce plugin
-2. Create categories with correct slugs (see "Category Detection" section)
+1. Clear WordPress cache (if using cache plugin)
+2. Hard refresh browser: `Ctrl + Shift + R` (Windows) or `Cmd + Shift + R` (Mac)
+3. Clear CDN cache (if using Cloudflare, etc.)
+4. Check files are in `/wp-content/themes/razzi-child/` (not `razzi`)
+
+### Navigation shows "Coming Soon" or fallback menu
+
+**Cause:** WooCommerce not active or no categories found
+
+**Solution:**
+1. Activate WooCommerce plugin (Plugins → Installed Plugins)
+2. Create categories with correct slugs (Products → Categories):
+   - `disposables`
+   - `pod-disposables`  
+   - `pod-systems-kits`
+   - `vape-hardware` or `dl-hardware`
+   - `dl-liquids` or `nic-salts`
 3. Add products to those categories
+4. Clear cache (see above)
 
 ### Brands not showing in dropdowns
 
-**Causes:** No brand taxonomy, unassigned brands, or stale cache
+**Cause:** No brand taxonomy or unassigned brands
 
 **Solution:**
-1. Create a brand attribute in WooCommerce (Products → Attributes)
-2. Assign brands to your products
-3. Ensure products are published (not drafts)
-4. Clear cache (edit any product and click Update)
+1. Install a brand plugin (Perfect WooCommerce Brands or WooCommerce Brands)
+2. Create brands (Products → Brands)
+3. Assign brands to products
+4. Ensure products are published (not drafts)
+5. Clear cache
 
-### Navigation wrapping to multiple lines
+### Header looks wrong or doubled
 
-**Fixed in v3.1.1+** - All 10 menu items now fit on a single line on desktop
+**Cause:** Multiple header files or wrong theme active
 
-### Mobile menu sluggish or unresponsive
+**Solution:**
+1. Check Razzi **Child** theme is active (not just "Razzi")
+2. Check header.php is in `/wp-content/themes/razzi-child/` (not `/razzi/`)
+3. If you had custom header, restore from backup
 
-**Fixed in v3.1.2** - Touch events optimized with instant feedback and GPU acceleration
+**For more troubleshooting, see [INSTALLATION-GUIDE.md](INSTALLATION-GUIDE.md#troubleshooting)**
 
 ## 🎨 Customization
 
@@ -212,30 +270,43 @@ Edit `advapes_get_nav_structure()` function in `advapes-nav.php` to add/remove m
 
 ## 📋 Requirements
 
-- WordPress 5.0+
-- WooCommerce 4.0+
-- PHP 7.4+
-- Razzi theme (or modify `header.php` for your theme)
+- **WordPress:** 5.0 or higher
+- **WooCommerce:** 4.0 or higher  
+- **PHP:** 7.4 or higher
+- **Theme:** Razzi (parent theme + child theme installed)
+- **Access:** FTP/SFTP or WordPress File Manager
 
-## ⚡ Performance
+## ⚡ Performance & Features
 
-- Optimized database queries with proper JOINs and sanitization
-- 30-second cache for near real-time updates
-- Automatic cache invalidation on content changes
-- GPU-accelerated animations for smooth mobile experience
-- Zero external dependencies
+- ✅ **Optimized database queries** with proper JOINs and sanitization
+- ✅ **30-second cache** for near real-time updates
+- ✅ **Automatic cache invalidation** on content changes
+- ✅ **GPU-accelerated animations** for smooth mobile experience
+- ✅ **Zero external dependencies** - Pure PHP, CSS, and vanilla JavaScript
+- ✅ **SEO friendly** with semantic HTML structure
+- ✅ **Accessibility** optimized with ARIA labels
 
-## 💬 Support
+## 💬 Support & Documentation
 
-Having issues? Check these:
+### Quick Links
+
+- 📖 **[Complete Installation Guide](INSTALLATION-GUIDE.md)** - Step-by-step instructions
+- 🎨 **[Live Preview Demo](preview.html)** - See it before installing
+- 📋 **[Project Overview](PROJECT-OVERVIEW.md)** - Quick start guide
+- 📥 **[Download Checklist](FILES-TO-DOWNLOAD.txt)** - What files you need
+
+### Before Asking for Help
+
+Check these:
 
 1. ✅ WooCommerce is active
 2. ✅ Product categories exist with correct slugs
 3. ✅ Products are published and categorized
-4. ✅ Cache is cleared (edit any product → Update)
-5. ✅ No JavaScript errors in browser console (F12)
+4. ✅ Cache is cleared (WordPress + Browser + CDN)
+5. ✅ Files uploaded to `/wp-content/themes/razzi-child/` (not `/razzi/`)
+6. ✅ No JavaScript errors in browser console (F12)
 
-For detailed documentation, see the `archive/` directory.
+For troubleshooting, see **[INSTALLATION-GUIDE.md](INSTALLATION-GUIDE.md#troubleshooting)**
 
 ## 📋 Version History
 
