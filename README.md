@@ -61,6 +61,10 @@ A dynamic, professional navigation menu for WooCommerce that automatically updat
 3. See exactly how it will look on desktop and mobile
 4. No WordPress or server needed!
 
+**Screenshot:**
+
+![ADVapes Navigation Preview](https://github.com/user-attachments/assets/1d5b0c63-8e60-4757-a1e1-ad7d37077a98)
+
 This is perfect for:
 - Testing the design before committing
 - Showing stakeholders what it will look like
@@ -266,30 +270,43 @@ Edit `advapes_get_nav_structure()` function in `advapes-nav.php` to add/remove m
 
 ## 📋 Requirements
 
-- WordPress 5.0+
-- WooCommerce 4.0+
-- PHP 7.4+
-- Razzi theme (or modify `header.php` for your theme)
+- **WordPress:** 5.0 or higher
+- **WooCommerce:** 4.0 or higher  
+- **PHP:** 7.4 or higher
+- **Theme:** Razzi (parent theme + child theme installed)
+- **Access:** FTP/SFTP or WordPress File Manager
 
-## ⚡ Performance
+## ⚡ Performance & Features
 
-- Optimized database queries with proper JOINs and sanitization
-- 30-second cache for near real-time updates
-- Automatic cache invalidation on content changes
-- GPU-accelerated animations for smooth mobile experience
-- Zero external dependencies
+- ✅ **Optimized database queries** with proper JOINs and sanitization
+- ✅ **30-second cache** for near real-time updates
+- ✅ **Automatic cache invalidation** on content changes
+- ✅ **GPU-accelerated animations** for smooth mobile experience
+- ✅ **Zero external dependencies** - Pure PHP, CSS, and vanilla JavaScript
+- ✅ **SEO friendly** with semantic HTML structure
+- ✅ **Accessibility** optimized with ARIA labels
 
-## 💬 Support
+## 💬 Support & Documentation
 
-Having issues? Check these:
+### Quick Links
+
+- 📖 **[Complete Installation Guide](INSTALLATION-GUIDE.md)** - Step-by-step instructions
+- 🎨 **[Live Preview Demo](preview.html)** - See it before installing
+- 📋 **[Project Overview](PROJECT-OVERVIEW.md)** - Quick start guide
+- 📥 **[Download Checklist](FILES-TO-DOWNLOAD.txt)** - What files you need
+
+### Before Asking for Help
+
+Check these:
 
 1. ✅ WooCommerce is active
 2. ✅ Product categories exist with correct slugs
 3. ✅ Products are published and categorized
-4. ✅ Cache is cleared (edit any product → Update)
-5. ✅ No JavaScript errors in browser console (F12)
+4. ✅ Cache is cleared (WordPress + Browser + CDN)
+5. ✅ Files uploaded to `/wp-content/themes/razzi-child/` (not `/razzi/`)
+6. ✅ No JavaScript errors in browser console (F12)
 
-For detailed documentation, see the `archive/` directory.
+For troubleshooting, see **[INSTALLATION-GUIDE.md](INSTALLATION-GUIDE.md#troubleshooting)**
 
 ## 📋 Version History
 
