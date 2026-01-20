@@ -1,0 +1,99 @@
+========================================
+V3 NAVIGATION - FILES TO DOWNLOAD
+========================================
+
+Download these 6 files to implement V3 navigation:
+
+REQUIRED FILES (Must download):
+--------------------------------
+1. advapes-nav-v3.php      (42 KB) - Main navigation logic
+2. header-v3.php           (3.8 KB) - Header template
+
+DOCUMENTATION FILES (Highly recommended):
+-----------------------------------------
+3. QUICKSTART-V3.md        (9.7 KB) - Quick installation guide
+4. README-V3.md            (13 KB)  - Technical documentation
+5. V3-COMPARISON.md        (11 KB)  - Visual comparison
+6. DELIVERY-SUMMARY.md     (8 KB)  - What you're getting
+
+TOTAL SIZE: ~88 KB
+
+========================================
+QUICK START (10 minutes):
+========================================
+
+1. Download all 6 files above
+2. Read QUICKSTART-V3.md
+3. Upload advapes-nav-v3.php and header-v3.php to:
+   /wp-content/themes/razzi-child/
+4. Activate by copying:
+   cp header-v3.php header.php
+5. Clear WordPress cache
+6. Test on desktop and mobile
+
+========================================
+WHAT YOU'LL SEE:
+========================================
+
+Desktop Navigation:
+Deals → BRANDS → Disposables → Devices → Liquids → Nic Alternatives → Support
+         ↑
+    (2nd position - easy to find!)
+
+Brands Dropdown:
+- Top Brands (NEW!)
+  - Bewolk
+  - Nasty  
+  - Airscream
+  - Oxbar
+  - Oxva
+  - Vuse
+- All Brands (A–Z)
+
+Mobile Drawer:
+☰ Menu
+  ▸ Deals
+  ▸ Brands (2nd - no scroll needed!)
+  ▸ Disposables
+  ▸ Devices (NEW - consolidated)
+  ▸ Liquids (NEW - consolidated)
+  ▸ Nic Alternatives
+  ▸ Support
+
+========================================
+KEY FEATURES:
+========================================
+
+✅ Brands promoted to 2nd position (from 9th)
+✅ "Top Brands" section with 6 priority brands
+✅ Simplified Disposables (no DL/MTL jargon)
+✅ Devices menu consolidates Pod Systems + Vape Hardware
+✅ Liquids menu grouped by nicotine type
+✅ Mobile-first (1-2 taps to any item)
+✅ Visual design unchanged (same CSS)
+✅ Easy rollback (V2 files preserved)
+
+========================================
+ROLLBACK (if needed):
+========================================
+
+Just restore V2 files (30 seconds):
+  cp advapes-nav.php header.php
+  wp cache flush
+
+========================================
+NEED HELP?
+========================================
+
+Read the documentation in this order:
+1. DELIVERY-SUMMARY.md (overview)
+2. QUICKSTART-V3.md (installation)
+3. README-V3.md (technical details)
+4. V3-COMPARISON.md (V2 vs V3 differences)
+
+========================================
+READY TO DOWNLOAD!
+========================================
+
+All files are in this pull request.
+Download and test today! 🚀
