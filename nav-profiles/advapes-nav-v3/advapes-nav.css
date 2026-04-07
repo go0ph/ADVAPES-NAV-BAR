@@ -1,0 +1,707 @@
+/*==============================
+  ADVapes Custom Nav Bar
+==============================*/
+
+.adv-main-nav {
+  width: 100%;
+  background: #050507;
+  border-top: 1px solid #111827;
+  border-bottom: 2px solid #e11d2f;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Inner container (desktop + mobile) */
+.adv-main-nav .adv-nav-inner {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
+/* Burger toggle checkbox (iOS-safe: do NOT use display:none) */
+input.adv-nav-toggle {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  left: -9999px !important;
+}
+
+.adv-nav-toggle-btn {
+  display: none;
+}
+
+/* Burger icon */
+.adv-burger {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.adv-burger span {
+  width: 20px;
+  height: 2px;
+  background: #f9fafb;
+  border-radius: 999px;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+  /* Ensure spans don't interfere with click events */
+  pointer-events: none;
+}
+
+.adv-nav-toggle-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #f9fafb;
+}
+
+/* Nav list / items (desktop baseline) */
+
+.adv-nav-list {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  flex-wrap: nowrap;
+  justify-content: center; /* Center the nav items */
+}
+
+.adv-nav-item {
+  position: relative;
+  flex: 0 1 auto; /* Don't grow, can shrink, size to content */
+  min-width: 0; /* Allow shrinking below natural content width */
+}
+
+.adv-nav-link {
+  display: block;
+  padding: 14px 6px;
+  color: #d1d5db;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transition: color 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.adv-nav-link:hover,
+.adv-nav-item:hover > .adv-nav-link {
+  color: #ffffff;
+  background: #e11d2f;
+}
+
+.adv-nav-link--primary {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+/* Visual state for Deals when major promo is active */
+/* Using darker red (#c91526) for better WCAG AA contrast compliance (5.7:1 ratio) */
+.adv-nav-link--promo-active {
+  background: #c91526;
+  color: #ffffff;
+}
+
+.adv-nav-link--promo-active:hover {
+  background: #a01120;
+}
+
+/* Desktop dropdowns */
+
+.adv-dropdown {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: 10px;
+  background: #07080c;
+  border-radius: 10px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+  padding: 10px 12px;
+  min-width: 230px;
+  border: 1px solid #1f2937;
+  z-index: 50;
+}
+
+.adv-nav-item:hover > .adv-dropdown {
+  display: block;
+}
+
+.adv-dropdown-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+.adv-dropdown ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+}
+
+.adv-dropdown a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  padding: 4px 4px;
+  border-radius: 8px;
+  color: #f9fafb;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.adv-dropdown a:hover {
+  background: #111827;
+  color: #ffffff;
+}
+
+.adv-tag {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
+/* Group labels (non-clickable micro-grouping) */
+.adv-dropdown-group-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7280;
+  font-weight: 700;
+  padding: 8px 4px 2px 4px;
+  margin-top: 4px;
+  pointer-events: none;
+}
+
+.adv-dropdown-group-label:first-child {
+  margin-top: 0;
+}
+
+.adv-dropdown-group-label span {
+  display: block;
+}
+
+/* Make "Browse all" links stand out more (last item in dropdowns) */
+.adv-dropdown li:last-child .adv-tag {
+  color: #fbbf24;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.adv-dropdown li:last-child a {
+  background: #111827;
+  border: 1px solid #1f2937;
+  margin-top: 4px;
+  padding: 6px 8px;
+}
+
+.adv-dropdown li:last-child a:hover {
+  background: #1f2937;
+  border-color: #e11d2f;
+}
+
+/* Wider dropdown for Brands menu with more items */
+.adv-dropdown--wide {
+  min-width: 260px;
+}
+
+/* Remove any theme-generated lines in our nav */
+.adv-nav-list > li::before,
+.adv-nav-list > li::after {
+  content: none !important;
+  display: none !important;
+}
+
+/*------------------------------
+  V2: MOBILE DRAWER (hidden on desktop)
+------------------------------*/
+
+/* Hide mobile drawer elements on desktop */
+.adv-drawer-overlay,
+.adv-mobile-drawer {
+  display: none;
+}
+
+/*------------------------------
+  MOBILE BEHAVIOUR - V2 FLYOUT DRAWER
+------------------------------*/
+
+@media (max-width: 1024px) {
+  /* Make nav stack */
+  .adv-main-nav .adv-nav-inner {
+    max-width: 100%;
+    padding: 0 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Show burger row */
+  .adv-nav-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 8px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    position: relative;
+    z-index: 1002;
+    
+    /* Optimize touch responsiveness */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+    user-select: none;
+    -webkit-user-select: none;
+    min-height: 44px;
+  }
+  
+  /* Visual feedback on touch */
+  .adv-nav-toggle-btn.touching {
+    opacity: 0.7;
+  }
+
+  /* V2: Hide desktop nav list on mobile (drawer replaces it) */
+  .adv-nav-list {
+    display: none !important;
+  }
+  
+  /* V2: Drawer overlay (semi-transparent backdrop) */
+  .adv-drawer-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 1000;
+  }
+  
+  /* Show overlay when drawer is open */
+  .adv-nav-toggle:checked ~ .adv-drawer-overlay {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  /* V2: Mobile drawer container (slides in from right) */
+  .adv-mobile-drawer {
+    display: flex;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 85%;
+    max-width: 400px;
+    background: #07080c;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1001;
+    overflow: hidden;
+    flex-direction: column;
+  }
+  
+  /* Open state for drawer */
+  .adv-nav-toggle:checked ~ .adv-mobile-drawer {
+    transform: translateX(0);
+  }
+  
+  /* V2: Drawer header with close button */
+  .adv-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: #0a0b10;
+    border-bottom: 1px solid #1f2937;
+    flex-shrink: 0;
+  }
+  
+  .adv-drawer-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f9fafb;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .adv-drawer-close {
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+  }
+  
+  .adv-drawer-close:active {
+    color: #ffffff;
+  }
+  
+  /* V2: Drawer content area (scrollable panels) */
+  .adv-drawer-content {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  /* V2: Individual drawer panels (hierarchical navigation) */
+  .adv-drawer-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #07080c;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    padding: 0;
+  }
+  
+  /* Active panel (current view) */
+  .adv-drawer-panel.active {
+    transform: translateX(0);
+    opacity: 1;
+    z-index: 2;
+  }
+  
+  /* Previous panel (slide to left) */
+  .adv-drawer-panel.previous {
+    transform: translateX(-30%);
+    opacity: 0.3;
+    z-index: 1;
+  }
+  
+  /* V2: Back button at top of sub-panels */
+  .adv-drawer-back {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: #0a0b10;
+    border-bottom: 1px solid #1f2937;
+    cursor: pointer;
+    touch-action: manipulation;
+    color: #d1d5db;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  
+  .adv-drawer-back:active {
+    background: #111827;
+  }
+  
+  .adv-back-arrow {
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 8px solid #d1d5db;
+  }
+  
+  .adv-back-text {
+    color: #9ca3af;
+    font-size: 13px;
+    font-weight: 400;
+  }
+  
+  /* V2: Menu items in drawer */
+  .adv-drawer-menu {
+    list-style: none;
+    padding: 8px 0;
+    margin: 0;
+  }
+  
+  .adv-drawer-item {
+    border-bottom: 1px solid #111827;
+  }
+  
+  .adv-drawer-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    color: #f9fafb;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    touch-action: manipulation;
+    transition: background 0.15s ease;
+  }
+  
+  .adv-drawer-link:active {
+    background: #111827;
+  }
+  
+  /* Right arrow for items with sub-menus */
+  .adv-drawer-arrow {
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 8px solid #6b7280;
+    margin-left: auto;
+  }
+  
+  /* V2: Section headers in drawer */
+  .adv-drawer-section-header {
+    padding: 12px 20px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: #0a0b10;
+  }
+  
+  /* Highlight deals/special items */
+  .adv-drawer-link--primary {
+    color: #fbbf24;
+    font-weight: 600;
+  }
+  
+  .adv-drawer-link--promo {
+    background: #c91526;
+    color: #ffffff;
+  }
+  
+  .adv-drawer-link--promo:active {
+    background: #a01120;
+  }
+
+  /* Burger animation */
+  .adv-nav-toggle:checked + .adv-nav-toggle-btn .adv-burger span:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+
+  .adv-nav-toggle:checked + .adv-nav-toggle-btn .adv-burger span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .adv-nav-toggle:checked + .adv-nav-toggle-btn .adv-burger span:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  /* Hide Razzi's original mobile burger */
+  button.mobile-menu-toggle.hamburger-menu {
+    display: none !important;
+  }
+
+  /* Hide the "MENU" text, keep only the burger icon */
+  .adv-nav-toggle-label {
+    display: none;
+  }
+
+  /* Align burger to the left */
+  .adv-nav-toggle-btn {
+    justify-content: flex-start;
+    gap: 8px;
+    display: flex !important;
+  }
+  
+  /* Prevent body scroll when drawer is open */
+  body.adv-drawer-open {
+    overflow: hidden;
+  }
+  
+  /* V2: Pills/chips in mobile drawer */
+  .adv-drawer-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 20px 12px 20px !important;
+    border-bottom: none !important;
+  }
+  
+  .adv-drawer-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: #111827;
+    border: 1px solid #2d3748;
+    border-radius: 16px;
+    color: #f9fafb;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  
+  .adv-drawer-pill:active {
+    background: #1f2937;
+    border-color: #e11d2f;
+  }
+}
+
+/* Desktop: make dropdowns easier to hover into */
+@media (min-width: 1025px) {
+  /* Extend the hover area below the link */
+  .adv-nav-item {
+    padding-bottom: 10px;
+  }
+
+  /* Remove the gap between the link and dropdown */
+  .adv-dropdown {
+    margin-top: 0;
+  }
+}
+
+/* Medium desktops - slightly larger spacing */
+@media (min-width: 1200px) {
+  .adv-nav-link {
+    padding: 14px 8px;
+    font-size: 11px;
+  }
+}
+
+/* Large desktops - more comfortable spacing */
+@media (min-width: 1400px) {
+  .adv-main-nav .adv-nav-inner {
+    max-width: 1400px;
+    padding: 0 16px;
+  }
+  
+  .adv-nav-link {
+    padding: 14px 10px;
+  }
+}
+
+header#site-header.minimized, header#site-header {
+  background-color: red !important;
+  box-shadow: 0px 0px 0px 0px red !important;
+  border-bottom: 1px solid #ffffff00 !important;
+}
+
+/* Prevent logo from resizing when mobile menu opens/closes */
+@media (max-width: 1024px) {
+  /* Fix logo size on mobile - prevent glitching/expanding */
+  .site-header .site-branding img,
+  .site-header .logo img,
+  #site-header .site-branding img,
+  #site-header .logo img {
+    max-height: 60px !important;
+    width: auto !important;
+    height: auto !important;
+    transition: none !important;
+  }
+  
+  /* Ensure logo container doesn't expand */
+  .site-header .site-branding,
+  .site-header .logo,
+  #site-header .site-branding,
+  #site-header .logo {
+    max-height: 60px !important;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  
+  /* Prevent header from changing height when menu opens */
+  #site-header {
+    position: relative;
+  }
+  
+  /* Ensure navigation doesn't affect header height */
+  .adv-main-nav {
+    position: relative;
+    width: 100%;
+  }
+}
+
+/*------------------------------
+  STRENGTH PILLS
+------------------------------*/
+
+/* Container for strength pills (list item wrapper) */
+.adv-strength-pills-container {
+  padding: 2px 4px 8px 4px !important;
+  list-style: none;
+}
+
+/* Flex row for pills */
+.adv-strength-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Individual pill styling */
+.adv-strength-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: #111827;
+  border: 1px solid #2d3748;
+  border-radius: 16px;
+  color: #f9fafb;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.adv-strength-pill:hover {
+  background: #1f2937;
+  border-color: #e11d2f;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Pill label */
+.adv-pill-label {
+  font-size: 11px;
+}
+
+/* Mobile adjustments for pills */
+@media (max-width: 1024px) {
+  .adv-strength-pills-container {
+    padding: 6px 0 8px 0 !important;
+  }
+  
+  .adv-strength-pills {
+    gap: 6px;
+  }
+  
+  .adv-strength-pill {
+    padding: 5px 10px;
+    font-size: 10px;
+  }
+  
+  .adv-pill-label {
+    font-size: 10px;
+  }
+}
