@@ -131,11 +131,17 @@ The folders in `nav-profiles/` are already structured this way — just zip and 
 | Action | What happens |
 |--------|-------------|
 | **📌 Upload** | Upload a ZIP with `header.php` and optional CSS/JS |
-| **📌 Activate** | Choose any profile and activate it to replace the site header/nav |
+| **📌 Activate** | Choose any profile — plugin uses `get_header_template` filter to fully replace the theme header |
 | **📌 Preview** | Preview via `?cts_nav_preview=profile-name` (admins only) |
 | **📌 Rollback** | Activate a previous profile to revert |
 | **📌 Rename/Delete** | Manage profiles from admin safely |
 | **📌 Logging** | Last 50 actions logged and displayed |
+
+### How Header Override Works
+
+The plugin uses WordPress's `get_header_template` filter to cleanly replace the theme header. When a profile is active, WordPress is told to load the profile's `header.php` instead of the theme's — no regex, no output buffering, no DOM manipulation.
+
+See [docs/PLUGIN-HEADER-OVERRIDE.md](docs/PLUGIN-HEADER-OVERRIDE.md) for the full architecture details.
 
 ---
 
@@ -184,6 +190,7 @@ See [docs/README-V3.md](docs/README-V3.md) and [docs/V3-COMPARISON.md](docs/V3-C
 ## 📖 Documentation
 
 - [Installation Guide](docs/INSTALLATION-GUIDE.md)
+- [Plugin Header Override Architecture](docs/PLUGIN-HEADER-OVERRIDE.md)
 - [Project Overview](docs/PROJECT-OVERVIEW.md)
 - [V3 Quick Start](docs/QUICKSTART-V3.md)
 - [V3 Documentation](docs/README-V3.md)
@@ -195,6 +202,8 @@ See [docs/README-V3.md](docs/README-V3.md) and [docs/V3-COMPARISON.md](docs/V3-C
 
 | Version | Date | Changes |
 |---------|------|---------|
+| V2 (4.0.2) | Apr 2026 | Hard header override architecture, `__DIR__` fix for all versions |
+| V3 (5.0.2) | Apr 2026 | Hard header override architecture, `__DIR__` fix for all versions |
 | V2 (4.0.1) | Apr 2026 | `__DIR__` fix for Nav Template Switcher Pro+ plugin compatibility |
 | V3 (5.0.1) | Apr 2026 | `__DIR__` fix for Nav Template Switcher Pro+ plugin compatibility |
 | V2 (4.0) | Dec 2025 | Mobile flyout drawer, expanded desktop dropdowns, 30s cache |

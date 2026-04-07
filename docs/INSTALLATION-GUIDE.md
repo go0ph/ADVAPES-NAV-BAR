@@ -361,6 +361,18 @@ This is fixed in version 3.1.1+. If you're still seeing wrapping:
 
 > ⚠️ **Plugin Users:** If you are loading this profile through **Nav Template Switcher Pro+**, you **must** use `require_once __DIR__ . '/advapes-nav.php';` — never `get_stylesheet_directory()`. The plugin loads profiles from its own directory, not the theme folder. Using `get_stylesheet_directory()` will silently fail.
 
+### Problem 7: Original Theme Navbar Still Shows (Plugin Users)
+
+**Cause:** The plugin is not fully overriding the theme header
+
+**Solution:**
+
+The plugin must use the `get_header_template` filter to intercept WordPress's header template lookup. This cleanly replaces the theme header without regex, output buffering, or DOM manipulation.
+
+See [Plugin Header Override Architecture](../docs/PLUGIN-HEADER-OVERRIDE.md) for the correct implementation.
+
+If using a page builder (Elementor Header Builder, Divi, etc.) that bypasses `get_header()`, a different hook may be required — check your builder's documentation.
+
 ---
 
 ## Removing or Reverting
