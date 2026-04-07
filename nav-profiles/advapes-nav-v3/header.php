@@ -11,7 +11,7 @@
  */
 
 // Load V3 dynamic navigation system
-require_once get_stylesheet_directory() . '/advapes-nav.php';
+require_once __DIR__ . '/advapes-nav.php';
 ?>
 <!doctype html>
 <html <?php language_attributes(); ?>>

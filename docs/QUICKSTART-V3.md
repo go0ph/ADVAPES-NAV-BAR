@@ -40,10 +40,10 @@ cp advapes-nav-v3.php advapes-nav.php
 Open your `header.php` and change line 14:
 ```php
 // OLD (V2):
-require_once get_stylesheet_directory() . '/advapes-nav.php';
+require_once __DIR__ . '/advapes-nav.php';
 
 // NEW (V3):
-require_once get_stylesheet_directory() . '/advapes-nav-v3.php';
+require_once __DIR__ . '/advapes-nav-v3.php';
 ```
 
 ### Step 4: Clear Cache
@@ -94,10 +94,10 @@ Add this to your `functions.php`:
 function advapes_conditional_v3_load() {
     // Load V3 only for admin users
     if ( current_user_can( 'manage_options' ) ) {
-        require_once get_stylesheet_directory() . '/advapes-nav-v3.php';
+        require_once __DIR__ . '/advapes-nav-v3.php';
     } else {
         // Load V2 for everyone else
-        require_once get_stylesheet_directory() . '/advapes-nav.php';
+        require_once __DIR__ . '/advapes-nav.php';
     }
 }
 ```
@@ -105,7 +105,7 @@ function advapes_conditional_v3_load() {
 Then update `header.php` line 14:
 ```php
 // Replace direct require with conditional function
-// require_once get_stylesheet_directory() . '/advapes-nav.php';
+// require_once __DIR__ . '/advapes-nav.php';
 advapes_conditional_v3_load();
 ```
 
@@ -304,7 +304,7 @@ mv advapes-nav-v3.php advapes-nav-v3-test.php
 Change line 14 back to:
 ```php
 // V2 (original):
-require_once get_stylesheet_directory() . '/advapes-nav.php';
+require_once __DIR__ . '/advapes-nav.php';
 ```
 
 ---

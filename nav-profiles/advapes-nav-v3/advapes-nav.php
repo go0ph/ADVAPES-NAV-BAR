@@ -38,13 +38,15 @@ define( 'ADVAPES_NAV_V3_TTL', 30 ); // 30 seconds
  * Only enqueues if the CSS file exists, otherwise expects inline CSS via theme customizer
  */
 function advapes_v3_enqueue_nav_styles() {
-    $css_file = get_stylesheet_directory() . '/advapes-nav.css';
+    $css_file = __DIR__ . '/advapes-nav.css';
     
     // Only enqueue if the file exists
     if ( file_exists( $css_file ) ) {
+        // Build URL from filesystem path — works from theme or plugin profile directory
+        $css_url = site_url( '/' . ltrim( str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $css_file ) ), '/' ) );
         wp_enqueue_style( 
             'advapes-nav-v3', 
-            get_stylesheet_directory_uri() . '/advapes-nav.css', 
+            $css_url, 
             array(), 
             '5.0.0', 
             'all' 
