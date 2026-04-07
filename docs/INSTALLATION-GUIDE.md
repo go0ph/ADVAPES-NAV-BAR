@@ -44,7 +44,7 @@ You can access it via:
 
 **Before installing**, you can preview exactly how the navigation will look:
 
-1. Download `preview.html` from this repository
+1. Download `../preview/preview.html` from this repository
 2. Open it in your web browser
 3. Try hovering over menu items (desktop) and clicking the hamburger menu (mobile)
 
@@ -458,7 +458,7 @@ DELETE FROM wp_options WHERE option_name LIKE '%advapes_nav%';
 
 **Useful Links:**
 - Repository: https://github.com/go0ph/ADVAPES-NAV-BAR
-- Preview Demo: Open `preview.html` in browser
+- Preview Demo: Open `../preview/preview.html` in browser
 - Documentation: See `README.md`
 
 ---

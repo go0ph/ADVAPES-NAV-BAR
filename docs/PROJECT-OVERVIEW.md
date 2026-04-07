@@ -2,7 +2,7 @@
 
 ## 📌 Quick Links
 
-- **🎨 [Preview Demo](preview.html)** - See it in action (no installation needed)
+- **🎨 [Preview Demo](../preview/preview.html)** - See it in action (no installation needed)
 - **📖 [Installation Guide](INSTALLATION-GUIDE.md)** - Complete step-by-step instructions
 - **📄 [Main Documentation](README.md)** - Features, how it works, troubleshooting
 - **📥 [Files to Download](FILES-TO-DOWNLOAD.txt)** - What you need to install
@@ -23,7 +23,7 @@ ADVapes Navigation Bar is a **dynamic, responsive navigation menu** for WooComme
 
 ### Option 1: Preview First (Recommended)
 
-1. Download `preview.html`
+1. Download `../preview/preview.html`
 2. Open it in your browser
 3. See exactly what it looks like!
 
@@ -45,29 +45,30 @@ See **[INSTALLATION-GUIDE.md](INSTALLATION-GUIDE.md)** for complete instructions
 ```
 ADVAPES-NAV-BAR/
 │
-├── 🎨 DEMO & PREVIEW
-│   └── preview.html              # Standalone demo - open in browser
+├── nav-profiles/                  ← READY-TO-ZIP PLUGIN PROFILES
+│   ├── advapes-nav-v2/            ← V2: Current production nav
+│   │   ├── header.php
+│   │   ├── advapes-nav.php
+│   │   └── advapes-nav.css
+│   └── advapes-nav-v3/            ← V3: Brand-first nav
+│       ├── header.php
+│       ├── advapes-nav.php
+│       └── advapes-nav.css
 │
-├── 📦 V2 FILES (Current, Stable)
-│   ├── advapes-nav.php           # Main navigation logic
-│   ├── advapes-nav.css           # Styling (dark theme)
-│   └── header.php                # Razzi header template
+├── preview/
+│   └── preview.html               ← open in browser to preview
 │
-├── 🆕 V3 FILES (Brand-First Approach)
-│   ├── advapes-nav-v3.php        # V3 navigation logic
-│   ├── header-v3.php             # V3 header template
-│   ├── QUICKSTART-V3.md          # V3 installation guide
-│   ├── README-V3.md              # V3 documentation
-│   └── V3-COMPARISON.md          # V2 vs V3 comparison
+├── docs/                          ← documentation
+│   ├── INSTALLATION-GUIDE.md
+│   ├── PROJECT-OVERVIEW.md        ← this file
+│   ├── README-V3.md
+│   ├── QUICKSTART-V3.md
+│   ├── V3-COMPARISON.md
+│   └── FILES-TO-DOWNLOAD.txt
 │
-├── 📖 DOCUMENTATION
-│   ├── README.md                 # Main documentation
-│   ├── INSTALLATION-GUIDE.md     # Complete installation guide
-│   ├── FILES-TO-DOWNLOAD.txt     # Download checklist
-│   └── PROJECT-OVERVIEW.md       # This file
-│
-└── 📦 ARCHIVE
-    └── archive/                  # Historical docs and changelogs
+└── archive/                       ← old versions & changelogs
+    ├── v1/
+    └── changelogs/
 ```
 
 ## 🤔 Which Version Should I Use?
@@ -103,7 +104,7 @@ ADVAPES-NAV-BAR/
 
 ### Can I preview it before installing?
 
-**Yes!** Download `preview.html` and open it in your browser. No server or WordPress needed.
+**Yes!** Download `../preview/preview.html` and open it in your browser. No server or WordPress needed.
 
 ### Will this replace my existing header?
 
@@ -204,4 +205,4 @@ Free to use for ADVapes and related projects.
 
 ---
 
-**Ready to install?** Start with the [preview](preview.html), then follow the [installation guide](INSTALLATION-GUIDE.md)!
+**Ready to install?** Start with the [preview](../preview/preview.html), then follow the [installation guide](INSTALLATION-GUIDE.md)!
