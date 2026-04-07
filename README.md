@@ -86,6 +86,30 @@ ADVAPES-NAV-BAR/
 
 ---
 
+## ⚠️ Plugin Compatibility — `__DIR__` Requirement
+
+When building or customizing nav profiles for **Nav Template Switcher Pro+**, your `header.php` **must** use `__DIR__` to load `advapes-nav.php`:
+
+```php
+// ✅ CORRECT — works from any directory (theme or plugin profile)
+require_once __DIR__ . '/advapes-nav.php';
+
+// ❌ WRONG — only works inside the theme folder
+require_once get_stylesheet_directory() . '/advapes-nav.php';
+```
+
+**Why?** The plugin loads profiles from its own directory (`wp-content/plugins/...`), not the theme folder. Using `get_stylesheet_directory()` forces the path to the theme, causing a silent failure. `__DIR__` resolves to wherever the file actually lives — theme folder, plugin profile folder, or anywhere else.
+
+This also applies to CSS loading inside `advapes-nav.php` — use `__DIR__` for `file_exists()` checks:
+
+```php
+$css_file = __DIR__ . '/advapes-nav.css';
+```
+
+All profiles in `nav-profiles/` already use `__DIR__`. If you create a custom profile, make sure yours does too.
+
+---
+
 ## 📌 Expected ZIP Profile Structure
 
 When uploading to **Nav Template Switcher Pro+**, your ZIP must contain:
@@ -171,6 +195,8 @@ See [docs/README-V3.md](docs/README-V3.md) and [docs/V3-COMPARISON.md](docs/V3-C
 
 | Version | Date | Changes |
 |---------|------|---------|
+| V2 (4.0.1) | Apr 2026 | `__DIR__` fix for Nav Template Switcher Pro+ plugin compatibility |
+| V3 (5.0.1) | Apr 2026 | `__DIR__` fix for Nav Template Switcher Pro+ plugin compatibility |
 | V2 (4.0) | Dec 2025 | Mobile flyout drawer, expanded desktop dropdowns, 30s cache |
 | V3 (5.0) | Dec 2025 | Brand-first restructure, consolidated menus |
 | V1 (3.1) | Dec 2025 | Original hybrid nav (archived in `archive/v1/`) |

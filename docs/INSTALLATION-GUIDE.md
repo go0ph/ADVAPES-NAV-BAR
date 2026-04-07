@@ -359,6 +359,8 @@ This is fixed in version 3.1.1+. If you're still seeing wrapping:
    - Open `/wp-content/themes/razzi-child/header.php`
    - Line 14 should contain: `require_once __DIR__ . '/advapes-nav.php';`
 
+> ⚠️ **Plugin Users:** If you are loading this profile through **Nav Template Switcher Pro+**, you **must** use `require_once __DIR__ . '/advapes-nav.php';` — never `get_stylesheet_directory()`. The plugin loads profiles from its own directory, not the theme folder. Using `get_stylesheet_directory()` will silently fail.
+
 ---
 
 ## Removing or Reverting
