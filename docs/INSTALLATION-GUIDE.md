@@ -357,7 +357,7 @@ This is fixed in version 3.1.1+. If you're still seeing wrapping:
 
 3. **Verify header.php content:**
    - Open `/wp-content/themes/razzi-child/header.php`
-   - Line 14 should contain: `require_once get_stylesheet_directory() . '/advapes-nav.php';`
+   - Line 14 should contain: `require_once __DIR__ . '/advapes-nav.php';`
 
 ---
 

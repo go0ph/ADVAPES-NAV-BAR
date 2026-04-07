@@ -213,10 +213,10 @@ Nic Alternatives
 2. **Activate V3** by updating your theme's `header.php`:
    ```php
    // OLD:
-   require_once get_stylesheet_directory() . '/advapes-nav.php';
+   require_once __DIR__ . '/advapes-nav.php';
    
    // NEW:
-   require_once get_stylesheet_directory() . '/advapes-nav-v3.php';
+   require_once __DIR__ . '/advapes-nav-v3.php';
    ```
 
 3. **Or** copy the V3 header directly:
